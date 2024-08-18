@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Loader</title>
+  </head>
+  <body>
+    <input type="file" id="imageLoader" accept="image/*" />
+    <canvas id="imageCanvas"></canvas>
+
+    <script>
+      function calculateHue(r, g, b) {
+        (r /= 255), (g /= 255), (b /= 255);
+        const max = Math.max(r, g, b),
+          min = Math.min(r, g, b);
+        let h;
+        if (max === min) {
+          h = 0; // achromatic
+        } else {
+          const d = max - min;
+          switch (max) {
+            case r:
+              h = (g - b) / d + (g < b ? 6 : 0);
+              break;
+            case g:
+              h = (b - r) / d + 2;
+              break;
+            case b:
+              h = (r - g) / d + 4;
+              break;
+          }
+          h /= 6;
+        }
+        return h * 360; // Convert to degrees
+      }
+      function calculateColorHarmony(imageData) {
+        const hues = [];
+        const data = imageData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          const [r, g, b] = [data[i], data[i + 1], data[i + 2]];
+          hues.push(calculateHue(r, g, b));
+        }
+        hues.sort((a, b) => a - b);
+        let harmonyScore = 0;
+        for (let i = 1; i < hues.length; i++) {
+          harmonyScore += hues[i] - hues[i - 1];
+        }
+        harmonyScore /= hues.length;
+        return 1 - harmonyScore / 180; // Normalize to [0, 1], assuming hue ranges [0, 360]
+      }
+
+      function calculateSymmetry(imageData) {
+        let symmetryScore = 0;
+        const data = imageData.data;
+        for (let y = 0; y < imageData.height; y++) {
+          for (let x = 0; x < imageData.width / 2; x++) {
+            const indexLeft = (y * imageData.width + x) * 4;
+            const indexRight =
+              (y * imageData.width + (imageData.width - 1 - x)) * 4;
+            const brightnessLeft =
+              0.299 * data[indexLeft] +
+              0.587 * data[indexLeft + 1] +
+              0.114 * data[indexLeft + 2];
+            const brightnessRight =
+              0.299 * data[indexRight] +
+              0.587 * data[indexRight + 1] +
+              0.114 * data[indexRight + 2];
+            symmetryScore += Math.abs(brightnessLeft - brightnessRight);
+          }
+        }
+        return 1 - symmetryScore / ((imageData.width * imageData.height) / 2); // Normalize to [0, 1]
+      }
+
+      function calculateTextureComplexity(imageData) {
+        const blockSize = 8; // Example block size
+        let complexity = 0;
+        const data = imageData.data;
+        for (let y = 0; y < imageData.height; y += blockSize) {
+          for (let x = 0; x < imageData.width; x += blockSize) {
+            let mean = 0;
+            let variance = 0;
+            let count = 0;
+            for (let dy = 0; dy < blockSize; dy++) {
+              for (let dx = 0; dx < blockSize; dx++) {
+                const index = ((y + dy) * imageData.width + (x + dx)) * 4;
+                const brightness =
+                  0.299 * data[index] +
+                  0.587 * data[index + 1] +
+                  0.114 * data[index + 2];
+                mean += brightness;
+                count++;
+              }
+            }
+            mean /= count;
+            for (let dy = 0; dy < blockSize; dy++) {
+              for (let dx = 0; dx < blockSize; dx++) {
+                const index = ((y + dy) * imageData.width + (x + dx)) * 4;
+                const brightness =
+                  0.299 * data[index] +
+                  0.587 * data[index + 1] +
+                  0.114 * data[index + 2];
+                variance += Math.pow(brightness - mean, 2);
+              }
+            }
+            variance /= count;
+            complexity += Math.sqrt(variance);
+          }
+        }
+        return complexity / (imageData.width * imageData.height);
+      }
+
+      const imageLoader = document.getElementById("imageLoader");
+      const canvas = document.getElementById("imageCanvas");
+      const ctx = canvas.getContext("2d");
+
+      imageLoader.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            let width = img.width;
+            let height = img.height;
+
+            // Calculate the scaling factor
+            const maxDimension = 512;
+            const scalingFactor = Math.min(
+              maxDimension / width,
+              maxDimension / height
+            );
+
+            if (scalingFactor < 1) {
+              width *= scalingFactor;
+              height *= scalingFactor;
+            }
+
+            // Set canvas dimensions
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw the image onto the canvas
+            ctx.drawImage(img, 0, 0, width, height);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+            console.log(calculateColorHarmony(imageData));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>

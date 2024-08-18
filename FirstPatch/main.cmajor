@@ -1,0 +1,20 @@
+graph SineSynth  [[main]]
+{
+    input event std::midi::Message midiIn;
+    output stream float out;
+
+    let voiceCount = 8;
+
+    node
+    {
+        voices = Voice[voiceCount];
+        voiceAllocator = std::voices::VoiceAllocator (voiceCount);
+    }
+
+    connection
+    {
+        midiIn -> std::midi::MPEConverter -> voiceAllocator;
+        voiceAllocator.voiceEventOut -> voices.eventIn;
+        voices -> std::levels::ConstantGain (float, 0.3f) -> out;
+    }
+}

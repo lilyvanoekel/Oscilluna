@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dumb chatgpt Three.js Demo</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      camera.position.z = 50;
+
+      // Create custom geometry for a waveform or complex visualization
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff00ff });
+      const lineGeometry = new THREE.BufferGeometry();
+
+      const points = [];
+      for (let i = 0; i < 1000; i++) {
+        const x = i * 0.1;
+        const y = Math.sin(i * 0.1) * Math.sin(i * 0.05) * 10;
+        const z = Math.cos(i * 0.1) * 5;
+        points.push(new THREE.Vector3(x, y, z));
+      }
+
+      lineGeometry.setFromPoints(points);
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      scene.add(line);
+
+      // Particle System (optional for adding more complexity)
+      const particleMaterial = new THREE.PointsMaterial({
+        color: 0x00ffff,
+        size: 0.5,
+      });
+      const particleGeometry = new THREE.BufferGeometry();
+      const particlePositions = [];
+
+      for (let i = 0; i < 5000; i++) {
+        particlePositions.push(
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100
+        );
+      }
+
+      particleGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(particlePositions, 3)
+      );
+      const particles = new THREE.Points(particleGeometry, particleMaterial);
+      scene.add(particles);
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        // Rotate the line and particles to create a dynamic effect
+        line.rotation.x += 0.005;
+        line.rotation.y += 0.01;
+        particles.rotation.x += 0.002;
+        particles.rotation.y += 0.004;
+
+        // Animate the waveform or complex geometry
+        const positions = line.geometry.attributes.position.array;
+        const time = Date.now() * 0.005;
+
+        for (let i = 0; i < positions.length; i += 3) {
+          positions[i + 1] =
+            Math.sin(i * 0.1 + time) * Math.sin(i * 0.05 + time) * 10;
+        }
+        line.geometry.attributes.position.needsUpdate = true;
+
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      window.addEventListener("resize", () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+      });
+    </script>
+  </body>
+</html>

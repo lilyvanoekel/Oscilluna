@@ -1,0 +1,1 @@
+cmake -B build -DCLAP_INCLUDE_PATH="C:\projects\clap\include" -DCMAKE_BUILD_TYPE=Release
