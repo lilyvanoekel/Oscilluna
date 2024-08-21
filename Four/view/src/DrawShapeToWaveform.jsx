@@ -94,7 +94,13 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     }
     if (points.length > 2) {
       const waveform = generateWaveform(points);
-      displayWaveform(waveform);
+      if (patchConnection) {
+        patchConnection.sendEventOrValue("wavetableIn", waveform);
+      }
+      // This is super janky, chatgpt didn't scale the waveform properly between -1 and 1.
+      // After normalizing the drawing logic is having a fit.
+      // Dividing by 2 here seems to fix it for now.
+      displayWaveform(waveform.map((x) => x / 2));
     }
   };
 
@@ -131,6 +137,14 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     }
   };
 
+  function normalizeWaveform(waveform) {
+    const mean =
+      waveform.reduce((sum, value) => sum + value, 0) / waveform.length;
+    const waveform2 = waveform.map((value) => value - mean);
+    const maxAbsValue = Math.max(...waveform2.map(Math.abs));
+    return waveform2.map((value) => value / maxAbsValue);
+  }
+
   const generateWaveform = (points) => {
     const numPoints = points.length;
     const targetLength = 1024;
@@ -158,15 +172,17 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
       }
     }
 
-    console.log(waveform);
-    patchConnection.sendEventOrValue("wavetableIn", waveform);
-    return waveform;
+    const target = waveform[0] - waveform[1023];
+    for (let i = 0; i < targetLength; i++) {
+      waveform[i] += (i / targetLength) * target;
+    }
+
+    return normalizeWaveform(waveform);
   };
 
   const displayWaveform = (waveform) => {
     const positions = [];
     const numPoints = waveform.length;
-    console.log(numPoints);
 
     for (let i = 0; i < numPoints; i++) {
       const x = (i / numPoints) * window.innerWidth - window.innerWidth / 2;
