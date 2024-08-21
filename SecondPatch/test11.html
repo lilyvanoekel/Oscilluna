@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Noise Effect with Shader</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js';
+        import { gsap } from 'https://cdn.jsdelivr.net/npm/gsap@3.11.0/index.js';
+
+        const noiseColors = [
+            new THREE.Color(0xF4CE14),
+            new THREE.Color(0x379777),
+            new THREE.Color(0x45474B)
+        ];
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.querySelector('.noise').appendChild(renderer.domElement);
+
+        camera.position.z = 500;
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform vec3 color;
+            uniform float opacity;
+            varying vec2 vUv;
+            void main() {
+                gl_FragColor = vec4(color, opacity);
+            }
+        `;
+
+        const addNoise = (x, y) => {
+            const size = gsap.utils.random(5, 15);
+            const color = noiseColors[Math.floor(gsap.utils.random(0, 3))];
+
+            const geometry = new THREE.PlaneGeometry(size, size);
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    color: { value: color },
+                    opacity: { value: 0.5 }
+                },
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                transparent: true
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+
+            const radian = (Math.PI / 180) * gsap.utils.random(0, 360);
+            const radius = gsap.utils.random(0, 200);
+
+            mesh.position.x = x !== undefined ? x : Math.cos(radian) * radius;
+            mesh.position.y = y !== undefined ? y : Math.sin(radian) * radius;
+
+            scene.add(mesh);
+
+            gsap.to(mesh.position, {
+                x: mesh.position.x + size * gsap.utils.random(-5, 5),
+                y: mesh.position.y + size * gsap.utils.random(-5, 5),
+                duration: gsap.utils.random(0.2, 1.2),
+                ease: 'steps(3)',
+                onComplete: () => {
+                    scene.remove(mesh);
+                    mesh.geometry.dispose();
+                    mesh.material.dispose();
+                }
+            });
+
+            gsap.to(material.uniforms.opacity, {
+                value: 0,
+                duration: gsap.utils.random(0.2, 1.2),
+            });
+        };
+
+        setInterval(() => addNoise(), 100);
+
+        window.addEventListener('mousemove', (event) => {
+            const mouseX = event.clientX - window.innerWidth / 2;
+            const mouseY = window.innerHeight / 2 - event.clientY; // Inverted Y-axis correction
+
+            for (let i = 0; i < 6; i++) {
+                const radian = (Math.PI / 180) * gsap.utils.random(0, 360);
+                const radius = gsap.utils.random(0, 100);
+                const x = Math.cos(radian) * radius;
+                const y = Math.sin(radian) * radius;
+                setTimeout(
+                    () => {
+                        addNoise(mouseX + x, mouseY + y);
+                    },
+                    gsap.utils.random(0, 600)
+                );
+            }
+        });
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+        animate();
+    </script>
+</body>
+</html>
