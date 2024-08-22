@@ -94,9 +94,8 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     }
     if (points.length > 2) {
       const waveform = generateWaveform(points);
-      if (patchConnection) {
-        patchConnection.sendEventOrValue("wavetableIn", waveform);
-      }
+      patchConnection?.sendEventOrValue("wavetableIn", waveform);
+      patchConnection?.sendStoredStateValue("wavetableIn", waveform);
       // This is super janky, chatgpt didn't scale the waveform properly between -1 and 1.
       // After normalizing the drawing logic is having a fit.
       // Dividing by 2 here seems to fix it for now.
