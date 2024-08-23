@@ -9,6 +9,20 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
+function arraysAreEqual(arr1, arr2) {
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 const DrawShapeToWaveform = ({ patchConnection }) => {
   const mountRef = useRef(null);
   let isDrawing = false;
@@ -94,14 +108,33 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     }
     if (points.length > 2) {
       const waveform = generateWaveform(points);
-      patchConnection?.sendEventOrValue("wavetableIn", waveform);
+      // patchConnection?.sendEventOrValue("wavetableIn", waveform);
       patchConnection?.sendStoredStateValue("wavetableIn", waveform);
       // This is super janky, chatgpt didn't scale the waveform properly between -1 and 1.
       // After normalizing the drawing logic is having a fit.
       // Dividing by 2 here seems to fix it for now.
-      displayWaveform(waveform.map((x) => x / 2));
+      //displayWaveform(waveform.map((x) => x / 2));
     }
   };
+
+  let currentWavetable = [];
+  const storedValueUpdated = ({ key, value }) => {
+    if (key === "wavetableIn" && !arraysAreEqual(currentWavetable, value)) {
+      currentWavetable = value;
+      if (waveformLine) {
+        scene.remove(waveformLine);
+        waveformLine.geometry.dispose();
+      }
+      displayWaveform(value.map((x) => x / 2));
+    }
+  };
+
+  useEffect(() => {
+    patchConnection.addStoredStateValueListener(storedValueUpdated);
+    return () => {
+      patchConnection?.removeStoredStateValueListener(storedValueUpdated);
+    };
+  }, [patchConnection]);
 
   const onMouseMove = (event) => {
     if (isDrawing) {

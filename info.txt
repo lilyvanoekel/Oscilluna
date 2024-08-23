@@ -1,1 +1,8 @@
 cmake -B build -DCLAP_INCLUDE_PATH="C:\projects\clap\include" -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
+C:\Program Files\Common Files\Clap
+
+
+
+cmake -B build -DJUCE_PATH="C:\projects\JUCE" -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
