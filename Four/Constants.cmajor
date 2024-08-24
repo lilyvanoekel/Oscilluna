@@ -1,0 +1,5 @@
+namespace Synth
+{
+    let TABLE_SIZE = 1024;
+    let CONTROL_POINTS = 32;
+}

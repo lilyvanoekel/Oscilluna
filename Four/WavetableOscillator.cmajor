@@ -1,0 +1,50 @@
+namespace Synth
+{
+    processor WavetableOscillator
+    {
+        input event float frequencyIn;
+        input event float[] wavetableIn;
+        output stream float out;
+
+        float phase = 0.0f;
+        float phaseIncrement = 0.0f;
+        float freq = 0.0f;
+        float[] wavetable;
+
+        event frequencyIn (float f)
+        {
+            freq = f;
+        }
+
+        event wavetableIn (float[] newTable)
+        {
+            wavetable = newTable;
+        }
+    
+        void main()
+        {
+            float tableSizeFloat = float(TABLE_SIZE);
+            
+            loop
+            {
+                phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
+                phase += phaseIncrement;
+                
+                // Wrap phase to stay within the bounds of the wavetable
+                phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
+                
+                let index = int32(phase);  // Get the integer part of the phase
+                let nextIndex = wrap<TABLE_SIZE>(index + 1);  // Get the next index, wrapping around if necessary
+                let frac = phase - float(index);  // Calculate the fractional part of the phase
+                
+                // Linearly interpolate between the two closest points in the wavetable
+                let outputSample = (1.0f - frac) * wavetable[wrap<TABLE_SIZE>(index)] + frac * wavetable[wrap<TABLE_SIZE>(nextIndex)];
+                
+                // Output the interpolated sample
+                out <- outputSample;
+                
+                advance();
+            }
+        }
+    }
+}

@@ -1,0 +1,13 @@
+namespace Util
+{
+    processor NoteToFrequency
+    {
+        input event std::notes::NoteOn eventIn;
+        output event float frequencyOut;
+
+        event eventIn (std::notes::NoteOn e)
+        {
+            frequencyOut <- std::notes::noteToFrequency (e.pitch);
+        }
+    }
+}

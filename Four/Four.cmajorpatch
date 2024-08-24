@@ -7,7 +7,13 @@
   "category": "generator",
   "manufacturer": "Your Company Goes Here",
   "isInstrument": true,
-  "source": "Four.cmajor",
+  "source": [
+    "Constants.cmajor",
+    "Util.cmajor",
+    "WavetableOscillator.cmajor",
+    "WaveControlPointParams.cmajor",
+    "Four.cmajor"
+  ],
   "view": {
     "src": "view/dist/index.js",
     "width": 500,
