@@ -23,6 +23,56 @@ function arraysAreEqual(arr1, arr2) {
   return true;
 }
 
+const NUMBER_OF_POINTS = 24;
+
+function generateCatmullRomControlPoints(waveform) {
+  const controlPoints = [];
+  const segmentCount = NUMBER_OF_POINTS - 1;
+  const segmentLength = Math.floor(waveform.length / segmentCount);
+
+  // Generate control points with circular wrap-around
+  for (let i = 0; i <= segmentCount; i++) {
+    let pointIndex = (i * segmentLength) % waveform.length;
+    controlPoints.push(waveform[pointIndex]);
+  }
+
+  return controlPoints;
+}
+
+function interpolateCatmullRom(p0, p1, p2, p3, t) {
+  const t2 = t * t;
+  const t3 = t2 * t;
+
+  return (
+    0.5 *
+    (2 * p1 +
+      (-p0 + p2) * t +
+      (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+      (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+  );
+}
+
+function decodeCatmullRom(controlPoints, length) {
+  const decodedWaveform = new Array(length).fill(0);
+  const segmentCount = controlPoints.length;
+  const segmentLength = length / segmentCount;
+
+  for (let i = 0; i < length; i++) {
+    const t = (i % segmentLength) / segmentLength;
+    const segmentIndex = Math.floor(i / segmentLength);
+
+    // Circular control point indexing
+    const p0 = controlPoints[(segmentIndex - 1 + segmentCount) % segmentCount];
+    const p1 = controlPoints[segmentIndex % segmentCount];
+    const p2 = controlPoints[(segmentIndex + 1) % segmentCount];
+    const p3 = controlPoints[(segmentIndex + 2) % segmentCount];
+
+    decodedWaveform[i] = interpolateCatmullRom(p0, p1, p2, p3, t);
+  }
+
+  return decodedWaveform;
+}
+
 const DrawShapeToWaveform = ({ patchConnection }) => {
   const mountRef = useRef(null);
   let isDrawing = false;
@@ -109,11 +159,17 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     if (points.length > 2) {
       const waveform = generateWaveform(points);
       // patchConnection?.sendEventOrValue("wavetableIn", waveform);
-      patchConnection?.sendStoredStateValue("wavetableIn", waveform);
+      // patchConnection?.sendStoredStateValue("wavetableIn", waveform);
+
+      const controlPoints = generateCatmullRomControlPoints(waveform);
+      for (let i = 0; i < NUMBER_OF_POINTS; i++) {
+        patchConnection?.sendEventOrValue(`point${i}`, controlPoints[i]);
+      }
+
       // This is super janky, chatgpt didn't scale the waveform properly between -1 and 1.
       // After normalizing the drawing logic is having a fit.
       // Dividing by 2 here seems to fix it for now.
-      //displayWaveform(waveform.map((x) => x / 2));
+      displayWaveform(waveform.map((x) => x / 2));
     }
   };
 
@@ -130,7 +186,7 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
   };
 
   useEffect(() => {
-    patchConnection.addStoredStateValueListener(storedValueUpdated);
+    patchConnection?.addStoredStateValueListener(storedValueUpdated);
     return () => {
       patchConnection?.removeStoredStateValueListener(storedValueUpdated);
     };
