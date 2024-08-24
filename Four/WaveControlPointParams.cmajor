@@ -1,39 +1,46 @@
 namespace Synth
 {
+    // This approach is a work-around to enable easier state management. By
+    // making every individual float value a param state is handled for us.
+    // The first approach was to use a worker and state management in js in
+    // combination with an array (actually of sample values rather than control
+    // points) but that proved to be buggy and unreliable. This "new" approach
+    // gets along better with hosts (and as an added bonus you can manipulate
+    // waveforms using the host's UI as well).
     processor WaveControlPointParams()
     {
-        input event float point0   [[ name: "point0", min: -1.0, max: 1.0, init: 0.0f ]];
-        input event float point1   [[ name: "point1", min: -1.0, max: 1.0, init: 0.195090f ]];
-        input event float point2   [[ name: "point2", min: -1.0, max: 1.0, init: 0.382683f ]];
-        input event float point3   [[ name: "point3", min: -1.0, max: 1.0, init: 0.555570f ]];
-        input event float point4   [[ name: "point4", min: -1.0, max: 1.0, init: 0.707107f ]];
-        input event float point5   [[ name: "point5", min: -1.0, max: 1.0, init: 0.831470f ]];
-        input event float point6   [[ name: "point6", min: -1.0, max: 1.0, init: 0.923880f ]];
-        input event float point7   [[ name: "point7", min: -1.0, max: 1.0, init: 0.980785f ]];
-        input event float point8   [[ name: "point8", min: -1.0, max: 1.0, init: 1.0f ]];
-        input event float point9   [[ name: "point9", min: -1.0, max: 1.0, init: 0.980785f ]];
-        input event float point10  [[ name: "point10", min: -1.0, max: 1.0, init: 0.923880f ]];
-        input event float point11  [[ name: "point11", min: -1.0, max: 1.0, init: 0.831470f ]];
-        input event float point12  [[ name: "point12", min: -1.0, max: 1.0, init: 0.707107f ]];
-        input event float point13  [[ name: "point13", min: -1.0, max: 1.0, init: 0.555570f ]];
-        input event float point14  [[ name: "point14", min: -1.0, max: 1.0, init: 0.382683f ]];
-        input event float point15  [[ name: "point15", min: -1.0, max: 1.0, init: 0.195090f ]];
-        input event float point16  [[ name: "point16", min: -1.0, max: 1.0, init: 0.0f ]];
-        input event float point17  [[ name: "point17", min: -1.0, max: 1.0, init: -0.195090f ]];
-        input event float point18  [[ name: "point18", min: -1.0, max: 1.0, init: -0.382683f ]];
-        input event float point19  [[ name: "point19", min: -1.0, max: 1.0, init: -0.555570f ]];
-        input event float point20  [[ name: "point20", min: -1.0, max: 1.0, init: -0.707107f ]];
-        input event float point21  [[ name: "point21", min: -1.0, max: 1.0, init: -0.831470f ]];
-        input event float point22  [[ name: "point22", min: -1.0, max: 1.0, init: -0.923880f ]];
-        input event float point23  [[ name: "point23", min: -1.0, max: 1.0, init: -0.980785f ]];
-        input event float point24  [[ name: "point24", min: -1.0, max: 1.0, init: -1.0f ]];
-        input event float point25  [[ name: "point25", min: -1.0, max: 1.0, init: -0.980785f ]];
-        input event float point26  [[ name: "point26", min: -1.0, max: 1.0, init: -0.923880f ]];
-        input event float point27  [[ name: "point27", min: -1.0, max: 1.0, init: -0.831470f ]];
-        input event float point28  [[ name: "point28", min: -1.0, max: 1.0, init: -0.707107f ]];
-        input event float point29  [[ name: "point29", min: -1.0, max: 1.0, init: -0.555570f ]];
-        input event float point30  [[ name: "point30", min: -1.0, max: 1.0, init: -0.382683f ]];
-        input event float point31  [[ name: "point31", min: -1.0, max: 1.0, init: -0.195090f ]];
+        input event float point0   [[ name: "point0", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[0] ]];
+        input event float point1   [[ name: "point1", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[1] ]];
+        input event float point2   [[ name: "point2", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[2] ]];
+        input event float point3   [[ name: "point3", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[3] ]];
+        input event float point4   [[ name: "point4", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[4] ]];
+        input event float point5   [[ name: "point5", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[5] ]];
+        input event float point6   [[ name: "point6", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[6] ]];
+        input event float point7   [[ name: "point7", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[7] ]];
+        input event float point8   [[ name: "point8", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[8] ]];
+        input event float point9   [[ name: "point9", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[9] ]];
+        input event float point10  [[ name: "point10", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[10] ]];
+        input event float point11  [[ name: "point11", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[11] ]];
+        input event float point12  [[ name: "point12", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[12] ]];
+        input event float point13  [[ name: "point13", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[13] ]];
+        input event float point14  [[ name: "point14", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[14] ]];
+        input event float point15  [[ name: "point15", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[15] ]];
+        input event float point16  [[ name: "point16", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[16] ]];
+        input event float point17  [[ name: "point17", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[17] ]];
+        input event float point18  [[ name: "point18", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[18] ]];
+        input event float point19  [[ name: "point19", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[19] ]];
+        input event float point20  [[ name: "point20", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[20] ]];
+        input event float point21  [[ name: "point21", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[21] ]];
+        input event float point22  [[ name: "point22", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[22] ]];
+        input event float point23  [[ name: "point23", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[23] ]];
+        input event float point24  [[ name: "point24", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[24] ]];
+        input event float point25  [[ name: "point25", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[25] ]];
+        input event float point26  [[ name: "point26", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[26] ]];
+        input event float point27  [[ name: "point27", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[27] ]];
+        input event float point28  [[ name: "point28", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[28] ]];
+        input event float point29  [[ name: "point29", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[29] ]];
+        input event float point30  [[ name: "point30", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[30] ]];
+        input event float point31  [[ name: "point31", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[31] ]];
 
         output event float[] controlPoints;
 
@@ -44,6 +51,7 @@ namespace Synth
             advance();
         }
 
+        // @todo can all of these separate params be debounced? ._.
         void update() {
             controlPoints <- points;
         }
