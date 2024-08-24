@@ -4,12 +4,14 @@ namespace Synth
     {
         input event float frequencyIn;
         input event float[] wavetableIn;
+        input event float[] wavetableIn2;
         output stream float out;
 
         float phase = 0.0f;
         float phaseIncrement = 0.0f;
         float freq = 0.0f;
         float[] wavetable;
+        float[] wavetable2;
 
         event frequencyIn (float f)
         {
@@ -20,6 +22,11 @@ namespace Synth
         {
             wavetable = newTable;
         }
+
+        event wavetableIn2 (float[] newTable)
+        {
+            wavetable2 = newTable;
+        }
     
         void main()
         {
@@ -27,18 +34,21 @@ namespace Synth
             
             loop
             {
+                let wavetable_index = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
+                let index_offset = wavetable_index * TABLE_SIZE;
                 phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
                 phase += phaseIncrement;
                 
                 // Wrap phase to stay within the bounds of the wavetable
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
                 
-                let index = int32(phase);  // Get the integer part of the phase
+                let index = wrap<TABLE_SIZE>(int32(phase));  // Get the integer part of the phase
                 let nextIndex = wrap<TABLE_SIZE>(index + 1);  // Get the next index, wrapping around if necessary
                 let frac = phase - float(index);  // Calculate the fractional part of the phase
                 
                 // Linearly interpolate between the two closest points in the wavetable
-                let outputSample = (1.0f - frac) * wavetable[wrap<TABLE_SIZE>(index)] + frac * wavetable[wrap<TABLE_SIZE>(nextIndex)];
+                let outputSample = (1.0f - frac) * wavetable2[index_offset + index] + frac * wavetable2[index_offset + nextIndex];
+                // let outputSample = (1.0f - frac) * wavetable[index] + frac * wavetable[nextIndex];
                 
                 // Output the interpolated sample
                 out <- outputSample;

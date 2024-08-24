@@ -4,6 +4,7 @@ namespace Synth
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
         input event float[] wavetableIn;
+        input event float[] wavetableIn2;
         output stream float out;
 
         node
@@ -18,6 +19,7 @@ namespace Synth
             eventIn -> noteToFrequency -> oscillator.frequencyIn;
             eventIn -> envelope.eventIn;
             wavetableIn -> oscillator.wavetableIn;
+            wavetableIn2 -> oscillator.wavetableIn2;
             (envelope.gainOut * oscillator.out) -> out;
         }
     }
@@ -44,6 +46,7 @@ namespace Synth
             voiceAllocator.voiceEventOut -> voices.eventIn;
             waveControlPointParams.controlPoints -> builder.controlPoints;
             builder.waveOut -> voices.wavetableIn;
+            builder.waveOut2 -> voices.wavetableIn2;
             voices -> std::levels::ConstantGain (float, 0.3f) -> out;
         }
     }

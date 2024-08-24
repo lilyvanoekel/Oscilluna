@@ -4,6 +4,11 @@ namespace Synth
     let CONTROL_POINTS = 32;
     let VOICE_COUNT = 8;
 
+    let WAVETABLE_BUCKETS_MIN_FREQUENCY = 20.0f;
+    let WAVETABLE_BUCKETS_MAX_FREQUENCY = 4186.0f;
+    let WAVETABLE_NUM_BUCKETS = 32;
+    let WAVETABLE_TOTAL_SIZE = WAVETABLE_NUM_BUCKETS * TABLE_SIZE;
+
     // Represents a sine wave in Catmull-Rom spline control points
     const float[CONTROL_POINTS] DEFAULT_CONTROL_POINTS = (
         0.0f, 

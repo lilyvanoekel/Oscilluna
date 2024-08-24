@@ -45,15 +45,24 @@ namespace Synth
         output event float[] controlPoints;
 
         float[CONTROL_POINTS] points = DEFAULT_CONTROL_POINTS;
+        int debounceCounter = 0;
 
         void main() {
             controlPoints <- points;
-            advance();
+            loop {
+                if (debounceCounter > 0) {
+                    debounceCounter--;
+
+                    if (debounceCounter == 0) {
+                        controlPoints <- points;
+                    }
+                }
+                advance();
+            }
         }
 
-        // @todo can all of these separate params be debounced? ._.
         void update() {
-            controlPoints <- points;
+            debounceCounter = 100;
         }
 
         event point0 (float newValue)    { points[0] = newValue; update(); }
