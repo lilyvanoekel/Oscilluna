@@ -42,17 +42,29 @@ processor WavetableOscillator
     }
  
     void main()
+{
+    loop
     {
-        loop
-        {
-            phaseIncrement = freq * (1024.0f / float(processor.frequency));
-            phase += phaseIncrement;
-            phase -= floor(phase / 1024.0f) * 1024.0f;
-            let index = int32(phase);
-            out <- wavetable[wrap<tableSize>(index)];
-            advance();
-        }
+        phaseIncrement = freq * (1024.0f / float(processor.frequency));
+        phase += phaseIncrement;
+        
+        // Wrap phase to stay within the bounds of the wavetable
+        phase -= floor(phase / 1024.0f) * 1024.0f;
+        
+        let index = int32(phase);  // Get the integer part of the phase
+        let nextIndex = wrap<tableSize>(index + 1);  // Get the next index, wrapping around if necessary
+        let frac = phase - float(index);  // Calculate the fractional part of the phase
+        
+        // Linearly interpolate between the two closest points in the wavetable
+        let outputSample = (1.0f - frac) * wavetable[wrap<tableSize>(index)] + frac * wavetable[wrap<tableSize>(nextIndex)];
+        
+        // Output the interpolated sample
+        out <- outputSample;
+        
+        advance();
     }
+}
+
 }
 
 graph Voice
@@ -82,6 +94,7 @@ graph Four  [[main]]
 {
     input event std::midi::Message midiIn;
     input event float[1024] wavetableIn;
+    input waveControlPointParams.*;
     output stream float out;
 
     let voiceCount = 8;
@@ -90,13 +103,161 @@ graph Four  [[main]]
     {
         voices = Voice[voiceCount];
         voiceAllocator = std::voices::VoiceAllocator (voiceCount);
+        waveControlPointParams = WaveControlPointParams;
     }
  
     connection
     {
         midiIn -> std::midi::MPEConverter -> voiceAllocator;
         voiceAllocator.voiceEventOut -> voices.eventIn;
-        wavetableIn -> voices.wavetableIn;
+        // wavetableIn -> voices.wavetableIn;
+        waveControlPointParams.waveOut -> voices.wavetableIn;
         voices -> std::levels::ConstantGain (float, 0.3f) -> out;
     }
+}
+
+// let CONTROL_POINTS = 32
+processor WaveControlPointParams
+{
+    input event float point0   [[ name: "point0", min: -1.0, max: 1.0 ]];
+    input event float point1   [[ name: "point1", min: -1.0, max: 1.0 ]];
+    input event float point2   [[ name: "point2", min: -1.0, max: 1.0 ]];
+    input event float point3   [[ name: "point3", min: -1.0, max: 1.0 ]];
+    input event float point4   [[ name: "point4", min: -1.0, max: 1.0 ]];
+    input event float point5   [[ name: "point5", min: -1.0, max: 1.0 ]];
+    input event float point6   [[ name: "point6", min: -1.0, max: 1.0 ]];
+    input event float point7   [[ name: "point7", min: -1.0, max: 1.0 ]];
+    input event float point8   [[ name: "point8", min: -1.0, max: 1.0 ]];
+    input event float point9   [[ name: "point9", min: -1.0, max: 1.0 ]];
+    input event float point10  [[ name: "point10", min: -1.0, max: 1.0 ]];
+    input event float point11  [[ name: "point11", min: -1.0, max: 1.0 ]];
+    input event float point12  [[ name: "point12", min: -1.0, max: 1.0 ]];
+    input event float point13  [[ name: "point13", min: -1.0, max: 1.0 ]];
+    input event float point14  [[ name: "point14", min: -1.0, max: 1.0 ]];
+    input event float point15  [[ name: "point15", min: -1.0, max: 1.0 ]];
+    input event float point16  [[ name: "point16", min: -1.0, max: 1.0 ]];
+    input event float point17  [[ name: "point17", min: -1.0, max: 1.0 ]];
+    input event float point18  [[ name: "point18", min: -1.0, max: 1.0 ]];
+    input event float point19  [[ name: "point19", min: -1.0, max: 1.0 ]];
+    input event float point20  [[ name: "point20", min: -1.0, max: 1.0 ]];
+    input event float point21  [[ name: "point21", min: -1.0, max: 1.0 ]];
+    input event float point22  [[ name: "point22", min: -1.0, max: 1.0 ]];
+    input event float point23  [[ name: "point23", min: -1.0, max: 1.0 ]];
+    input event float point24  [[ name: "point24", min: -1.0, max: 1.0 ]];
+    input event float point25  [[ name: "point25", min: -1.0, max: 1.0 ]];
+    input event float point26  [[ name: "point26", min: -1.0, max: 1.0 ]];
+    input event float point27  [[ name: "point27", min: -1.0, max: 1.0 ]];
+    input event float point28  [[ name: "point28", min: -1.0, max: 1.0 ]];
+    input event float point29  [[ name: "point29", min: -1.0, max: 1.0 ]];
+    input event float point30  [[ name: "point30", min: -1.0, max: 1.0 ]];
+    input event float point31  [[ name: "point31", min: -1.0, max: 1.0 ]];
+
+    output event float[1024] waveOut;
+    float[1024] waveform;
+
+    float[32] points = (
+        0.0f, 
+        0.195090f, 
+        0.382683f, 
+        0.555570f, 
+        0.707107f, 
+        0.831470f, 
+        0.923880f, 
+        0.980785f, 
+        1.0f, 
+        0.980785f, 
+        0.923880f, 
+        0.831470f, 
+        0.707107f, 
+        0.555570f, 
+        0.382683f, 
+        0.195090f, 
+        0.0f, 
+        -0.195090f, 
+        -0.382683f, 
+        -0.555570f, 
+        -0.707107f, 
+        -0.831470f, 
+        -0.923880f, 
+        -0.980785f, 
+        -1.0f, 
+        -0.980785f, 
+        -0.923880f, 
+        -0.831470f, 
+        -0.707107f, 
+        -0.555570f, 
+        -0.382683f, 
+        -0.195090f
+    );
+
+    void init() {
+        recalculate();
+    }
+
+    void main() {
+        waveOut <- waveform;
+        advance();
+    }
+
+    void recalculate() {
+        let segmentCount = 32;
+        int segmentLength = 1024 / segmentCount;
+
+        for (wrap<1024> i) {
+            float64 t = float64(i % segmentLength) / float64(segmentLength);
+            int segmentIndex = i / segmentLength;
+
+            // Circular control point indexing
+            float64 p0 = points[wrap<32>((segmentIndex - 1 + segmentCount))];
+            float64 p1 = points[wrap<32>(segmentIndex)];
+            float64 p2 = points[wrap<32>((segmentIndex + 1))];
+            float64 p3 = points[wrap<32>((segmentIndex + 2))];
+
+            // Interpolating using Catmull-Rom spline formula
+            waveform[wrap<1024>(i)] = float32(0.5 * (
+                (2.0 * p1) +
+                (-p0 + p2) * t +
+                (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t +
+                (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t * t * t
+            ));
+        }
+    }
+
+    void update() {
+        recalculate();
+        waveOut <- waveform;
+    }
+
+    event point0 (float newValue)    { points[0] = newValue; update(); }
+    event point1 (float newValue)    { points[1] = newValue; update(); }
+    event point2 (float newValue)    { points[2] = newValue; update(); }
+    event point3 (float newValue)    { points[3] = newValue; update(); }
+    event point4 (float newValue)    { points[4] = newValue; update(); }
+    event point5 (float newValue)    { points[5] = newValue; update(); }
+    event point6 (float newValue)    { points[6] = newValue; update(); }
+    event point7 (float newValue)    { points[7] = newValue; update(); }
+    event point8 (float newValue)    { points[8] = newValue; update(); }
+    event point9 (float newValue)    { points[9] = newValue; update(); }
+    event point10 (float newValue)   { points[10] = newValue; update(); }
+    event point11 (float newValue)   { points[11] = newValue; update(); }
+    event point12 (float newValue)   { points[12] = newValue; update(); }
+    event point13 (float newValue)   { points[13] = newValue; update(); }
+    event point14 (float newValue)   { points[14] = newValue; update(); }
+    event point15 (float newValue)   { points[15] = newValue; update(); }
+    event point16 (float newValue)   { points[16] = newValue; update(); }
+    event point17 (float newValue)   { points[17] = newValue; update(); }
+    event point18 (float newValue)   { points[18] = newValue; update(); }
+    event point19 (float newValue)   { points[19] = newValue; update(); }
+    event point20 (float newValue)   { points[20] = newValue; update(); }
+    event point21 (float newValue)   { points[21] = newValue; update(); }
+    event point22 (float newValue)   { points[22] = newValue; update(); }
+    event point23 (float newValue)   { points[23] = newValue; update(); }
+    event point24 (float newValue)   { points[24] = newValue; update(); }
+    event point25 (float newValue)   { points[25] = newValue; update(); }
+    event point26 (float newValue)   { points[26] = newValue; update(); }
+    event point27 (float newValue)   { points[27] = newValue; update(); }
+    event point28 (float newValue)   { points[28] = newValue; update(); }
+    event point29 (float newValue)   { points[29] = newValue; update(); }
+    event point30 (float newValue)   { points[30] = newValue; update(); }
+    event point31 (float newValue)   { points[31] = newValue; update(); }
 }

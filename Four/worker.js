@@ -1,29 +1,34 @@
-export default function worker(patchConnection) {
-  function arraysAreEqual(arr1, arr2) {
-    if (arr1.length !== arr2.length) {
-      return false;
-    }
+// export default function worker(patchConnection) {
+//   patchConnection.addStatusListener((status) => {
+//     console.log(status);
+//   });
+//   patchConnection.requestStatusUpdate();
 
-    for (let i = 0; i < arr1.length; i++) {
-      if (arr1[i] !== arr2[i]) {
-        return false;
-      }
-    }
+//   function arraysAreEqual(arr1, arr2) {
+//     if (arr1.length !== arr2.length) {
+//       return false;
+//     }
 
-    return true;
-  }
+//     for (let i = 0; i < arr1.length; i++) {
+//       if (arr1[i] !== arr2[i]) {
+//         return false;
+//       }
+//     }
 
-  let currentWavetable = [];
+//     return true;
+//   }
 
-  patchConnection.addStoredStateValueListener(({ key, value }) => {
-    if (key === "wavetableIn" && !arraysAreEqual(currentWavetable, value)) {
-      currentWavetable = value;
-      patchConnection.sendEventOrValue(key, value);
-    }
-  });
+//   let currentWavetable = [];
 
-  setInterval(
-    () => patchConnection.requestStoredStateValue("wavetableIn"),
-    1000
-  );
-}
+//   patchConnection.addStoredStateValueListener(({ key, value }) => {
+//     if (key === "wavetableIn" && !arraysAreEqual(currentWavetable, value)) {
+//       currentWavetable = value;
+//       patchConnection.sendEventOrValue(key, value);
+//     }
+//   });
+
+//   setInterval(
+//     () => patchConnection.requestStoredStateValue("wavetableIn"),
+//     1000
+//   );
+// }

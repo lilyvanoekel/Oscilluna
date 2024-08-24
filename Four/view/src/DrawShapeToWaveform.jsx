@@ -23,7 +23,17 @@ function arraysAreEqual(arr1, arr2) {
   return true;
 }
 
-const NUMBER_OF_POINTS = 24;
+function debounce(func, delay) {
+  let timeoutId;
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
+
+const NUMBER_OF_POINTS = 32;
 
 function generateCatmullRomControlPoints(waveform) {
   const controlPoints = [];
@@ -164,31 +174,74 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
       const controlPoints = generateCatmullRomControlPoints(waveform);
       for (let i = 0; i < NUMBER_OF_POINTS; i++) {
         patchConnection?.sendEventOrValue(`point${i}`, controlPoints[i]);
+        patchConnection?.requestParameterValue(`point${i}`);
       }
 
       // This is super janky, chatgpt didn't scale the waveform properly between -1 and 1.
       // After normalizing the drawing logic is having a fit.
       // Dividing by 2 here seems to fix it for now.
-      displayWaveform(waveform.map((x) => x / 2));
+      // displayWaveform(waveform.map((x) => x / 2));
     }
   };
 
-  let currentWavetable = [];
-  const storedValueUpdated = ({ key, value }) => {
-    if (key === "wavetableIn" && !arraysAreEqual(currentWavetable, value)) {
-      currentWavetable = value;
-      if (waveformLine) {
-        scene.remove(waveformLine);
-        waveformLine.geometry.dispose();
-      }
-      displayWaveform(value.map((x) => x / 2));
+  // let currentWavetable = [];
+  // const storedValueUpdated = ({ key, value }) => {
+  //   if (key === "wavetableIn" && !arraysAreEqual(currentWavetable, value)) {
+  //     currentWavetable = value;
+  //     if (waveformLine) {
+  //       scene.remove(waveformLine);
+  //       waveformLine.geometry.dispose();
+  //     }
+  //     displayWaveform(value.map((x) => x / 2));
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   patchConnection?.addStoredStateValueListener(storedValueUpdated);
+  //   return () => {
+  //     patchConnection?.removeStoredStateValueListener(storedValueUpdated);
+  //   };
+  // }, [patchConnection]);
+
+  function wrapWaveform(waveform, shiftAmount = 512) {
+    const length = waveform.length;
+
+    // Ensure shiftAmount is within bounds
+    const shift = shiftAmount % length;
+
+    // Split the waveform into two parts and rearrange them
+    const part1 = waveform.slice(shift);
+    const part2 = waveform.slice(0, shift);
+
+    // Combine the parts to create the wrapped waveform
+    const wrappedWaveform = part1.concat(part2);
+
+    return wrappedWaveform;
+  }
+
+  const controlPoints = Array(NUMBER_OF_POINTS).fill(0.0);
+  const updateWave = debounce(() => {
+    const decodedWaveform = decodeCatmullRom(controlPoints, 1024);
+    displayWaveform(wrapWaveform(decodedWaveform.map((x) => x / 2)));
+  }, 300);
+
+  const paramsUpdated = ({ endpointID, value }) => {
+    const match = endpointID.match(/^point(\d+)/);
+    if (match) {
+      const index = parseInt(match[1], 10);
+      controlPoints[index] = value;
+      updateWave();
     }
   };
 
   useEffect(() => {
-    patchConnection?.addStoredStateValueListener(storedValueUpdated);
+    patchConnection?.addAllParameterListener(paramsUpdated);
+
+    for (let i = 0; i < NUMBER_OF_POINTS; i++) {
+      patchConnection?.requestParameterValue(`point${i}`);
+    }
     return () => {
-      patchConnection?.removeStoredStateValueListener(storedValueUpdated);
+      patchConnection?.removeAllParameterListener(paramsUpdated);
     };
   }, [patchConnection]);
 
@@ -269,6 +322,11 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
   };
 
   const displayWaveform = (waveform) => {
+    if (waveformLine) {
+      scene.remove(waveformLine);
+      waveformLine.geometry.dispose();
+    }
+
     const positions = [];
     const numPoints = waveform.length;
 

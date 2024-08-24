@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Waveform Rendering with Provided Control Points</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: Arial, sans-serif;
+      }
+      canvas {
+        border: 1px solid #000;
+        margin: 20px 0;
+      }
+      textarea {
+        width: 80%;
+        height: 100px;
+      }
+      button {
+        margin-top: 10px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Waveform Rendering with Provided Control Points</h1>
+
+    <textarea
+      id="controlPointsInput"
+      placeholder="Paste your control points JSON here..."
+    ></textarea>
+    <button onclick="renderWaveforms()">Render Waveforms</button>
+
+    <canvas id="decodedCanvas" width="1024" height="200"></canvas>
+    <canvas id="loopCanvas" width="1024" height="200"></canvas>
+
+    <script>
+      function interpolateCatmullRom(p0, p1, p2, p3, t) {
+        const t2 = t * t;
+        const t3 = t2 * t;
+
+        return (
+          0.5 *
+          (2 * p1 +
+            (-p0 + p2) * t +
+            (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+            (-p0 + 3 * p1 - 3 * p2 + p3) * t3)
+        );
+      }
+
+      function decodeCatmullRom(controlPoints, length) {
+        const decodedWaveform = new Array(length).fill(0);
+        const segmentCount = controlPoints.length;
+        const segmentLength = length / segmentCount;
+
+        for (let i = 0; i < length; i++) {
+          const t = (i % segmentLength) / segmentLength;
+          const segmentIndex = Math.floor(i / segmentLength);
+
+          // Circular control point indexing
+          const p0 =
+            controlPoints[(segmentIndex - 1 + segmentCount) % segmentCount];
+          const p1 = controlPoints[segmentIndex % segmentCount];
+          const p2 = controlPoints[(segmentIndex + 1) % segmentCount];
+          const p3 = controlPoints[(segmentIndex + 2) % segmentCount];
+
+          decodedWaveform[i] = interpolateCatmullRom(p0, p1, p2, p3, t);
+        }
+
+        return decodedWaveform;
+      }
+
+      function drawWaveform(canvasId, waveform) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext("2d");
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.beginPath();
+        ctx.moveTo(0, canvas.height / 2);
+
+        for (let i = 0; i < waveform.length; i++) {
+          const x = i;
+          const y = canvas.height / 2 - waveform[i] * (canvas.height / 2);
+          ctx.lineTo(x, y);
+        }
+
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      function wrapWaveform(waveform, shiftAmount = 512) {
+        const length = waveform.length;
+
+        // Ensure shiftAmount is within bounds
+        const shift = shiftAmount % length;
+
+        // Split the waveform into two parts and rearrange them
+        const part1 = waveform.slice(shift);
+        const part2 = waveform.slice(0, shift);
+
+        // Combine the parts to create the wrapped waveform
+        const wrappedWaveform = part1.concat(part2);
+
+        return wrappedWaveform;
+      }
+
+      function renderWaveforms() {
+        const controlPointsInput =
+          document.getElementById("controlPointsInput").value;
+        let controlPointsData = JSON.parse(controlPointsInput);
+        let controlPoints = controlPointsData.parameters.map(
+          (param) => param.value
+        );
+
+        if (controlPoints.length !== 24) {
+          alert(
+            "Please ensure the control points array contains exactly 24 elements."
+          );
+          return;
+        }
+
+        // Decode the control points back to a waveform using Catmull-Rom Splines
+        const decodedWaveform = decodeCatmullRom(controlPoints, 1024);
+
+        // Draw the decoded waveform and the wrapped waveform
+        drawWaveform("decodedCanvas", decodedWaveform);
+        drawWaveform("loopCanvas", wrapWaveform(decodedWaveform));
+      }
+    </script>
+  </body>
+</html>
