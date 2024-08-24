@@ -1,0 +1,38 @@
+namespace Synth
+{
+    processor WaveBuilder
+    {
+        input event float[] controlPoints;
+        output event float[] waveOut;
+
+        float[TABLE_SIZE] waveform;
+
+        event controlPoints (float[] points) {
+            // Float64 probably not needed here. There were issues with 24 control points, raising to 32 fixed it.
+            // Float32 -> float64 had no discernible advantage, but leaving it in for now. 
+            let segmentCount = CONTROL_POINTS;
+            int segmentLength = TABLE_SIZE / segmentCount;
+
+            for (wrap<TABLE_SIZE> i) {
+                float64 t = float64(i % segmentLength) / float64(segmentLength);
+                int segmentIndex = i / segmentLength;
+
+                // Circular control point indexing
+                float64 p0 = points[wrap<CONTROL_POINTS>((segmentIndex - 1 + segmentCount))];
+                float64 p1 = points[wrap<CONTROL_POINTS>(segmentIndex)];
+                float64 p2 = points[wrap<CONTROL_POINTS>((segmentIndex + 1))];
+                float64 p3 = points[wrap<CONTROL_POINTS>((segmentIndex + 2))];
+
+                // Interpolating using Catmull-Rom spline formula
+                waveform[wrap<TABLE_SIZE>(i)] = float32(0.5 * (
+                    (2.0 * p1) +
+                    (-p0 + p2) * t +
+                    (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t +
+                    (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t * t * t
+                ));
+            }
+
+            waveOut <- waveform;
+        }
+    }
+}

@@ -28,11 +28,12 @@ namespace Synth
         input waveControlPointParams.*;
         output stream float out;
 
-        let voiceCount = 8;
+        let voiceCount = VOICE_COUNT;
 
         node
         {
             voices = Voice[voiceCount];
+            builder = WaveBuilder;
             voiceAllocator = std::voices::VoiceAllocator (voiceCount);
             waveControlPointParams = WaveControlPointParams;
         }
@@ -41,7 +42,8 @@ namespace Synth
         {
             midiIn -> std::midi::MPEConverter -> voiceAllocator;
             voiceAllocator.voiceEventOut -> voices.eventIn;
-            waveControlPointParams.waveOut -> voices.wavetableIn;
+            waveControlPointParams.controlPoints -> builder.controlPoints;
+            builder.waveOut -> voices.wavetableIn;
             voices -> std::levels::ConstantGain (float, 0.3f) -> out;
         }
     }

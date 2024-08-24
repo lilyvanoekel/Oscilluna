@@ -2,4 +2,41 @@ namespace Synth
 {
     let TABLE_SIZE = 1024;
     let CONTROL_POINTS = 32;
+    let VOICE_COUNT = 8;
+
+    // Represents a sine wave in Catmull-Rom spline control points
+    const float[CONTROL_POINTS] DEFAULT_CONTROL_POINTS = (
+        0.0f, 
+        0.195090f, 
+        0.382683f, 
+        0.555570f, 
+        0.707107f, 
+        0.831470f, 
+        0.923880f, 
+        0.980785f, 
+        1.0f, 
+        0.980785f, 
+        0.923880f, 
+        0.831470f, 
+        0.707107f, 
+        0.555570f, 
+        0.382683f, 
+        0.195090f, 
+        0.0f, 
+        -0.195090f, 
+        -0.382683f, 
+        -0.555570f, 
+        -0.707107f, 
+        -0.831470f, 
+        -0.923880f, 
+        -0.980785f, 
+        -1.0f, 
+        -0.980785f, 
+        -0.923880f, 
+        -0.831470f, 
+        -0.707107f, 
+        -0.555570f, 
+        -0.382683f, 
+        -0.195090f
+    );
 }

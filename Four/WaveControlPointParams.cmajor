@@ -1,6 +1,6 @@
 namespace Synth
 {
-    processor WaveControlPointParams
+    processor WaveControlPointParams()
     {
         input event float point0   [[ name: "point0", min: -1.0, max: 1.0, init: 0.0f ]];
         input event float point1   [[ name: "point1", min: -1.0, max: 1.0, init: 0.195090f ]];
@@ -35,84 +35,17 @@ namespace Synth
         input event float point30  [[ name: "point30", min: -1.0, max: 1.0, init: -0.382683f ]];
         input event float point31  [[ name: "point31", min: -1.0, max: 1.0, init: -0.195090f ]];
 
-        output event float[] waveOut;
-        float[TABLE_SIZE] waveform;
+        output event float[] controlPoints;
 
-        // In reality values come from the params, not from the ones defined here.
-        // Leaving it here in an abundance of caution.
-        float[CONTROL_POINTS] points = (
-            0.0f, 
-            0.195090f, 
-            0.382683f, 
-            0.555570f, 
-            0.707107f, 
-            0.831470f, 
-            0.923880f, 
-            0.980785f, 
-            1.0f, 
-            0.980785f, 
-            0.923880f, 
-            0.831470f, 
-            0.707107f, 
-            0.555570f, 
-            0.382683f, 
-            0.195090f, 
-            0.0f, 
-            -0.195090f, 
-            -0.382683f, 
-            -0.555570f, 
-            -0.707107f, 
-            -0.831470f, 
-            -0.923880f, 
-            -0.980785f, 
-            -1.0f, 
-            -0.980785f, 
-            -0.923880f, 
-            -0.831470f, 
-            -0.707107f, 
-            -0.555570f, 
-            -0.382683f, 
-            -0.195090f
-        );
-
-        void init() {
-            recalculate();
-        }
+        float[CONTROL_POINTS] points = DEFAULT_CONTROL_POINTS;
 
         void main() {
-            waveOut <- waveform;
+            controlPoints <- points;
             advance();
         }
 
-        void recalculate() {
-            // Float64 probably not needed here. There were issues with 24 control points, raising to 32 fixed it.
-            // Float32 -> float64 had no discernible advantage, but leaving it in for now. 
-            let segmentCount = CONTROL_POINTS;
-            int segmentLength = TABLE_SIZE / segmentCount;
-
-            for (wrap<TABLE_SIZE> i) {
-                float64 t = float64(i % segmentLength) / float64(segmentLength);
-                int segmentIndex = i / segmentLength;
-
-                // Circular control point indexing
-                float64 p0 = points[wrap<CONTROL_POINTS>((segmentIndex - 1 + segmentCount))];
-                float64 p1 = points[wrap<CONTROL_POINTS>(segmentIndex)];
-                float64 p2 = points[wrap<CONTROL_POINTS>((segmentIndex + 1))];
-                float64 p3 = points[wrap<CONTROL_POINTS>((segmentIndex + 2))];
-
-                // Interpolating using Catmull-Rom spline formula
-                waveform[wrap<TABLE_SIZE>(i)] = float32(0.5 * (
-                    (2.0 * p1) +
-                    (-p0 + p2) * t +
-                    (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t +
-                    (-p0 + 3.0 * p1 - 3.0 * p2 + p3) * t * t * t
-                ));
-            }
-        }
-
         void update() {
-            recalculate();
-            waveOut <- waveform;
+            controlPoints <- points;
         }
 
         event point0 (float newValue)    { points[0] = newValue; update(); }

@@ -11,6 +11,7 @@
     "Constants.cmajor",
     "Util.cmajor",
     "WavetableOscillator.cmajor",
+    "WaveBuilder.cmajor",
     "WaveControlPointParams.cmajor",
     "Four.cmajor"
   ],
