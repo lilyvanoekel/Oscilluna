@@ -5,6 +5,8 @@ namespace Synth
         input event float[] controlPoints;
         output event float[] waveOut;
 
+        float[WAVETABLE_TOTAL_SIZE] waveforms;
+
         float[TABLE_SIZE] waveform;
 
         event controlPoints (float[] points) {
@@ -32,7 +34,31 @@ namespace Synth
                 ));
             }
 
-            waveOut <- waveform;
+            let nyquistFrequency = processor.frequency / 2.0f;
+            int halfTableSize = TABLE_SIZE / 2.0f;
+            for (wrap<WAVETABLE_NUM_BUCKETS> i)
+            {
+                float frequency = Util::wavetable_index_to_max_frequency(i, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
+                float[TABLE_SIZE] frequencyData;
+                float[TABLE_SIZE] waveResult;
+                std::frequency::realOnlyForwardFFT(waveform, frequencyData);
+
+                for (int j = 1; j < TABLE_SIZE / 2; ++j)
+                {
+                    float harmonicFrequency = j * frequency;
+                    if (harmonicFrequency > nyquistFrequency)
+                    {
+                        frequencyData[wrap<TABLE_SIZE>(j)] = 0.0;
+                        frequencyData[wrap<TABLE_SIZE>(j + halfTableSize)] = 0.0;
+                    }
+                }
+                std::frequency::realOnlyInverseFFT(frequencyData, waveResult);
+                for (wrap<TABLE_SIZE> j) {
+                    waveforms[wrap<WAVETABLE_TOTAL_SIZE>(i * TABLE_SIZE + j)] = waveResult[j];
+                }
+            }
+
+            waveOut <- waveforms;
         }
     }
 }

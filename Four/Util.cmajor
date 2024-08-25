@@ -10,4 +10,29 @@ namespace Util
             frequencyOut <- std::notes::noteToFrequency (e.pitch);
         }
     }
+
+    int frequency_to_wavetable_index(float frequency, float f_min, float f_max, int num_wavetables)
+    {
+        float log2_f_min = log(f_min) / log(2.0f);
+        float log2_f_max = log(f_max) / log(2.0f);
+        float log2_f = log(frequency) / log(2.0f);
+        int index = int((log2_f - log2_f_min) / (log2_f_max - log2_f_min) * float(num_wavetables - 1));
+
+        if (index < 0)
+            return 0;
+        
+        if (index >= num_wavetables)
+            return num_wavetables - 1;
+        
+        return index;
+    }
+
+    float wavetable_index_to_max_frequency(int index, float f_min, float f_max, int num_wavetables)
+    {
+        float log2_f_min = log(f_min) / log(2.0f);
+        float log2_f_max = log(f_max) / log(2.0f);
+        float log2_f = log2_f_min + (float(index + 1) * (log2_f_max - log2_f_min) / float(num_wavetables));
+        float frequency = pow(2.0f, log2_f);        
+        return frequency;
+    }
 }
