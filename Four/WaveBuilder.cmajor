@@ -4,7 +4,6 @@ namespace Synth
     {
         input event float[] controlPoints;
         output event float[] waveOut;
-        output event float[] waveOut2;
 
         float[WAVETABLE_TOTAL_SIZE] waveforms;
 
@@ -35,47 +34,31 @@ namespace Synth
                 ));
             }
 
-            // float[1024] frequencyData;
-            // float cutoffFrequency = 100.0;
-
-            // std::frequency::realOnlyForwardFFT(waveform, frequencyData);
-
-            // for (int i = 0; i < frequencyData.size() / 2; ++i)
-            // {
-            //     let frequency = i * (processor.frequency / frequencyData.size());
-            //     if (frequency > cutoffFrequency)
-            //     {
-            //         frequencyData[i] = 0.0;
-            //         frequencyData[frequencyData.size() - i - 1] = 0.0;
-            //     }
-            // }
-            
-            // std::frequency::realOnlyInverseFFT(frequencyData, waveform);
-
             let nyquistFrequency = processor.frequency / 2.0f;
+            int halfTableSize = TABLE_SIZE / 2.0f;
             for (wrap<WAVETABLE_NUM_BUCKETS> i)
             {
                 float frequency = Util::wavetable_index_to_max_frequency(i, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
                 float[TABLE_SIZE] frequencyData;
                 float[TABLE_SIZE] waveResult;
                 std::frequency::realOnlyForwardFFT(waveform, frequencyData);
-                // for (int j = 1; j <= TABLE_SIZE / 2; ++j)
-                // {
-                //     float harmonicFrequency = j * frequency;
-                //     if (harmonicFrequency > nyquistFrequency)
-                //     {
-                //         frequencyData[wrap<TABLE_SIZE>(j)] = 0.0;
-                //         frequencyData[wrap<TABLE_SIZE>(TABLE_SIZE - j)] = 0.0;
-                //     }
-                // }
+
+                for (int j = 1; j < TABLE_SIZE / 2; ++j)
+                {
+                    float harmonicFrequency = j * frequency;
+                    if (harmonicFrequency > nyquistFrequency)
+                    {
+                        frequencyData[wrap<TABLE_SIZE>(j)] = 0.0;
+                        frequencyData[wrap<TABLE_SIZE>(j + halfTableSize)] = 0.0;
+                    }
+                }
                 std::frequency::realOnlyInverseFFT(frequencyData, waveResult);
                 for (wrap<TABLE_SIZE> j) {
                     waveforms[wrap<WAVETABLE_TOTAL_SIZE>(i * TABLE_SIZE + j)] = waveResult[j];
                 }
             }
 
-            waveOut2 <- waveforms;
-            waveOut <- waveform;
+            waveOut <- waveforms;
         }
     }
 }
