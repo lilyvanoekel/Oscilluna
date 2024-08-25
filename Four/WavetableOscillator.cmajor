@@ -10,45 +10,46 @@ namespace Synth
         float phaseIncrement = 0.0f;
         float freq = 0.0f;
         float[] wavetable;
+        int wavetableIndex = 0;
 
         event frequencyIn (float f)
         {
             freq = f;
+            wavetableIndex = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
         }
 
         event wavetableIn (float[] newTable)
         {
             wavetable = newTable;
         }
-    
+
         void main()
         {
             float tableSizeFloat = float(TABLE_SIZE);
             
             loop
             {
-                let wavetable_index = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
-                let index_offset = wavetable_index * TABLE_SIZE;
+                let indexOffset = wavetableIndex * TABLE_SIZE;
                 phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
                 phase += phaseIncrement;
                 
                 // Wrap phase to stay within the bounds of the wavetable
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
                 
-                let index = wrap<TABLE_SIZE>(int32(phase));  // Get the integer part of the phase
-                let nextIndex = wrap<TABLE_SIZE>(index + 1);  // Get the next index, wrapping around if necessary
-                let prevIndex = wrap<TABLE_SIZE>(index - 1);  // Get the previous index, wrapping around if necessary
-                let nextNextIndex = wrap<TABLE_SIZE>(index + 2);  // Get the index after the next, wrapping around if necessary
+                let index = wrap<TABLE_SIZE>(int32(phase));
+                let nextIndex = wrap<TABLE_SIZE>(index + 1);
+                let prevIndex = wrap<TABLE_SIZE>(index - 1);
+                let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
                 
-                let frac = phase - float(index);  // Calculate the fractional part of the phase
+                let frac = phase - float(index);
                 
                 // Fetch the four points needed for the interpolation
-                float value0 = wavetable[index_offset + prevIndex];
-                float value1 = wavetable[index_offset + index];
-                float value2 = wavetable[index_offset + nextIndex];
-                float value3 = wavetable[index_offset + nextNextIndex];
+                float value0 = wavetable[indexOffset + prevIndex];
+                float value1 = wavetable[indexOffset + index];
+                float value2 = wavetable[indexOffset + nextIndex];
+                float value3 = wavetable[indexOffset + nextNextIndex];
                 
-                // Perform cubic interpolation
+                // Perform Hermite interpolation
                 float slope0 = (value2 - value0) * 0.5f;
                 float slope1 = (value3 - value1) * 0.5f;
                 float v = value1 - value2;
@@ -60,7 +61,6 @@ namespace Synth
                 float outputSample = stage2 * frac + value1;
                 
                 out <- outputSample;
-                
                 advance();
             }
         }
