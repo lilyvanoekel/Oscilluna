@@ -31,20 +31,27 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
   };
 
   useEffect(() => {
+    if (!mountRef.current) {
+      return;
+    }
+
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+
     // Scene setup
     scene = new THREE.Scene();
     camera = new THREE.OrthographicCamera(
-      window.innerWidth / -2,
-      window.innerWidth / 2,
-      window.innerHeight / 2,
-      window.innerHeight / -2,
+      width / -2,
+      width / 2,
+      height / 2,
+      height / -2,
       1,
       1000
     );
     camera.position.z = 2;
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(width, height);
     renderer.toneMapping = THREE.ReinhardToneMapping;
     if (mountRef.current) {
       mountRef.current.appendChild(renderer.domElement);
@@ -56,7 +63,7 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     composer.addPass(renderPass);
 
     bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new THREE.Vector2(width, height),
       params.strength,
       params.radius,
       params.threshold
@@ -138,8 +145,13 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
 
   const onMouseMove = (event) => {
     if (isDrawing) {
-      const mouseX = event.clientX - window.innerWidth / 2;
-      const mouseY = window.innerHeight / 2 - event.clientY;
+      const rect = mountRef.current.getBoundingClientRect();
+      const width = rect.width;
+      const height = rect.height;
+
+      // Adjust mouse coordinates to be relative to the mountRef element
+      const mouseX = event.clientX - rect.left - width / 2;
+      const mouseY = height / 2 - (event.clientY - rect.top);
       points.push(new THREE.Vector3(mouseX, mouseY, 0));
 
       if (line) {
@@ -175,12 +187,15 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
       waveformLine.geometry.dispose();
     }
 
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+
     const positions = [];
     const numPoints = waveform.length;
 
     for (let i = 0; i < numPoints; i++) {
-      const x = (i / numPoints) * window.innerWidth - window.innerWidth / 2;
-      const y = waveform[i] * window.innerHeight;
+      const x = (i / numPoints) * width - width / 2;
+      const y = waveform[i] * height;
       positions.push(x, y, 0);
     }
 
@@ -201,13 +216,19 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
   };
 
   const onWindowResize = () => {
-    camera.left = window.innerWidth / -2;
-    camera.right = window.innerWidth / 2;
-    camera.top = window.innerHeight / 2;
-    camera.bottom = window.innerHeight / -2;
+    const width = mountRef.current.clientWidth;
+    const height = mountRef.current.clientHeight;
+
+    // Update camera
+    camera.left = width / -2;
+    camera.right = width / 2;
+    camera.top = height / 2;
+    camera.bottom = height / -2;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    composer.setSize(window.innerWidth, window.innerHeight);
+
+    // Update renderer and composer
+    renderer.setSize(width, height);
+    composer.setSize(width, height);
   };
 
   const animate = () => {
@@ -215,7 +236,7 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     composer.render();
   };
 
-  return <div ref={mountRef} />;
+  return <div ref={mountRef} style={{ width: "100%", height: "100%" }} />;
 };
 
 export default DrawShapeToWaveform;
