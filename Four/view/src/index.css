@@ -1,7 +1,14 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 html {
   height: 100%;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -14,6 +21,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 code {
@@ -24,4 +32,24 @@ code {
 #root {
   width: 100%;
   height: 100%;
+}
+
+.side-button {
+  display: block;
+  width: 80px;
+  height: 52px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.full-size {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
 }
