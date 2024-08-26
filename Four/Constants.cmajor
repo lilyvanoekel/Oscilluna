@@ -2,7 +2,7 @@ namespace Synth
 {
     let TABLE_SIZE = 1024;
     let CONTROL_POINTS = 32;
-    let VOICE_COUNT = 8;
+    let VOICE_COUNT = 16;
 
     let WAVETABLE_BUCKETS_MIN_FREQUENCY = 20.0f;
     let WAVETABLE_BUCKETS_MAX_FREQUENCY = 4186.0f;

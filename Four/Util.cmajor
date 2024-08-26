@@ -11,6 +11,28 @@ namespace Util
         }
     }
 
+    processor Mul(float32 m = 1.01f)
+    {
+        input event float32 in;
+        output event float32 out;
+
+        event in (float32 f)
+        {
+            out <- f * m;
+        }
+    }
+
+    processor Add(float32 m = 1.0f)
+    {
+        input event float32 in;
+        output event float32 out;
+
+        event in (float32 f)
+        {
+            out <- f + m;
+        }
+    }
+
     int frequency_to_wavetable_index(float frequency, float f_min, float f_max, int num_wavetables)
     {
         float log2_f_min = log(f_min) / log(2.0f);

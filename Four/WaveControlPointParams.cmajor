@@ -9,93 +9,175 @@ namespace Synth
     // waveforms using the host's UI as well).
     processor WaveControlPointParams()
     {
-        input event float point0   [[ name: "point0", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[0] ]];
-        input event float point1   [[ name: "point1", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[1] ]];
-        input event float point2   [[ name: "point2", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[2] ]];
-        input event float point3   [[ name: "point3", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[3] ]];
-        input event float point4   [[ name: "point4", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[4] ]];
-        input event float point5   [[ name: "point5", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[5] ]];
-        input event float point6   [[ name: "point6", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[6] ]];
-        input event float point7   [[ name: "point7", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[7] ]];
-        input event float point8   [[ name: "point8", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[8] ]];
-        input event float point9   [[ name: "point9", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[9] ]];
-        input event float point10  [[ name: "point10", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[10] ]];
-        input event float point11  [[ name: "point11", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[11] ]];
-        input event float point12  [[ name: "point12", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[12] ]];
-        input event float point13  [[ name: "point13", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[13] ]];
-        input event float point14  [[ name: "point14", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[14] ]];
-        input event float point15  [[ name: "point15", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[15] ]];
-        input event float point16  [[ name: "point16", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[16] ]];
-        input event float point17  [[ name: "point17", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[17] ]];
-        input event float point18  [[ name: "point18", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[18] ]];
-        input event float point19  [[ name: "point19", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[19] ]];
-        input event float point20  [[ name: "point20", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[20] ]];
-        input event float point21  [[ name: "point21", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[21] ]];
-        input event float point22  [[ name: "point22", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[22] ]];
-        input event float point23  [[ name: "point23", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[23] ]];
-        input event float point24  [[ name: "point24", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[24] ]];
-        input event float point25  [[ name: "point25", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[25] ]];
-        input event float point26  [[ name: "point26", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[26] ]];
-        input event float point27  [[ name: "point27", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[27] ]];
-        input event float point28  [[ name: "point28", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[28] ]];
-        input event float point29  [[ name: "point29", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[29] ]];
-        input event float point30  [[ name: "point30", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[30] ]];
-        input event float point31  [[ name: "point31", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[31] ]];
+        input event float point1_0   [[ name: "point1_0", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[0] ]];
+        input event float point1_1   [[ name: "point1_1", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[1] ]];
+        input event float point1_2   [[ name: "point1_2", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[2] ]];
+        input event float point1_3   [[ name: "point1_3", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[3] ]];
+        input event float point1_4   [[ name: "point1_4", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[4] ]];
+        input event float point1_5   [[ name: "point1_5", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[5] ]];
+        input event float point1_6   [[ name: "point1_6", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[6] ]];
+        input event float point1_7   [[ name: "point1_7", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[7] ]];
+        input event float point1_8   [[ name: "point1_8", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[8] ]];
+        input event float point1_9   [[ name: "point1_9", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[9] ]];
+        input event float point1_10  [[ name: "point1_10", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[10] ]];
+        input event float point1_11  [[ name: "point1_11", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[11] ]];
+        input event float point1_12  [[ name: "point1_12", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[12] ]];
+        input event float point1_13  [[ name: "point1_13", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[13] ]];
+        input event float point1_14  [[ name: "point1_14", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[14] ]];
+        input event float point1_15  [[ name: "point1_15", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[15] ]];
+        input event float point1_16  [[ name: "point1_16", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[16] ]];
+        input event float point1_17  [[ name: "point1_17", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[17] ]];
+        input event float point1_18  [[ name: "point1_18", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[18] ]];
+        input event float point1_19  [[ name: "point1_19", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[19] ]];
+        input event float point1_20  [[ name: "point1_20", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[20] ]];
+        input event float point1_21  [[ name: "point1_21", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[21] ]];
+        input event float point1_22  [[ name: "point1_22", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[22] ]];
+        input event float point1_23  [[ name: "point1_23", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[23] ]];
+        input event float point1_24  [[ name: "point1_24", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[24] ]];
+        input event float point1_25  [[ name: "point1_25", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[25] ]];
+        input event float point1_26  [[ name: "point1_26", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[26] ]];
+        input event float point1_27  [[ name: "point1_27", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[27] ]];
+        input event float point1_28  [[ name: "point1_28", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[28] ]];
+        input event float point1_29  [[ name: "point1_29", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[29] ]];
+        input event float point1_30  [[ name: "point1_30", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[30] ]];
+        input event float point1_31  [[ name: "point1_31", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[31] ]];
+		
+		input event float point2_0   [[ name: "point2_0", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[0] ]];
+        input event float point2_1   [[ name: "point2_1", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[1] ]];
+        input event float point2_2   [[ name: "point2_2", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[2] ]];
+        input event float point2_3   [[ name: "point2_3", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[3] ]];
+        input event float point2_4   [[ name: "point2_4", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[4] ]];
+        input event float point2_5   [[ name: "point2_5", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[5] ]];
+        input event float point2_6   [[ name: "point2_6", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[6] ]];
+        input event float point2_7   [[ name: "point2_7", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[7] ]];
+        input event float point2_8   [[ name: "point2_8", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[8] ]];
+        input event float point2_9   [[ name: "point2_9", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[9] ]];
+        input event float point2_10  [[ name: "point2_10", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[10] ]];
+        input event float point2_11  [[ name: "point2_11", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[11] ]];
+        input event float point2_12  [[ name: "point2_12", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[12] ]];
+        input event float point2_13  [[ name: "point2_13", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[13] ]];
+        input event float point2_14  [[ name: "point2_14", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[14] ]];
+        input event float point2_15  [[ name: "point2_15", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[15] ]];
+        input event float point2_16  [[ name: "point2_16", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[16] ]];
+        input event float point2_17  [[ name: "point2_17", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[17] ]];
+        input event float point2_18  [[ name: "point2_18", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[18] ]];
+        input event float point2_19  [[ name: "point2_19", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[19] ]];
+        input event float point2_20  [[ name: "point2_20", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[20] ]];
+        input event float point2_21  [[ name: "point2_21", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[21] ]];
+        input event float point2_22  [[ name: "point2_22", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[22] ]];
+        input event float point2_23  [[ name: "point2_23", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[23] ]];
+        input event float point2_24  [[ name: "point2_24", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[24] ]];
+        input event float point2_25  [[ name: "point2_25", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[25] ]];
+        input event float point2_26  [[ name: "point2_26", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[26] ]];
+        input event float point2_27  [[ name: "point2_27", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[27] ]];
+        input event float point2_28  [[ name: "point2_28", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[28] ]];
+        input event float point2_29  [[ name: "point2_29", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[29] ]];
+        input event float point2_30  [[ name: "point2_30", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[30] ]];
+        input event float point2_31  [[ name: "point2_31", min: -1.0, max: 1.0, init: DEFAULT_CONTROL_POINTS[31] ]];
 
-        output event float[] controlPoints;
+        output event float[] controlPoints1;
+		output event float[] controlPoints2;
 
-        float[CONTROL_POINTS] points = DEFAULT_CONTROL_POINTS;
-        int debounceCounter = 0;
+        float[CONTROL_POINTS] points1 = DEFAULT_CONTROL_POINTS;
+		float[CONTROL_POINTS] points2 = DEFAULT_CONTROL_POINTS;
+        
+		int debounceCounter1 = 0;
+		int debounceCounter2 = 0;
 
         void main() {
-            controlPoints <- points;
+            controlPoints1 <- points1;
+			controlPoints2 <- points2;
             loop {
-                if (debounceCounter > 0) {
-                    debounceCounter--;
+                if (debounceCounter1 > 0) {
+                    debounceCounter1--;
 
-                    if (debounceCounter == 0) {
-                        controlPoints <- points;
+                    if (debounceCounter1 == 0) {
+                        controlPoints1 <- points1;
+                    }
+                }
+				if (debounceCounter2 > 0) {
+                    debounceCounter2--;
+
+                    if (debounceCounter2 == 0) {
+                        controlPoints2 <- points1;
                     }
                 }
                 advance();
             }
         }
 
-        void update() {
-            debounceCounter = 100;
+        void update1() {
+            debounceCounter1 = 100;
+        }
+		
+		void update2() {
+            debounceCounter2 = 100;
         }
 
-        event point0 (float newValue)    { points[0] = newValue; update(); }
-        event point1 (float newValue)    { points[1] = newValue; update(); }
-        event point2 (float newValue)    { points[2] = newValue; update(); }
-        event point3 (float newValue)    { points[3] = newValue; update(); }
-        event point4 (float newValue)    { points[4] = newValue; update(); }
-        event point5 (float newValue)    { points[5] = newValue; update(); }
-        event point6 (float newValue)    { points[6] = newValue; update(); }
-        event point7 (float newValue)    { points[7] = newValue; update(); }
-        event point8 (float newValue)    { points[8] = newValue; update(); }
-        event point9 (float newValue)    { points[9] = newValue; update(); }
-        event point10 (float newValue)   { points[10] = newValue; update(); }
-        event point11 (float newValue)   { points[11] = newValue; update(); }
-        event point12 (float newValue)   { points[12] = newValue; update(); }
-        event point13 (float newValue)   { points[13] = newValue; update(); }
-        event point14 (float newValue)   { points[14] = newValue; update(); }
-        event point15 (float newValue)   { points[15] = newValue; update(); }
-        event point16 (float newValue)   { points[16] = newValue; update(); }
-        event point17 (float newValue)   { points[17] = newValue; update(); }
-        event point18 (float newValue)   { points[18] = newValue; update(); }
-        event point19 (float newValue)   { points[19] = newValue; update(); }
-        event point20 (float newValue)   { points[20] = newValue; update(); }
-        event point21 (float newValue)   { points[21] = newValue; update(); }
-        event point22 (float newValue)   { points[22] = newValue; update(); }
-        event point23 (float newValue)   { points[23] = newValue; update(); }
-        event point24 (float newValue)   { points[24] = newValue; update(); }
-        event point25 (float newValue)   { points[25] = newValue; update(); }
-        event point26 (float newValue)   { points[26] = newValue; update(); }
-        event point27 (float newValue)   { points[27] = newValue; update(); }
-        event point28 (float newValue)   { points[28] = newValue; update(); }
-        event point29 (float newValue)   { points[29] = newValue; update(); }
-        event point30 (float newValue)   { points[30] = newValue; update(); }
-        event point31 (float newValue)   { points[31] = newValue; update(); }
+        event point1_0 (float newValue)    { points1[0] = newValue; update1(); }
+        event point1_1 (float newValue)    { points1[1] = newValue; update1(); }
+        event point1_2 (float newValue)    { points1[2] = newValue; update1(); }
+        event point1_3 (float newValue)    { points1[3] = newValue; update1(); }
+        event point1_4 (float newValue)    { points1[4] = newValue; update1(); }
+        event point1_5 (float newValue)    { points1[5] = newValue; update1(); }
+        event point1_6 (float newValue)    { points1[6] = newValue; update1(); }
+        event point1_7 (float newValue)    { points1[7] = newValue; update1(); }
+        event point1_8 (float newValue)    { points1[8] = newValue; update1(); }
+        event point1_9 (float newValue)    { points1[9] = newValue; update1(); }
+        event point1_10 (float newValue)   { points1[10] = newValue; update1(); }
+        event point1_11 (float newValue)   { points1[11] = newValue; update1(); }
+        event point1_12 (float newValue)   { points1[12] = newValue; update1(); }
+        event point1_13 (float newValue)   { points1[13] = newValue; update1(); }
+        event point1_14 (float newValue)   { points1[14] = newValue; update1(); }
+        event point1_15 (float newValue)   { points1[15] = newValue; update1(); }
+        event point1_16 (float newValue)   { points1[16] = newValue; update1(); }
+        event point1_17 (float newValue)   { points1[17] = newValue; update1(); }
+        event point1_18 (float newValue)   { points1[18] = newValue; update1(); }
+        event point1_19 (float newValue)   { points1[19] = newValue; update1(); }
+        event point1_20 (float newValue)   { points1[20] = newValue; update1(); }
+        event point1_21 (float newValue)   { points1[21] = newValue; update1(); }
+        event point1_22 (float newValue)   { points1[22] = newValue; update1(); }
+        event point1_23 (float newValue)   { points1[23] = newValue; update1(); }
+        event point1_24 (float newValue)   { points1[24] = newValue; update1(); }
+        event point1_25 (float newValue)   { points1[25] = newValue; update1(); }
+        event point1_26 (float newValue)   { points1[26] = newValue; update1(); }
+        event point1_27 (float newValue)   { points1[27] = newValue; update1(); }
+        event point1_28 (float newValue)   { points1[28] = newValue; update1(); }
+        event point1_29 (float newValue)   { points1[29] = newValue; update1(); }
+        event point1_30 (float newValue)   { points1[30] = newValue; update1(); }
+        event point1_31 (float newValue)   { points1[31] = newValue; update1(); }
+		
+		event point2_0 (float newValue)    { points2[0] = newValue; update2(); }
+        event point2_1 (float newValue)    { points2[1] = newValue; update2(); }
+        event point2_2 (float newValue)    { points2[2] = newValue; update2(); }
+        event point2_3 (float newValue)    { points2[3] = newValue; update2(); }
+        event point2_4 (float newValue)    { points2[4] = newValue; update2(); }
+        event point2_5 (float newValue)    { points2[5] = newValue; update2(); }
+        event point2_6 (float newValue)    { points2[6] = newValue; update2(); }
+        event point2_7 (float newValue)    { points2[7] = newValue; update2(); }
+        event point2_8 (float newValue)    { points2[8] = newValue; update2(); }
+        event point2_9 (float newValue)    { points2[9] = newValue; update2(); }
+        event point2_10 (float newValue)   { points2[10] = newValue; update2(); }
+        event point2_11 (float newValue)   { points2[11] = newValue; update2(); }
+        event point2_12 (float newValue)   { points2[12] = newValue; update2(); }
+        event point2_13 (float newValue)   { points2[13] = newValue; update2(); }
+        event point2_14 (float newValue)   { points2[14] = newValue; update2(); }
+        event point2_15 (float newValue)   { points2[15] = newValue; update2(); }
+        event point2_16 (float newValue)   { points2[16] = newValue; update2(); }
+        event point2_17 (float newValue)   { points2[17] = newValue; update2(); }
+        event point2_18 (float newValue)   { points2[18] = newValue; update2(); }
+        event point2_19 (float newValue)   { points2[19] = newValue; update2(); }
+        event point2_20 (float newValue)   { points2[20] = newValue; update2(); }
+        event point2_21 (float newValue)   { points2[21] = newValue; update2(); }
+        event point2_22 (float newValue)   { points2[22] = newValue; update2(); }
+        event point2_23 (float newValue)   { points2[23] = newValue; update2(); }
+        event point2_24 (float newValue)   { points2[24] = newValue; update2(); }
+        event point2_25 (float newValue)   { points2[25] = newValue; update2(); }
+        event point2_26 (float newValue)   { points2[26] = newValue; update2(); }
+        event point2_27 (float newValue)   { points2[27] = newValue; update2(); }
+        event point2_28 (float newValue)   { points2[28] = newValue; update2(); }
+        event point2_29 (float newValue)   { points2[29] = newValue; update2(); }
+        event point2_30 (float newValue)   { points2[30] = newValue; update2(); }
+        event point2_31 (float newValue)   { points2[31] = newValue; update2(); }
     }
 }

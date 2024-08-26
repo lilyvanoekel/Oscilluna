@@ -111,8 +111,8 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
       const waveform = generateWaveform(points);
       const controlPoints = generateCatmullRomControlPoints(waveform);
       for (let i = 0; i < NUMBER_OF_POINTS; i++) {
-        patchConnection?.sendEventOrValue(`point${i}`, controlPoints[i]);
-        patchConnection?.requestParameterValue(`point${i}`);
+        patchConnection?.sendEventOrValue(`point1_${i}`, controlPoints[i]);
+        patchConnection?.requestParameterValue(`point1_${i}`);
       }
     }
   };
@@ -124,7 +124,7 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
   }, 300);
 
   const paramsUpdated = ({ endpointID, value }) => {
-    const match = endpointID.match(/^point(\d+)/);
+    const match = endpointID.match(/^point1_(\d+)/);
     if (match) {
       const index = parseInt(match[1], 10);
       controlPoints[index] = value;
@@ -136,7 +136,7 @@ const DrawShapeToWaveform = ({ patchConnection }) => {
     patchConnection?.addAllParameterListener(paramsUpdated);
 
     for (let i = 0; i < NUMBER_OF_POINTS; i++) {
-      patchConnection?.requestParameterValue(`point${i}`);
+      patchConnection?.requestParameterValue(`point1_${i}`);
     }
     return () => {
       patchConnection?.removeAllParameterListener(paramsUpdated);
