@@ -16,7 +16,7 @@
     "Four.cmajor"
   ],
   "view": {
-    "src": "view/dist/index.js",
+    "src": "new-view/dist/index.js",
     "width": 800,
     "height": 600,
     "resizable": true
