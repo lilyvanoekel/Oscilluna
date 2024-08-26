@@ -22,7 +22,7 @@ export const normalizeWaveform = (waveform) => {
   return waveform2.map((value) => value / maxAbsValue);
 };
 
-export const generateWaveform = (points) => {
+export const generateWaveform = (points, boundingBox) => {
   const numPoints = points.length;
   const targetLength = 1024;
   const waveform = [];
@@ -35,16 +35,20 @@ export const generateWaveform = (points) => {
   // Scale factor to map the original points to the target length
   const scale = (numPoints - 1) / (targetLength - 1);
 
+  // Calculate the bounding box height
+  const boxHeight = boundingBox.top - boundingBox.bottom;
+
   for (let i = 0; i < targetLength; i++) {
     const x = i * scale;
     const x1 = Math.floor(x);
     const x2 = Math.ceil(x);
 
     if (x1 === x2) {
-      waveform.push(points[x1].y / window.innerHeight);
+      // Normalize y within the bounding box height
+      waveform.push((points[x1].y - boundingBox.bottom) / boxHeight);
     } else {
-      const y1 = points[x1].y / window.innerHeight;
-      const y2 = points[x2].y / window.innerHeight;
+      const y1 = (points[x1].y - boundingBox.bottom) / boxHeight;
+      const y2 = (points[x2].y - boundingBox.bottom) / boxHeight;
       waveform.push(interpolate(x1, y1, x2, y2, x));
     }
   }
