@@ -11,7 +11,8 @@ namespace Synth
         {
             oscillator1 = WavetableOscillator;
             oscillator2 = WavetableOscillator;
-            envelope = std::envelopes::FixedASR (0.01f, 0.1f);
+            envelope1 = std::envelopes::FixedASR (0.05f, 0.1f);
+            envelope2 = std::envelopes::FixedASR (0.01f, 0.1f);
             noteToFrequency = Util::NoteToFrequency;
         }
 
@@ -19,12 +20,14 @@ namespace Synth
         {
             eventIn -> noteToFrequency -> oscillator1.frequencyIn;
             eventIn -> noteToFrequency -> oscillator2.frequencyIn;
-            eventIn -> envelope.eventIn;
+            eventIn -> envelope1.eventIn;
+            eventIn -> envelope2.eventIn;
             wavetableIn1 -> oscillator1.wavetableIn;
             wavetableIn2 -> oscillator2.wavetableIn;
-            envelope.gainOut -> oscillator1.gainIn;
-            envelope.gainOut -> oscillator2.gainIn;
-            (oscillator1.out + oscillator2.out) -> out;
+            envelope1.gainOut -> oscillator1.gainIn;
+            envelope2.gainOut -> oscillator2.gainIn;
+            oscillator1.out -> oscillator2.fmIn;
+            oscillator2.out -> out;
         }
     }
 
