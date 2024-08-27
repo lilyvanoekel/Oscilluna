@@ -99,7 +99,7 @@ namespace Synth
                     debounceCounter2--;
 
                     if (debounceCounter2 == 0) {
-                        controlPoints2 <- points1;
+                        controlPoints2 <- points2;
                     }
                 }
                 advance();
