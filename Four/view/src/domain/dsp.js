@@ -60,3 +60,50 @@ export const generateWaveform = (points, boundingBox) => {
 
   return normalizeWaveform(waveform);
 };
+
+export const generateSineWaveControlPoints = (numberOfPoints) => {
+  const controlPoints = [];
+  const step = (2 * Math.PI) / numberOfPoints;
+
+  for (let i = 0; i < numberOfPoints; i++) {
+    const x = i * step;
+    const y = Math.sin(x);
+    controlPoints.push(y);
+  }
+
+  return controlPoints;
+};
+
+export const generateSquareWaveControlPoints = (numberOfPoints) => {
+  const controlPoints = [];
+
+  for (let i = 0; i < numberOfPoints; i++) {
+    const y = i < numberOfPoints / 2 ? 1 : -1;
+    controlPoints.push(y);
+  }
+
+  return controlPoints;
+};
+
+export const generateSawtoothWaveControlPoints = (numberOfPoints) => {
+  const controlPoints = [];
+
+  for (let i = 0; i < numberOfPoints; i++) {
+    const y = 2 * (i / numberOfPoints) - 1;
+    controlPoints.push(y);
+  }
+
+  return controlPoints;
+};
+
+export const generateTriangleWaveControlPoints = (numberOfPoints) => {
+  const controlPoints = [];
+
+  for (let i = 0; i < numberOfPoints; i++) {
+    let phase = i / numberOfPoints;
+    let y = 2 * Math.abs(2 * (phase - Math.floor(phase + 0.5))) - 1;
+    controlPoints.push(y);
+  }
+
+  return controlPoints;
+};

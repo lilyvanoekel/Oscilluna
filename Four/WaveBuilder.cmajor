@@ -34,6 +34,30 @@ namespace Synth
                 ));
             }
 
+            float mean = 0.0;
+            for (wrap<TABLE_SIZE> i) {
+                mean += waveform[i];
+            }
+            mean /= float(TABLE_SIZE);
+
+            for (wrap<TABLE_SIZE> i) {
+                waveform[i] -= mean;
+            }
+
+            float maxAbsValue = 0.0;
+            for (wrap<TABLE_SIZE> i) {
+                float absValue = abs(waveform[i]);
+                if (absValue > maxAbsValue) {
+                    maxAbsValue = absValue;
+                }
+            }
+
+            if (maxAbsValue > 0.0) {
+                for (wrap<TABLE_SIZE> i) {
+                    waveform[i] /= maxAbsValue;
+                }
+            }
+
             let nyquistFrequency = processor.frequency / 2.0f;
             int halfTableSize = TABLE_SIZE / 2.0f;
             for (wrap<WAVETABLE_NUM_BUCKETS> i)

@@ -10,7 +10,14 @@ import {
   generateCatmullRomControlPoints,
   decodeCatmullRom,
 } from "./domain/catmull.js";
-import { wrapWaveform, generateWaveform } from "./domain/dsp.js";
+import {
+  normalizeWaveform,
+  generateWaveform,
+  generateSineWaveControlPoints,
+  generateSquareWaveControlPoints,
+  generateSawtoothWaveControlPoints,
+  generateTriangleWaveControlPoints,
+} from "./domain/dsp.js";
 
 export const BuildWaveDrawer = (
   patchConnection,
@@ -22,7 +29,16 @@ export const BuildWaveDrawer = (
   let isDrawing = false;
   let points = [];
   let line, waveformLine;
-  const directRender = false;
+  let currentWaveform = null;
+  let isVisible = true;
+
+  const standardWaves = [
+    generateSineWaveControlPoints(NUMBER_OF_POINTS),
+    generateSquareWaveControlPoints(NUMBER_OF_POINTS),
+    generateSawtoothWaveControlPoints(NUMBER_OF_POINTS),
+    generateTriangleWaveControlPoints(NUMBER_OF_POINTS),
+  ];
+  let currentStandardWave = 0;
 
   const clipPlanes = [
     new THREE.Plane(new THREE.Vector3(1, 0, 0), -boundingBox.left),
@@ -31,9 +47,9 @@ export const BuildWaveDrawer = (
     new THREE.Plane(new THREE.Vector3(0, 1, 0), -boundingBox.bottom),
   ];
 
-  const midpointY = (boundingBox.top + boundingBox.bottom) / 2;
-  const startPoint = new THREE.Vector3(boundingBox.left, midpointY, 0);
-  const endPoint = new THREE.Vector3(boundingBox.right, midpointY, 0);
+  let midpointY = (boundingBox.top + boundingBox.bottom) / 2;
+  let startPoint = new THREE.Vector3(boundingBox.left, midpointY, 0);
+  let endPoint = new THREE.Vector3(boundingBox.right, midpointY, 0);
   const lineGeometry = new THREE.BufferGeometry().setFromPoints([
     startPoint,
     endPoint,
@@ -63,6 +79,10 @@ export const BuildWaveDrawer = (
   });
 
   const onMouseDown = (event) => {
+    if (!isVisible) {
+      return;
+    }
+
     // Get the mouse position relative to the center of the screen
     const rect = root.getBoundingClientRect();
     const mouseX = event.clientX - rect.left - window.innerWidth / 2;
@@ -85,36 +105,38 @@ export const BuildWaveDrawer = (
   };
 
   const onMouseUp = () => {
-    if (!isDrawing) {
+    if (!isVisible || !isDrawing) {
       return;
     }
+
     isDrawing = false;
     if (line) {
       scene.remove(line);
       line.geometry.dispose();
     }
-    if (points.length > 2) {
-      const waveform = generateWaveform(points, boundingBox);
-      const controlPoints = generateCatmullRomControlPoints(waveform);
-      for (let i = 0; i < NUMBER_OF_POINTS; i++) {
-        patchConnection?.sendEventOrValue(
-          `${pointPrefix}_${i}`,
-          controlPoints[i]
-        );
-        patchConnection?.requestParameterValue(`${pointPrefix}_${i}`);
-      }
 
-      if (directRender) {
-        const decodedWaveform = decodeCatmullRom(controlPoints, 1024);
-        displayWaveform(wrapWaveform(decodedWaveform.map((x) => x / 2)));
-      }
+    let controlPoints;
+    if (points.length <= 2 || points.every((val) => val.y === points[0].y)) {
+      currentStandardWave = (currentStandardWave + 1) % standardWaves.length;
+      controlPoints = standardWaves[currentStandardWave];
+    } else {
+      const waveform = generateWaveform(points, boundingBox);
+      controlPoints = generateCatmullRomControlPoints(waveform);
+    }
+    for (let i = 0; i < NUMBER_OF_POINTS; i++) {
+      patchConnection?.sendEventOrValue(
+        `${pointPrefix}_${i}`,
+        controlPoints[i]
+      );
+      patchConnection?.requestParameterValue(`${pointPrefix}_${i}`);
     }
   };
 
   const controlPoints = Array(NUMBER_OF_POINTS).fill(0.0);
   const updateWave = debounce(() => {
     const decodedWaveform = decodeCatmullRom(controlPoints, 1024);
-    displayWaveform(wrapWaveform(decodedWaveform.map((x) => x / 2)));
+    currentWaveform = normalizeWaveform(decodedWaveform);
+    displayWaveform();
   }, 300);
 
   const paramsUpdated = ({ endpointID, value }) => {
@@ -127,35 +149,42 @@ export const BuildWaveDrawer = (
   };
 
   const onMouseMove = (event) => {
-    if (isDrawing) {
-      const rect = root.getBoundingClientRect();
-      const width = rect.width;
-      const height = rect.height;
-
-      const mouseX = event.clientX - rect.left - width / 2;
-      const mouseY = height / 2 - (event.clientY - rect.top);
-
-      points.push(new THREE.Vector3(mouseX, mouseY, 0));
-
-      if (line) {
-        scene.remove(line);
-        line.geometry.dispose();
-      }
-
-      const positions = [];
-      points.forEach((point) => {
-        positions.push(point.x, point.y, point.z);
-      });
-
-      const geometry2 = new LineGeometry();
-      geometry2.setPositions(positions);
-
-      line = new Line2(geometry2, materialPurple);
-      scene.add(line);
+    if (!isVisible || !isDrawing) {
+      return;
     }
+
+    const rect = root.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+
+    const mouseX = event.clientX - rect.left - width / 2;
+    const mouseY = height / 2 - (event.clientY - rect.top);
+
+    points.push(new THREE.Vector3(mouseX, mouseY, 0));
+
+    if (line) {
+      scene.remove(line);
+      line.geometry.dispose();
+    }
+
+    const positions = [];
+    points.forEach((point) => {
+      positions.push(point.x, point.y, point.z);
+    });
+
+    const geometry2 = new LineGeometry();
+    geometry2.setPositions(positions);
+
+    line = new Line2(geometry2, materialPurple);
+    scene.add(line);
   };
 
-  const displayWaveform = (waveform) => {
+  const displayWaveform = () => {
+    if (!currentWaveform) {
+      return;
+    }
+
+    const waveform = currentWaveform;
     if (waveformLine) {
       scene.remove(waveformLine);
       waveformLine.geometry.dispose();
@@ -163,7 +192,7 @@ export const BuildWaveDrawer = (
 
     const boxWidth = boundingBox.right - boundingBox.left;
     const boxHeight = boundingBox.top - boundingBox.bottom;
-    const adjustedHeight = boxHeight * 0.9;
+    const adjustedHeight = boxHeight * 0.45;
     const yOffset = (boxHeight - adjustedHeight) / 2;
 
     const positions = [];
@@ -193,5 +222,37 @@ export const BuildWaveDrawer = (
     patchConnection?.requestParameterValue(`${pointPrefix}_${i}`);
   }
 
-  return {};
+  return {
+    setBoundingBox: (b) => {
+      boundingBox = b;
+      clipPlanes[0].set(new THREE.Vector3(1, 0, 0), -boundingBox.left);
+      clipPlanes[1].set(new THREE.Vector3(-1, 0, 0), boundingBox.right);
+      clipPlanes[2].set(new THREE.Vector3(0, -1, 0), boundingBox.top);
+      clipPlanes[3].set(new THREE.Vector3(0, 1, 0), -boundingBox.bottom);
+
+      midpointY = (boundingBox.top + boundingBox.bottom) / 2;
+      startPoint.set(boundingBox.left, midpointY, 0);
+      endPoint.set(boundingBox.right, midpointY, 0);
+      lineGeometry.setFromPoints([startPoint, endPoint]);
+
+      displayWaveform();
+    },
+    setVisible: (v) => {
+      if (v == isVisible) {
+        return;
+      }
+      isVisible = v;
+
+      if (isVisible) {
+        scene.add(horizontalLine);
+        displayWaveform();
+      } else {
+        scene.remove(horizontalLine);
+        if (waveformLine) {
+          scene.remove(waveformLine);
+          waveformLine.geometry.dispose();
+        }
+      }
+    },
+  };
 };

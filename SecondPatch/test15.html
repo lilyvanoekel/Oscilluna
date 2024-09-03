@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js Masked Shader Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+        }
+		#maskCanvas {
+			opacity: 0;
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+		}
+    </style>
+</head>
+<body>
+    <canvas id="maskCanvas"></canvas>
+    <script type="module">
+        import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.module.js';
+
+        const radius = 4;
+        const step = 5;
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        let lastX, lastY;
+
+        const maskCanvas = document.getElementById('maskCanvas');
+        maskCanvas.width = width;
+        maskCanvas.height = height;
+        const maskCtx = maskCanvas.getContext('2d');
+
+        // Set up Three.js scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(width, height);
+        document.body.appendChild(renderer.domElement);
+
+        camera.position.z = 5;
+
+        // Initialize the mask with black (0)
+        maskCtx.fillStyle = "black";
+        maskCtx.fillRect(0, 0, width, height);
+
+        maskCtx.beginPath();
+        maskCtx.moveTo(0, height / 2); // Start at the middle of the canvas height
+        maskCtx.lineTo(width, height / 2); // Draw to the far right of the canvas
+        maskCtx.lineWidth = 2; // Set the line width to 2 pixels
+        maskCtx.strokeStyle = 'white'; // Set the line color to black
+        maskCtx.stroke(); // Draw the line
+
+        // Brush properties
+        const brushRadius = 50;
+        let isDrawing = false;
+        let isErasing = false;
+
+        // const drawBrushStroke = (x, y, isErasing) => {
+        //     maskCtx.fillStyle = isErasing ? "black" : "white"; // Erase with black, draw with white
+        //     maskCtx.shadowBlur = 25;
+        //     maskCtx.shadowColor = "#FFFFFF";
+        //     maskCtx.beginPath();
+        //     maskCtx.arc(x, y, brushRadius, 0, Math.PI * 2);
+        //     maskCtx.fill();
+        //     updateTexture(); // Update texture after drawing
+        // };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            updateTexture();
+        })
+
+        function drawCircle(x, y) {
+            maskCtx.beginPath();
+            maskCtx.arc(x, y, radius, 0, Math.PI * 2);
+            maskCtx.closePath();
+            maskCtx.fill();
+        }
+
+        function drawLine(x0, y0, x1, y1) {
+            maskCtx.fillStyle = isErasing ? "#00FFFF" : "#FF00FF";
+            // maskCtx.shadowBlur = 20;
+            // maskCtx.shadowColor = isErasing ? "#00FFFF" : "#FF00FF";
+
+            const dx = x1 - x0;
+            const dy = y1 - y0;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const steps = Math.ceil(distance / step);
+            const xStep = dx / steps;
+            const yStep = dy / steps;
+
+            for (let i = 0; i <= steps; i++) {
+                const x = x0 + xStep * i;
+                const y = y0 + yStep * i;
+                drawCircle(x, y);
+            }
+
+            updateTexture();
+        }
+
+        maskCanvas.addEventListener('pointerdown', (e) => {
+            lastX = e.clientX;
+            lastY = e.clientY;
+            if (e.button === 2) { // Right-click
+                isErasing = true;
+            } else {
+                isDrawing = true;
+            }
+        });
+
+        maskCanvas.addEventListener('pointerup', () => {
+            isDrawing = false;
+            isErasing = false;
+        });
+
+        // maskCanvas.addEventListener('pointermove', (event) => {
+        //     if (isDrawing || isErasing) {
+        //         const rect = maskCanvas.getBoundingClientRect();
+        //         const x = event.clientX - rect.left;
+        //         const y = event.clientY - rect.top;
+        //         drawBrushStroke(x, y, isErasing);
+        //     }
+        // });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isDrawing && !isErasing) return;
+
+            const currentX = e.clientX;
+            const currentY = e.clientY;
+            drawLine(lastX, lastY, currentX, currentY);
+
+            lastX = currentX;
+            lastY = currentY;
+        });
+
+        // Disable the context menu on right-click
+        maskCanvas.addEventListener('contextmenu', (event) => event.preventDefault());
+
+        // Create a texture from the mask canvas
+        const maskTexture = new THREE.Texture(maskCanvas);
+        maskTexture.minFilter = THREE.NearestFilter;
+        maskTexture.magFilter = THREE.NearestFilter;
+        maskTexture.generateMipmaps = false;
+
+        // Shader material that visualizes the mask
+        const material = new THREE.ShaderMaterial({
+    uniforms: {
+        maskTexture: { value: maskTexture },
+        iTime: { value: 0 },
+        iResolution: { value: new THREE.Vector2(width, height) }
+    },
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform sampler2D maskTexture;
+        uniform float iTime;
+        uniform vec2 iResolution;
+        varying vec2 vUv;
+
+        vec3 shadowBlur(vec2 uv) {
+    vec3 blur = vec3(0.0);
+    float offset = 1.0 / 512.0; // Slightly larger offset for a wider blur
+
+    // Gaussian weights for a slightly larger kernel
+    float weight[7];
+    weight[0] = 0.05;
+    weight[1] = 0.1;
+    weight[2] = 0.2;
+    weight[3] = 0.3;  // Center weight
+    weight[4] = 0.2;
+    weight[5] = 0.1;
+    weight[6] = 0.05;
+
+    // Apply Gaussian blur by sampling surrounding texels with different weights
+    for (int x = -3; x <= 3; x++) {
+        for (int y = -3; y <= 3; y++) {
+            vec2 offsetCoord = uv + vec2(float(x), float(y)) * offset;
+            blur += texture2D(maskTexture, offsetCoord).rgb * weight[abs(x)] * weight[abs(y)];
+        }
+    }
+
+    // Normalize by the total weight sum
+    blur /= 2.1;  // Sum of weights: 0.05 + 0.1 + 0.2 + 0.3 + 0.2 + 0.1 + 0.05
+
+    return blur;
+}
+
+
+        void mainImage(out vec4 fragColor, in vec2 fragCoord) 
+        {
+            vec2 uv = fragCoord.xy / iResolution.xy;
+            float time = iTime * 4.0;  // Speed up the glow effect
+
+            // Create the glow effect
+            float glow = 0.75 + 0.25 * sin(time + length(uv - 0.5) * 20.0);
+
+            // Sample the mask texture
+            vec3 maskColor = texture2D(maskTexture, uv).rgb;
+
+            // Apply the glow effect to the sampled color
+            vec3 glowColor = maskColor * glow;
+
+            fragColor = vec4(glowColor, 1.0);
+        }
+
+        void main() {
+            vec2 uv = vUv;
+
+            // Apply the blur effect to the mask texture
+            vec3 blurredColor = shadowBlur(uv);
+
+            // Use the mainImage function to generate the glow effect
+            vec4 glowOutput;
+            mainImage(glowOutput, uv * iResolution.xy);
+
+            // Blend the blurred background with the glow, using the blue channel as a mask
+            float maskValue = texture2D(maskTexture, uv).b;
+            vec3 finalColor = mix(blurredColor, glowOutput.rgb, maskValue);
+
+            // Output the final color
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    `,
+    transparent: true
+});
+
+
+
+
+        // Plane to display the shader
+        const geometry = new THREE.PlaneGeometry(width, height);
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        // Update texture on drawing
+        const updateTexture = () => {
+            maskTexture.needsUpdate = true;
+        };
+
+        // Animation loop
+        const animate = () => {
+            material.uniforms.iTime.value += 0.01;
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+</html>
