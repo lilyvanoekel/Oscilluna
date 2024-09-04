@@ -50,12 +50,29 @@ export const BuildWaveDrawer = (
   let midpointY = (boundingBox.top + boundingBox.bottom) / 2;
   let startPoint = new THREE.Vector3(boundingBox.left, midpointY, 0);
   let endPoint = new THREE.Vector3(boundingBox.right, midpointY, 0);
-  const lineGeometry = new THREE.BufferGeometry().setFromPoints([
-    startPoint,
-    endPoint,
+
+  const lineGeometry = new LineGeometry();
+  lineGeometry.setPositions([
+    startPoint.x,
+    startPoint.y,
+    startPoint.z,
+    endPoint.x,
+    endPoint.y,
+    endPoint.z,
   ]);
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-  const horizontalLine = new THREE.Line(lineGeometry, lineMaterial);
+
+  const lineMaterial = new LineMaterial({
+    color: 0xffffff,
+    linewidth: 1,
+    dashed: true,
+    gapSize: 2,
+    dashSize: 4,
+    opacity: 1.0,
+    blending: THREE.AdditiveBlending,
+  });
+
+  const horizontalLine = new Line2(lineGeometry, lineMaterial);
+  horizontalLine.computeLineDistances();
   scene.add(horizontalLine);
 
   const materialCyan = new LineMaterial({

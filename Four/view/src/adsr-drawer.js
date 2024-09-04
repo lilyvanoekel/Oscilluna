@@ -207,6 +207,9 @@ export const BuildADSRDrawer = (
   };
 
   const onMouseUp = () => {
+    if (selectedSegment === null) {
+      return;
+    }
     selectedSegment = null;
     updateEnvelopeValues();
   };

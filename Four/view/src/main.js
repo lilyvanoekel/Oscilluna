@@ -76,15 +76,15 @@ const xUnits = (units) => {
 const getBoundingBoxTop = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
-  top: window.innerHeight / 2 - 20,
-  bottom: 0 + 20,
+  top: window.innerHeight / 2 - 18,
+  bottom: 0 + 18,
 });
 
 const getBoundingBoxBottom = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
-  top: 0 - 20,
-  bottom: -window.innerHeight / 2 + 20,
+  top: 0 - 18,
+  bottom: -window.innerHeight / 2 + 18,
 });
 
 document.addEventListener("DOMContentLoaded", () => {
