@@ -12,6 +12,7 @@ import {
   buttonIconEQ,
 } from "./button-icons.js";
 import { BuildWaveDrawer } from "./wave-drawer.js";
+import { BuildADSRDrawer } from "./adsr-drawer.js";
 import { mockPatchConnection } from "./mock-patch-connection.js";
 
 import "./styles/main.css";
@@ -72,18 +73,22 @@ const xUnits = (units) => {
   return (units * window.innerWidth) / 1024;
 };
 
+const yUnits = (units) => {
+  return (units * window.innerHeight) / 1024;
+};
+
 const getBoundingBoxTop = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
-  top: window.innerHeight / 2,
-  bottom: 0,
+  top: window.innerHeight / 2 - 20,
+  bottom: 0 + 20,
 });
 
 const getBoundingBoxBottom = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
-  top: 0,
-  bottom: -window.innerHeight / 2,
+  top: 0 - 20,
+  bottom: -window.innerHeight / 2 + 20,
 });
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -143,6 +148,22 @@ document.addEventListener("DOMContentLoaded", () => {
     "point2"
   );
 
+  const adsr1 = BuildADSRDrawer(
+    patchConnection,
+    scene,
+    document.getElementById("root"),
+    getBoundingBoxTop(),
+    "potato"
+  );
+
+  const adsr2 = BuildADSRDrawer(
+    patchConnection,
+    scene,
+    document.getElementById("root"),
+    getBoundingBoxBottom(),
+    "potato"
+  );
+
   const onWindowResize = () => {
     const root = document.getElementById("root");
     const width = root.clientWidth;
@@ -160,6 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
     drawer1.setBoundingBox(getBoundingBoxTop());
     drawer2.setBoundingBox(getBoundingBoxBottom());
 
+    adsr1.setBoundingBox(getBoundingBoxTop());
+    adsr2.setBoundingBox(getBoundingBoxBottom());
+
     redraw();
   };
 
@@ -176,6 +200,14 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       drawer1.setVisible(false);
       drawer2.setVisible(false);
+    }
+
+    if (currentTab === 2) {
+      adsr1.setVisible(true);
+      adsr2.setVisible(true);
+    } else {
+      adsr1.setVisible(false);
+      adsr2.setVisible(false);
     }
   };
 

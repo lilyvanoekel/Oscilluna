@@ -180,7 +180,7 @@ export const BuildWaveDrawer = (
   };
 
   const displayWaveform = () => {
-    if (!currentWaveform) {
+    if (!currentWaveform || !isVisible) {
       return;
     }
 
@@ -192,7 +192,7 @@ export const BuildWaveDrawer = (
 
     const boxWidth = boundingBox.right - boundingBox.left;
     const boxHeight = boundingBox.top - boundingBox.bottom;
-    const adjustedHeight = boxHeight * 0.45;
+    const adjustedHeight = boxHeight * 0.5;
     const yOffset = (boxHeight - adjustedHeight) / 2;
 
     const positions = [];
