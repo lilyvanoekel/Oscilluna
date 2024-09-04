@@ -10,6 +10,10 @@ export const BuildADSRDrawer = (
   boundingBox,
   pointPrefix
 ) => {
+  let currentAttack = 0.1;
+  let currentDecay = 0.3;
+  let currentSustain = 0.7;
+  let currentRelease = 0.2;
   let adsrLine = [];
   let selectedSegment = null;
   let handleObjects = [];
@@ -66,6 +70,7 @@ export const BuildADSRDrawer = (
     if (!isVisible) {
       return;
     }
+
     const boxWidth = boundingBox.right - boundingBox.left;
     const boxHeight = boundingBox.top - boundingBox.bottom;
 
@@ -245,9 +250,9 @@ export const BuildADSRDrawer = (
 
     // Calculate distances from mouse position to the three points
     const distances = [
-      mousePos.distanceTo(attackPoint), // Distance to attack control
-      mousePos.distanceTo(decayPoint), // Distance to decay control
-      mousePos.distanceTo(sustainPoint), // Distance to sustain/release control
+      mousePos.distanceTo(attackPoint),
+      mousePos.distanceTo(decayPoint),
+      mousePos.distanceTo(sustainPoint),
     ];
 
     // Get the index of the closest point
@@ -257,33 +262,53 @@ export const BuildADSRDrawer = (
     if (distances[closestIndex] <= selectionThreshold) {
       return closestIndex + 1; // 1 for Attack, 2 for Decay, 3 for Sustain/Release
     } else {
-      return null; // No selection if outside threshold
+      return null;
     }
   };
 
   const updateEnvelopeValues = () => {
-    // patchConnection?.sendEventOrValue(`${pointPrefix}_attack`, currentAttack);
-    // patchConnection?.sendEventOrValue(`${pointPrefix}_decay`, currentDecay);
-    // patchConnection?.sendEventOrValue(`${pointPrefix}_sustain`, currentSustain);
-    // patchConnection?.sendEventOrValue(`${pointPrefix}_release`, currentRelease);
-
-    console.log(
-      `Attack: ${currentAttack}, Decay: ${currentDecay}, Sustain: ${currentSustain}, Release: ${currentRelease}`
-    );
+    patchConnection?.sendEventOrValue(`${pointPrefix}_attack`, currentAttack);
+    patchConnection?.sendEventOrValue(`${pointPrefix}_decay`, currentDecay);
+    patchConnection?.sendEventOrValue(`${pointPrefix}_sustain`, currentSustain);
+    patchConnection?.sendEventOrValue(`${pointPrefix}_release`, currentRelease);
   };
 
   window.addEventListener("mousedown", onMouseDown, false);
   window.addEventListener("mousemove", onMouseMove, false);
   window.addEventListener("mouseup", onMouseUp, false);
 
-  let currentAttack = 0.1;
-  let currentDecay = 0.3;
-  let currentSustain = 0.7;
-  let currentRelease = 0.2;
+  drawADSR();
 
-  if (isVisible) {
+  const paramsUpdated = ({ endpointID, value }) => {
+    const actions = {
+      [`${pointPrefix}_attack`]: () => {
+        currentAttack = value;
+      },
+      [`${pointPrefix}_decay`]: () => {
+        currentDecay = value;
+      },
+      [`${pointPrefix}_sustain`]: () => {
+        currentSustain = value;
+      },
+      [`${pointPrefix}_release`]: () => {
+        currentRelease = value;
+      },
+    };
+
+    const action = actions[endpointID];
+    if (!action) {
+      return;
+    }
+
+    action();
     drawADSR();
-  }
+  };
+
+  patchConnection?.addAllParameterListener(paramsUpdated);
+  patchConnection?.requestParameterValue(`${pointPrefix}_attack`);
+  patchConnection?.requestParameterValue(`${pointPrefix}_decay`);
+  patchConnection?.requestParameterValue(`${pointPrefix}_sustain`);
+  patchConnection?.requestParameterValue(`${pointPrefix}_release`);
 
   return {
     setBoundingBox: (b) => {

@@ -13,6 +13,7 @@
     "WavetableOscillator.cmajor",
     "WaveBuilder.cmajor",
     "WaveControlPointParams.cmajor",
+    "Voice.cmajor",
     "Four.cmajor"
   ],
   "view": {

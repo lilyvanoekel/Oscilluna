@@ -73,10 +73,6 @@ const xUnits = (units) => {
   return (units * window.innerWidth) / 1024;
 };
 
-const yUnits = (units) => {
-  return (units * window.innerHeight) / 1024;
-};
-
 const getBoundingBoxTop = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
@@ -153,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scene,
     document.getElementById("root"),
     getBoundingBoxTop(),
-    "potato"
+    "adsr1"
   );
 
   const adsr2 = BuildADSRDrawer(
@@ -161,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
     scene,
     document.getElementById("root"),
     getBoundingBoxBottom(),
-    "potato"
+    "adsr2"
   );
 
   const onWindowResize = () => {
