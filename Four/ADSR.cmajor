@@ -14,16 +14,21 @@ namespace Common
         output stream float gainOut;
         
         float keyDownVelocity, currentLevel, attackSeconds, decaySeconds, sustainLevel, releaseSeconds;
-        float minimumLevel = 0.01f;
+        float minimumLevel = 0.001f;
         bool newNoteOn = true;
-        bool isExponential = false;
+        bool isExponential = true;
+
+        float interpolateValue(float in, float exponent, float minimum, float maximum) {
+            let scaledInput = pow(in, exponent);
+            return minimum + scaledInput * (maximum - minimum);
+        }
 
         event attack (float attack) {
-            attackSeconds = max(0.003f, attack);
+            attackSeconds = interpolateValue(attack, 2.5f, 0.003f, 5.0f);
         }
 
         event decay (float decay) {
-            decaySeconds = max(0.01f, decay);
+            decaySeconds = interpolateValue(decay, 2.5f, 0.01f, 5.0f);
         }
 
         event sustain (float sustain) {
@@ -74,10 +79,10 @@ namespace Common
                 int32 attackSamples = int32(attackSeconds * float32(processor.frequency));
                 currentLevel = minimumLevel;
                 float target = keyDownVelocity;
-                float attackCoeff = exp(-3.2f / attackSamples);
-                float stepSize = calculateLinearStep(currentLevel, target, attackSamples);
+                float stepSize = 0.0f;
                 
                 if (isExponential) {
+                    float attackCoeff = exp(-3.2f / attackSamples);
                     while (attackSamples > 0 && keyDownVelocity > 0 && !newNoteOn)
                     {
                         currentLevel = currentLevel * attackCoeff + target * (1.0f - attackCoeff);
@@ -86,6 +91,7 @@ namespace Common
                         attackSamples -= 1;
                     }
                 } else {
+                    stepSize = calculateLinearStep(currentLevel, target, attackSamples);
                     while (attackSamples > 0 && keyDownVelocity > 0 && !newNoteOn)
                     {
                         currentLevel += stepSize;
