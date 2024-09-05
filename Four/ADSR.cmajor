@@ -7,12 +7,16 @@ namespace Common
         input event float sustain;
         input event float release;
 
+        input event bool exponential;
+
         input event ( std::notes::NoteOn, std::notes::NoteOff ) eventIn;
 
         output stream float gainOut;
+        
         float keyDownVelocity, currentLevel, attackSeconds, decaySeconds, sustainLevel, releaseSeconds;
         float minimumLevel = 0.01f;
         bool newNoteOn = true;
+        bool isExponential = false;
 
         event attack (float attack) {
             attackSeconds = max(0.003f, attack);
@@ -34,10 +38,27 @@ namespace Common
             keyDownVelocity = noteOn.velocity; 
             newNoteOn = true;
         }
-        event eventIn (std::notes::NoteOff noteOff)      { keyDownVelocity = 0; }
+
+        event eventIn (std::notes::NoteOff noteOff) {
+            keyDownVelocity = 0;
+        }
+
+        event exponential(bool e) {
+            isExponential = e;
+        }
 
         float calculateMultiplier(float startLevel, float endLevel, int32 lengthInSamples) {
+            if (!isExponential) {
+                return 1;
+            }
             return 1.0f + (log(endLevel) - log(startLevel)) / (lengthInSamples);
+        }
+
+        float calculateLinearStep(float startLevel, float endLevel, int32 lengthInSamples) {
+            if (isExponential) {
+                return 0;
+            }
+            return (endLevel - startLevel) / float(lengthInSamples);
         }
 
         void main()
@@ -50,28 +71,41 @@ namespace Common
                 newNoteOn = false;
 
                 // Attack
-                int32 attackLength = int32(attackSeconds * float32(processor.frequency));
+                int32 attackSamples = int32(attackSeconds * float32(processor.frequency));
                 currentLevel = minimumLevel;
                 float target = keyDownVelocity;
-                float attackCoeff = exp(-3.2f / attackLength);
-
-                while (attackLength > 0 && keyDownVelocity > 0 && !newNoteOn)
-                {
-                    currentLevel = currentLevel * attackCoeff + target * (1.0f - attackCoeff);
-                    gainOut <- currentLevel;
-                    advance();
-                    attackLength -= 1;
+                float attackCoeff = exp(-3.2f / attackSamples);
+                float stepSize = calculateLinearStep(currentLevel, target, attackSamples);
+                
+                if (isExponential) {
+                    while (attackSamples > 0 && keyDownVelocity > 0 && !newNoteOn)
+                    {
+                        currentLevel = currentLevel * attackCoeff + target * (1.0f - attackCoeff);
+                        gainOut <- currentLevel;
+                        advance();
+                        attackSamples -= 1;
+                    }
+                } else {
+                    while (attackSamples > 0 && keyDownVelocity > 0 && !newNoteOn)
+                    {
+                        currentLevel += stepSize;
+                        gainOut <- currentLevel;
+                        advance();
+                        attackSamples -= 1;
+                    }
                 }
 
                 // Decay
                 let decaySamples = int32(decaySeconds * float32(processor.frequency));
                 let sustainAt = sustainLevel * keyDownVelocity;
                 float multiplier = calculateMultiplier(currentLevel, sustainAt, decaySamples);
+                stepSize = calculateLinearStep(currentLevel, sustainAt, decaySamples);
                 
                 while (currentLevel > sustainAt && keyDownVelocity > 0 && !newNoteOn)
                 {
                     gainOut <- currentLevel;
                     currentLevel *= multiplier;
+                    currentLevel += stepSize;
                     advance();
                 }
                 
@@ -85,11 +119,13 @@ namespace Common
                 // Release
                 let releaseSample = int32(releaseSeconds * float32(processor.frequency));
                 multiplier = calculateMultiplier(currentLevel, minimumLevel, releaseSample);
+                stepSize = calculateLinearStep(currentLevel, minimumLevel, releaseSample);
                 
                 while (currentLevel > minimumLevel && !newNoteOn)
                 {
                     gainOut <- currentLevel;
                     currentLevel *= multiplier;
+                    currentLevel += stepSize;
                     advance();
                 }
 
