@@ -1,0 +1,101 @@
+namespace Common
+{
+    
+    processor ADSR {
+        input event float attack;
+        input event float decay;
+        input event float sustain;
+        input event float release;
+
+        input event ( std::notes::NoteOn, std::notes::NoteOff ) eventIn;
+
+        output stream float gainOut;
+        float keyDownVelocity, currentLevel, attackSeconds, decaySeconds, sustainLevel, releaseSeconds;
+        float minimumLevel = 0.01f;
+        bool newNoteOn = true;
+
+        event attack (float attack) {
+            attackSeconds = max(0.003f, attack);
+        }
+
+        event decay (float decay) {
+            decaySeconds = max(0.01f, decay);
+        }
+
+        event sustain (float sustain) {
+            sustainLevel = max(minimumLevel, sustain);
+        }
+
+        event release (float release) {
+            releaseSeconds = max(0.01f, release);
+        }
+
+        event eventIn (std::notes::NoteOn noteOn) { 
+            keyDownVelocity = noteOn.velocity; 
+            newNoteOn = true;
+        }
+        event eventIn (std::notes::NoteOff noteOff)      { keyDownVelocity = 0; }
+
+        float calculateMultiplier(float startLevel, float endLevel, int32 lengthInSamples) {
+            return 1.0f + (log(endLevel) - log(startLevel)) / (lengthInSamples);
+        }
+
+        void main()
+        {
+            loop
+            {
+                while (keyDownVelocity == 0)
+                    advance();
+
+                newNoteOn = false;
+
+                // Attack
+                int32 attackLength = int32(attackSeconds * float32(processor.frequency));
+                currentLevel = minimumLevel;
+                float target = keyDownVelocity;
+                float attackCoeff = exp(-3.2f / attackLength);
+
+                while (attackLength > 0 && keyDownVelocity > 0 && !newNoteOn)
+                {
+                    currentLevel = currentLevel * attackCoeff + target * (1.0f - attackCoeff);
+                    gainOut <- currentLevel;
+                    advance();
+                    attackLength -= 1;
+                }
+
+                // Decay
+                let decaySamples = int32(decaySeconds * float32(processor.frequency));
+                let sustainAt = sustainLevel * keyDownVelocity;
+                float multiplier = calculateMultiplier(currentLevel, sustainAt, decaySamples);
+                
+                while (currentLevel > sustainAt && keyDownVelocity > 0 && !newNoteOn)
+                {
+                    gainOut <- currentLevel;
+                    currentLevel *= multiplier;
+                    advance();
+                }
+                
+                // Sustain
+                while (keyDownVelocity != 0 && !newNoteOn)
+                {
+                    gainOut <- currentLevel;
+                    advance();
+                }
+
+                // Release
+                let releaseSample = int32(releaseSeconds * float32(processor.frequency));
+                multiplier = calculateMultiplier(currentLevel, minimumLevel, releaseSample);
+                
+                while (currentLevel > minimumLevel && !newNoteOn)
+                {
+                    gainOut <- currentLevel;
+                    currentLevel *= multiplier;
+                    advance();
+                }
+
+                gainOut <- 0;
+                advance();
+            }
+        }
+    }
+}

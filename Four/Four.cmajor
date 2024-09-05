@@ -33,6 +33,17 @@ namespace Synth
         {
             midiIn -> std::midi::MPEConverter -> voiceAllocator;
             voiceAllocator.voiceEventOut -> voices.eventIn;
+
+            adsr1_attack -> voices.adsr1Attack;
+            adsr1_decay -> voices.adsr1Decay;
+            adsr1_sustain -> voices.adsr1Sustain;
+            adsr1_release -> voices.adsr1Release;
+
+            adsr2_attack -> voices.adsr2Attack;
+            adsr2_decay -> voices.adsr2Decay;
+            adsr2_sustain -> voices.adsr2Sustain;
+            adsr2_release -> voices.adsr2Release;
+
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;
             builder1.waveOut -> voices.wavetableIn1;

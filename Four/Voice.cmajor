@@ -5,14 +5,27 @@ namespace Synth
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
         input event float[] wavetableIn1;
         input event float[] wavetableIn2;
+
+        input event float adsr1Attack;
+        input event float adsr1Decay;
+        input event float adsr1Sustain;
+        input event float adsr1Release;
+
+        input event float adsr2Attack;
+        input event float adsr2Decay;
+        input event float adsr2Sustain;
+        input event float adsr2Release;
+
         output stream float out;
 
         node
         {
             oscillator1 = WavetableOscillator;
             oscillator2 = WavetableOscillator;
-            envelope1 = std::envelopes::FixedASR (0.05f, 0.1f);
-            envelope2 = std::envelopes::FixedASR (0.01f, 0.1f);
+            // envelope1 = std::envelopes::FixedASR (0.05f, 0.1f);
+            // envelope2 = std::envelopes::FixedASR (0.01f, 0.1f);
+            envelope1 = Common::ADSR;
+            envelope2 = Common::ADSR;
             noteToFrequency = Util::NoteToFrequency;
         }
 
@@ -24,6 +37,17 @@ namespace Synth
             eventIn -> envelope2.eventIn;
             wavetableIn1 -> oscillator1.wavetableIn;
             wavetableIn2 -> oscillator2.wavetableIn;
+
+            adsr1Attack -> envelope1.attack;
+            adsr1Decay -> envelope1.decay;
+            adsr1Sustain -> envelope1.sustain;
+            adsr1Release -> envelope1.release;
+
+            adsr2Attack -> envelope2.attack;
+            adsr2Decay -> envelope2.decay;
+            adsr2Sustain -> envelope2.sustain;
+            adsr2Release -> envelope2.release;
+
             envelope1.gainOut -> oscillator1.gainIn;
             envelope2.gainOut -> oscillator2.gainIn;
             oscillator1.out -> oscillator2.fmIn;
