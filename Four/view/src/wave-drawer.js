@@ -250,7 +250,15 @@ export const BuildWaveDrawer = (
       midpointY = (boundingBox.top + boundingBox.bottom) / 2;
       startPoint.set(boundingBox.left, midpointY, 0);
       endPoint.set(boundingBox.right, midpointY, 0);
-      lineGeometry.setFromPoints([startPoint, endPoint]);
+
+      lineGeometry.setPositions([
+        startPoint.x,
+        startPoint.y,
+        startPoint.z,
+        endPoint.x,
+        endPoint.y,
+        endPoint.z,
+      ]);
 
       displayWaveform();
     },

@@ -1,6 +1,5 @@
 namespace Common
 {
-    
     processor ADSR {
         input event float attack;
         input event float decay;

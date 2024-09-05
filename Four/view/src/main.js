@@ -4,23 +4,17 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
-import { BuildButton } from "./button.js";
-import {
-  buttonIconSine,
-  buttonIconTuningFork,
-  buttonIconADSR,
-  buttonIconEQ,
-} from "./button-icons.js";
-import { BuildWaveDrawer } from "./wave-drawer.js";
-import { BuildADSRDrawer } from "./adsr-drawer.js";
 import { mockPatchConnection } from "./mock-patch-connection.js";
+
+import { BuildMenu } from "./menu.js";
+import { BuildScreenWave } from "./screens/screen-wave.js";
+import { BuildScreenAdsr } from "./screens/screen-adsr.js";
 
 import "./styles/main.css";
 
 let patchConnection = undefined;
 let scene, camera, renderer, composer;
 let bloomPass;
-let currentTab = 0;
 
 const params = {
   threshold: 0,
@@ -97,68 +91,37 @@ document.addEventListener("DOMContentLoaded", () => {
     patchConnection = mockPatchConnection;
   }
 
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  const buttons = [
-    BuildButton(canvas, ctx, xUnits, 12, 16, buttonIconSine(xUnits), () => {
-      currentTab = 0;
-      updateActiveTab();
-    }),
-    BuildButton(
-      canvas,
-      ctx,
-      xUnits,
-      12,
-      102,
-      buttonIconTuningFork(xUnits),
-      () => {
-        currentTab = 1;
-        updateActiveTab();
-      }
-    ),
-    BuildButton(canvas, ctx, xUnits, 12, 188, buttonIconADSR(xUnits), () => {
-      currentTab = 2;
-      updateActiveTab();
-    }),
-    BuildButton(canvas, ctx, xUnits, 12, 274, buttonIconEQ(xUnits), () => {
-      currentTab = 3;
-      updateActiveTab();
-    }),
-  ];
-
   initThree();
 
-  const drawer1 = BuildWaveDrawer(
+  const screenWave = BuildScreenWave(
     patchConnection,
     scene,
-    document.getElementById("root"),
-    getBoundingBoxTop(),
-    "point1"
+    getBoundingBoxTop,
+    getBoundingBoxBottom
   );
 
-  const drawer2 = BuildWaveDrawer(
+  const screenAdsr = BuildScreenAdsr(
     patchConnection,
     scene,
-    document.getElementById("root"),
-    getBoundingBoxBottom(),
-    "point2"
+    getBoundingBoxTop,
+    getBoundingBoxBottom
   );
 
-  const adsr1 = BuildADSRDrawer(
-    patchConnection,
-    scene,
-    document.getElementById("root"),
-    getBoundingBoxTop(),
-    "adsr1"
-  );
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+  const menu = BuildMenu(xUnits, canvas, ctx, (currentTab) => {
+    if (currentTab === 0) {
+      screenWave.setVisible(true);
+    } else {
+      screenWave.setVisible(false);
+    }
 
-  const adsr2 = BuildADSRDrawer(
-    patchConnection,
-    scene,
-    document.getElementById("root"),
-    getBoundingBoxBottom(),
-    "adsr2"
-  );
+    if (currentTab === 2) {
+      screenAdsr.setVisible(true);
+    } else {
+      screenAdsr.setVisible(false);
+    }
+  });
 
   const onWindowResize = () => {
     const root = document.getElementById("root");
@@ -174,37 +137,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderer.setSize(width, height);
     composer.setSize(width, height);
 
-    drawer1.setBoundingBox(getBoundingBoxTop());
-    drawer2.setBoundingBox(getBoundingBoxBottom());
-
-    adsr1.setBoundingBox(getBoundingBoxTop());
-    adsr2.setBoundingBox(getBoundingBoxBottom());
+    screenWave.resize();
+    screenAdsr.resize();
 
     redraw();
-  };
-
-  const updateActiveTab = () => {
-    for (const button of buttons) {
-      button.setActive(false);
-    }
-
-    buttons[currentTab].setActive(true);
-
-    if (currentTab === 0) {
-      drawer1.setVisible(true);
-      drawer2.setVisible(true);
-    } else {
-      drawer1.setVisible(false);
-      drawer2.setVisible(false);
-    }
-
-    if (currentTab === 2) {
-      adsr1.setVisible(true);
-      adsr2.setVisible(true);
-    } else {
-      adsr1.setVisible(false);
-      adsr2.setVisible(false);
-    }
   };
 
   const redraw = () => {
@@ -212,12 +148,10 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.height = window.innerHeight;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const button of buttons) {
-      button.draw();
-    }
+    menu.draw();
   };
 
   window.addEventListener("resize", onWindowResize, false);
   redraw();
-  updateActiveTab();
+  menu.triggerTabUpdate();
 });
