@@ -16,6 +16,10 @@ namespace Synth
         input event float adsr2_sustain [[ name: "adsr2_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
         input event float adsr2_release [[ name: "adsr2_release", min: 0.0, max: 1.0, init: 0.1 ]];
 
+        input event float osc1_level    [[ name: "osc1_level", unit: "dB", min: -85, max: 6, init: 0 ]];
+        input event float osc2_level    [[ name: "osc2_level", unit: "dB", min: -85, max: 6, init: 0 ]];
+        
+
         output stream float out;
 
         let voiceCount = VOICE_COUNT;
@@ -43,6 +47,9 @@ namespace Synth
             adsr2_decay -> voices.adsr2Decay;
             adsr2_sustain -> voices.adsr2Sustain;
             adsr2_release -> voices.adsr2Release;
+
+            osc1_level -> voices.osc1Level;
+            osc2_level -> voices.osc2Level;
 
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;

@@ -8,14 +8,14 @@
   "manufacturer": "Your Company Goes Here",
   "isInstrument": true,
   "source": [
-    "Constants.cmajor",
-    "Util.cmajor",
-    "WavetableOscillator.cmajor",
-    "WaveBuilder.cmajor",
-    "WaveControlPointParams.cmajor",
-    "ADSR.cmajor",
-    "Voice.cmajor",
-    "Four.cmajor"
+    "dsp/Constants.cmajor",
+    "dsp/Util.cmajor",
+    "dsp/WavetableOscillator.cmajor",
+    "dsp/WaveBuilder.cmajor",
+    "dsp/WaveControlPointParams.cmajor",
+    "dsp/ADSR.cmajor",
+    "dsp/Voice.cmajor",
+    "dsp/Four.cmajor"
   ],
   "view": {
     "src": "view/dist/index.js",

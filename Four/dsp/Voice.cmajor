@@ -16,17 +16,20 @@ namespace Synth
         input event float adsr2Sustain;
         input event float adsr2Release;
 
+        input event float osc1Level;
+        input event float osc2Level;
+
         output stream float out;
 
         node
         {
             oscillator1 = WavetableOscillator;
             oscillator2 = WavetableOscillator;
-            // envelope1 = std::envelopes::FixedASR (0.05f, 0.1f);
-            // envelope2 = std::envelopes::FixedASR (0.01f, 0.1f);
             envelope1 = Common::ADSR;
             envelope2 = Common::ADSR;
             noteToFrequency = Util::NoteToFrequency;
+            level1 = std::levels::SmoothedGain(float, 0.2f);
+            level2 = std::levels::SmoothedGain(float, 0.2f);
         }
 
         connection
@@ -48,10 +51,19 @@ namespace Synth
             adsr2Sustain -> envelope2.sustain;
             adsr2Release -> envelope2.release;
 
+            osc1Level -> level1.volume;
+            osc2Level -> level2.volume;
+
             envelope1.gainOut -> oscillator1.gainIn;
             envelope2.gainOut -> oscillator2.gainIn;
-            oscillator1.out -> oscillator2.fmIn;
-            oscillator2.out -> out;
+
+            // oscillator1.out -> oscillator2.fmIn;
+
+            oscillator1 -> level1.in;
+            oscillator2 -> level2.in;
+
+            level1 -> out;
+            level2 -> out;
         }
     }
 }
