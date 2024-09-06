@@ -6,30 +6,22 @@ import {
   buttonIconEQ,
 } from "./button-icons.js";
 
-export const BuildMenu = (xUnits, canvas, ctx, updateTab) => {
+export const BuildMenu = (canvas, ctx, updateTab) => {
   let currentTab = 0;
   const buttons = [
-    BuildButton(canvas, ctx, xUnits, 12, 16, buttonIconSine(xUnits), () => {
+    BuildButton(canvas, ctx, 12, 16, buttonIconSine, () => {
       currentTab = 0;
       updateActiveTab();
     }),
-    BuildButton(
-      canvas,
-      ctx,
-      xUnits,
-      12,
-      102,
-      buttonIconTuningFork(xUnits),
-      () => {
-        currentTab = 1;
-        updateActiveTab();
-      }
-    ),
-    BuildButton(canvas, ctx, xUnits, 12, 188, buttonIconADSR(xUnits), () => {
+    BuildButton(canvas, ctx, 12, 102, buttonIconTuningFork, () => {
+      currentTab = 1;
+      updateActiveTab();
+    }),
+    BuildButton(canvas, ctx, 12, 188, buttonIconADSR, () => {
       currentTab = 2;
       updateActiveTab();
     }),
-    BuildButton(canvas, ctx, xUnits, 12, 274, buttonIconEQ(xUnits), () => {
+    BuildButton(canvas, ctx, 12, 274, buttonIconEQ, () => {
       currentTab = 3;
       updateActiveTab();
     }),

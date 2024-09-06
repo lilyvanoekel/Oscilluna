@@ -6,8 +6,11 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 
 import { mockPatchConnection } from "./mock-patch-connection.js";
 
+import { xUnits } from "./domain/layout.js";
+
 import { BuildMenu } from "./menu.js";
 import { BuildScreenWave } from "./screens/screen-wave.js";
+import { BuildScreenTune } from "./screens/screen-tune.js";
 import { BuildScreenAdsr } from "./screens/screen-adsr.js";
 
 import "./styles/main.css";
@@ -63,10 +66,6 @@ const animate = () => {
   composer.render();
 };
 
-const xUnits = (units) => {
-  return (units * window.innerWidth) / 1024;
-};
-
 const getBoundingBoxTop = () => ({
   left: -window.innerWidth / 2 + xUnits(100),
   right: window.innerWidth / 2 - xUnits(14),
@@ -100,6 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
     getBoundingBoxBottom
   );
 
+  const screenTune = BuildScreenTune();
+
   const screenAdsr = BuildScreenAdsr(
     patchConnection,
     scene,
@@ -109,11 +110,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
-  const menu = BuildMenu(xUnits, canvas, ctx, (currentTab) => {
+  const menu = BuildMenu(canvas, ctx, (currentTab) => {
     if (currentTab === 0) {
       screenWave.setVisible(true);
     } else {
       screenWave.setVisible(false);
+    }
+
+    if (currentTab === 1) {
+      screenTune.setVisible(true);
+    } else {
+      screenTune.setVisible(false);
     }
 
     if (currentTab === 2) {
@@ -138,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     composer.setSize(width, height);
 
     screenWave.resize();
+    screenTune.resize();
     screenAdsr.resize();
 
     redraw();

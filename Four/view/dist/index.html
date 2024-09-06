@@ -1,14 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite Project</title>
-  <script type="module" crossorigin src="./assets/index-0eSQzmqk.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-wAg-6TnO.css">
-</head>
-<body>
+    <script type="module" crossorigin src="./assets/index-PIJat2sm.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BGQYMiok.css">
+  </head>
+  <body>
     <div id="root"></div>
     <canvas id="canvas"></canvas>
-</body>
+    <div id="temporary-controls-tuning">
+      <!-- Osc 1 -->
+      <div>
+        <div style="line-height: 300%">Osc 1</div>
+        <div class="ib">
+          <label for="range-1-level">Output Level</label><br />
+          <input
+            id="range-1-level"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="100"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-1-tune">Coarse Tune</label><br />
+          <input
+            id="range-1-tune"
+            type="range"
+            min="-2"
+            max="2"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-1-fine">Fine Tune</label><br />
+          <input
+            id="range-1-fine"
+            type="range"
+            min="-20"
+            max="20"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-1-vibrato-depth">Vibrato Depth</label><br />
+          <input
+            id="range-1-vibrato-depth"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-1-vibrato-speed">Vibrato Speed</label><br />
+          <input
+            id="range-1-vibrato-speed"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib" style="width: 74px">
+          <label class="block" style="text-align: left">
+            <input type="radio" name="fm" value="0" checked />
+            No FM
+          </label>
+
+          <label class="block" style="text-align: left">
+            <input type="radio" name="fm" value="1" />
+            1 → 2
+          </label>
+
+          <label class="block" style="text-align: left">
+            <input type="radio" name="fm" value="2" />
+            2 → 1
+          </label>
+        </div>
+        <div class="ib">
+          <label for="range-fm-depth">FM Depth</label><br />
+          <input
+            id="range-fm-depth"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="50"
+          />
+        </div>
+      </div>
+      <!-- Osc 2-->
+      <div>
+        <div style="line-height: 300%; margin-top: 16px">Osc 2</div>
+        <div class="ib">
+          <label for="range-2-level">Output Level</label><br />
+          <input
+            id="range-2-level"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="100"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-2-tune">Coarse Tune</label><br />
+          <input
+            id="range-2-tune"
+            type="range"
+            min="-2"
+            max="2"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-2-fine">Fine Tune</label><br />
+          <input
+            id="range-2-fine"
+            type="range"
+            min="-20"
+            max="20"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-2-vibrato-depth">Vibrato Depth</label><br />
+          <input
+            id="range-2-vibrato-depth"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="0"
+          />
+        </div>
+        <div class="ib">
+          <label for="range-2-vibrato-speed">Vibrato Speed</label><br />
+          <input
+            id="range-2-vibrato-speed"
+            type="range"
+            min="0"
+            max="100"
+            step="1"
+            value="0"
+          />
+        </div>
+      </div>
+    </div>
+  </body>
 </html>

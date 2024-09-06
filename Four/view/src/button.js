@@ -1,12 +1,6 @@
-export const BuildButton = (
-  canvas,
-  ctx,
-  xUnits,
-  x,
-  y,
-  drawContent,
-  onClick
-) => {
+import { xUnits } from "./domain/layout";
+
+export const BuildButton = (canvas, ctx, x, y, drawContent, onClick) => {
   let buttonX;
   let buttonY;
   let buttonWidth;
