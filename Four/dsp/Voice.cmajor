@@ -18,6 +18,10 @@ namespace Synth
 
         input event float osc1Level;
         input event float osc2Level;
+        input event float osc1Coarse;
+        input event float osc2Coarse;
+        input event float osc1Fine;
+        input event float osc2Fine;
 
         output stream float out;
 
@@ -30,12 +34,27 @@ namespace Synth
             noteToFrequency = Util::NoteToFrequency;
             level1 = std::levels::SmoothedGain(float, 0.2f);
             level2 = std::levels::SmoothedGain(float, 0.2f);
+            coarseTuner1 = Util::TuneCoarse;
+            coarseTuner2 = Util::TuneCoarse;
+            fineTuner1 = Util::TuneFine;
+            fineTuner2 = Util::TuneFine;
         }
 
         connection
         {
-            eventIn -> noteToFrequency -> oscillator1.frequencyIn;
-            eventIn -> noteToFrequency -> oscillator2.frequencyIn;
+            eventIn -> noteToFrequency;
+
+            noteToFrequency -> coarseTuner1.in;
+            noteToFrequency -> coarseTuner2.in;
+
+            coarseTuner1.out -> fineTuner1.in;
+            coarseTuner2.out -> fineTuner2.in;
+
+            fineTuner1.out -> oscillator1.frequencyIn;
+            fineTuner2.out -> oscillator2.frequencyIn;
+
+            // coarseTuner1 -> oscillator1.frequencyIn;
+            // eventIn -> noteToFrequency -> oscillator2.frequencyIn;
             eventIn -> envelope1.eventIn;
             eventIn -> envelope2.eventIn;
             wavetableIn1 -> oscillator1.wavetableIn;
@@ -53,6 +72,10 @@ namespace Synth
 
             osc1Level -> level1.volume;
             osc2Level -> level2.volume;
+            osc1Coarse -> coarseTuner1.octave;
+            osc2Coarse -> coarseTuner2.octave;
+            osc1Fine -> fineTuner1.cents;
+            osc2Fine -> fineTuner2.cents;
 
             envelope1.gainOut -> oscillator1.gainIn;
             envelope2.gainOut -> oscillator2.gainIn;

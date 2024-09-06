@@ -18,7 +18,12 @@ namespace Synth
 
         input event float osc1_level    [[ name: "osc1_level", unit: "dB", min: -85, max: 6, init: 0 ]];
         input event float osc2_level    [[ name: "osc2_level", unit: "dB", min: -85, max: 6, init: 0 ]];
-        
+
+        input event float osc1_coarse   [[ name: "osc1_coarse", min: -2, max: 2, init: 0, step: 1 ]];
+        input event float osc2_coarse   [[ name: "osc2_coarse", min: -2, max: 2, init: 0, step: 1 ]];
+
+        input event float osc1_fine     [[ name: "osc1_fine", min: -20, max: 20, init: 0, step: 1 ]];
+        input event float osc2_fine     [[ name: "osc2_fine", min: -20, max: 20, init: 0, step: 1 ]];
 
         output stream float out;
 
@@ -31,6 +36,8 @@ namespace Synth
             builder2 = WaveBuilder;
             voiceAllocator = std::voices::VoiceAllocator (voiceCount);
             waveControlPointParams = WaveControlPointParams;
+
+            // fineTuneSmoother = std::smoothing::SmoothedValueStream (0.02f);
         }
     
         connection
@@ -50,6 +57,10 @@ namespace Synth
 
             osc1_level -> voices.osc1Level;
             osc2_level -> voices.osc2Level;
+            osc1_coarse -> voices.osc1Coarse;
+            osc2_coarse -> voices.osc2Coarse;
+            osc1_fine -> voices.osc1Fine;
+            osc2_fine -> voices.osc2Fine;
 
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;

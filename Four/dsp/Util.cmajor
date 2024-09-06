@@ -33,6 +33,43 @@ namespace Util
         }
     }
 
+    processor TuneCoarse()
+    {
+        input event float32 in;
+        output event float32 out;
+        input event float32 octave;
+
+        float oct = 0;
+
+        event octave(float o) {
+            oct = o;
+        }
+
+        event in (float32 f)
+        {
+            out <- f * pow(2.0f, oct);;
+        }
+    }
+
+    processor TuneFine()
+    {
+        input event float32 in;
+        output event float32 out;
+        input event float32 cents;
+
+        float fineTuneCents = 0;
+
+        event cents(float c) {
+            fineTuneCents = c;
+        }
+
+        event in (float32 f)
+        {
+            float adjustedFrequency = f * pow(2.0f, fineTuneCents / 1200.0f);
+            out <- adjustedFrequency;
+        }
+    }
+
     int frequency_to_wavetable_index(float frequency, float f_min, float f_max, int num_wavetables)
     {
         float log2_f_min = log(f_min) / log(2.0f);

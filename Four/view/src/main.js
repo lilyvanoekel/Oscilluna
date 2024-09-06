@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
     getBoundingBoxBottom
   );
 
-  const screenTune = BuildScreenTune();
+  const screenTune = BuildScreenTune(patchConnection);
 
   const screenAdsr = BuildScreenAdsr(
     patchConnection,
