@@ -69,6 +69,7 @@ label {
   display: inline-block;
   width: 90px;
   text-align: center;
+  line-height: 150%;
 }
 
 input[type="range"] {

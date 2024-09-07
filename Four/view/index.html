@@ -70,29 +70,29 @@
         </div>
         <div class="ib" style="width: 74px">
           <label class="block" style="text-align: left">
-            <input type="radio" name="fm" value="0" checked />
+            <input type="radio" name="fm_direction" value="0" checked />
             No FM
           </label>
 
           <label class="block" style="text-align: left">
-            <input type="radio" name="fm" value="1" />
+            <input type="radio" name="fm_direction" value="1" />
             1 → 2
           </label>
 
           <label class="block" style="text-align: left">
-            <input type="radio" name="fm" value="2" />
-            2 → 1
+            <input type="radio" name="fm_direction" value="2" />
+            1 ← 2
           </label>
         </div>
         <div class="ib">
-          <label for="range-fm-depth">FM Depth</label><br />
+          <label for="fm_depth">FM Depth</label><br />
           <input
-            id="range-fm-depth"
+            id="fm_depth"
             type="range"
             min="0"
-            max="100"
-            step="1"
-            value="50"
+            max="1"
+            step="0.001"
+            value="0.5"
           />
         </div>
       </div>
