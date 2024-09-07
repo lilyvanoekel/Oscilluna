@@ -1,0 +1,74 @@
+namespace Synth
+{
+    processor OscBank {
+        input event float[] wavetableIn1;
+        input event float[] wavetableIn2;
+
+        input event float osc1FreqIn;
+        input event float osc2FreqIn;
+
+        input event int fmDirection;
+        input event float fmDepth;
+
+        input stream float osc1Gain;
+        input stream float osc2Gain;
+
+        output stream float out1;
+        output stream float out2;
+
+        int fm;
+        float depth;
+
+        node oscillator1 = WavetableOscillator;
+        node oscillator2 = WavetableOscillator;
+
+        event wavetableIn1(float[] w) { oscillator1.wavetableIn <- w; }
+        event wavetableIn2(float[] w) { oscillator2.wavetableIn <- w; }
+        event osc1FreqIn(float f) { oscillator1.frequencyIn <- f; }
+        event osc2FreqIn(float f) { oscillator2.frequencyIn <- f; }
+        event fmDirection(int f) { fm = f; }
+        event fmDepth(float d) { depth = d; }
+
+        void init() {
+            fm = 0;
+            depth = 0.5;
+        }
+
+        void main() {
+            loop {
+                if (fm == 0) {
+                    oscillator1.gainIn <- osc1Gain;
+                    oscillator1.advance();
+                    oscillator2.gainIn <- osc2Gain;
+                    oscillator2.advance();
+                    out1 <- oscillator1.out;
+                    out2 <- oscillator2.out;
+                } else if (fm == 1) {
+                    oscillator1.gainIn <- osc1Gain;
+                    oscillator1.advance();
+                    float osc1Sample = oscillator1.out;
+
+                    oscillator2.gainIn <- osc2Gain;
+                    oscillator2.fmIn <- osc1Sample * depth;
+                    oscillator2.advance();
+
+                    out1 <- osc1Sample;
+                    out2 <- oscillator2.out;
+                } else {
+                    oscillator2.gainIn <- osc2Gain;
+                    oscillator2.advance();
+                    float osc2Sample = oscillator2.out;
+
+                    oscillator1.gainIn <- osc1Gain;
+                    oscillator1.fmIn <- osc2Sample * depth;
+                    oscillator1.advance();
+
+                    out1 <- oscillator1.out;
+                    out2 <- osc2Sample;
+                }
+
+                advance();
+            }
+        }
+    }
+}

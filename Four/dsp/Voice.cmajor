@@ -3,8 +3,6 @@ namespace Synth
     graph Voice
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
-        input event float[] wavetableIn1;
-        input event float[] wavetableIn2;
 
         input event float adsr1Attack;
         input event float adsr1Decay;
@@ -23,12 +21,13 @@ namespace Synth
         input event float osc1Fine;
         input event float osc2Fine;
 
+        input oscBank.fmDirection, oscBank.fmDepth, oscBank.wavetableIn1, oscBank.wavetableIn2;
+
         output stream float out;
 
         node
         {
-            oscillator1 = WavetableOscillator;
-            oscillator2 = WavetableOscillator;
+            oscBank = OscBank;
             envelope1 = Common::ADSR;
             envelope2 = Common::ADSR;
             noteToFrequency = Util::NoteToFrequency;
@@ -50,16 +49,12 @@ namespace Synth
             coarseTuner1.out -> fineTuner1.in;
             coarseTuner2.out -> fineTuner2.in;
 
-            fineTuner1.out -> oscillator1.frequencyIn;
-            fineTuner2.out -> oscillator2.frequencyIn;
+            fineTuner1.out -> oscBank.osc1FreqIn;
+            fineTuner2.out -> oscBank.osc2FreqIn;
 
-            // coarseTuner1 -> oscillator1.frequencyIn;
-            // eventIn -> noteToFrequency -> oscillator2.frequencyIn;
             eventIn -> envelope1.eventIn;
             eventIn -> envelope2.eventIn;
-            wavetableIn1 -> oscillator1.wavetableIn;
-            wavetableIn2 -> oscillator2.wavetableIn;
-
+            
             adsr1Attack -> envelope1.attack;
             adsr1Decay -> envelope1.decay;
             adsr1Sustain -> envelope1.sustain;
@@ -77,13 +72,11 @@ namespace Synth
             osc1Fine -> fineTuner1.cents;
             osc2Fine -> fineTuner2.cents;
 
-            envelope1.gainOut -> oscillator1.gainIn;
-            envelope2.gainOut -> oscillator2.gainIn;
+            envelope1.gainOut -> oscBank.osc1Gain;
+            envelope2.gainOut -> oscBank.osc2Gain;
 
-            // oscillator1.out -> oscillator2.fmIn;
-
-            oscillator1 -> level1.in;
-            oscillator2 -> level2.in;
+            oscBank.out1 -> level1.in;
+            oscBank.out2 -> level2.in;
 
             level1 -> out;
             level2 -> out;

@@ -25,6 +25,9 @@ namespace Synth
         input event float osc1_fine     [[ name: "osc1_fine", min: -20, max: 20, init: 0, step: 1 ]];
         input event float osc2_fine     [[ name: "osc2_fine", min: -20, max: 20, init: 0, step: 1 ]];
 
+        input event int fm_direction    [[ name: "fm_direction", min:0, max:2, init: 0, step: 1]];
+        input event float fm_depth        [[ name: "fm_depth", min:0, max:1, init: 0.5]];
+
         output stream float out;
 
         let voiceCount = VOICE_COUNT;
@@ -61,6 +64,9 @@ namespace Synth
             osc2_coarse -> voices.osc2Coarse;
             osc1_fine -> voices.osc1Fine;
             osc2_fine -> voices.osc2Fine;
+
+            fm_direction -> voices.fmDirection;
+            fm_depth -> voices.fmDepth;
 
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;

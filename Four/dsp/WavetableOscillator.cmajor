@@ -35,7 +35,7 @@ namespace Synth
                     let indexOffset = wavetableIndex * TABLE_SIZE;
                     phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
                     phase += phaseIncrement;
-                    phase += (fmIn * 5.0f);
+                    phase += (fmIn * 25.0f);
                     
                     // Wrap phase to stay within the bounds of the wavetable
                     phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
