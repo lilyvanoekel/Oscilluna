@@ -9,6 +9,9 @@ namespace Synth
     let WAVETABLE_NUM_BUCKETS = 32;
     let WAVETABLE_TOTAL_SIZE = WAVETABLE_NUM_BUCKETS * TABLE_SIZE;
 
+    let VIBRATO_DEPTH_FACTOR = 0.004f;
+    let FM_FACTOR = 25.0f;
+
     // Represents a sine wave in Catmull-Rom spline control points
     const float[CONTROL_POINTS] DEFAULT_CONTROL_POINTS = (
         0.0f, 

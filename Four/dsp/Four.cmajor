@@ -28,6 +28,14 @@ namespace Synth
         input event int fm_direction    [[ name: "fm_direction", min:0, max:2, init: 0, step: 1]];
         input event float fm_depth      [[ name: "fm_depth", min: 0, max: 1, init: 0.5]];
 
+        input event float osc1_vibrato_rate     [[ name: "osc1_vibrato_rate", min: 0.5, max: 10.0, init: 0.423]];
+        input event float osc2_vibrato_rate     [[ name: "osc2_vibrato_rate", min: 0.5, max: 10.0, init: 0.8146]];
+        input event float osc1_vibrato_depth    [[ name: "osc1_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
+        input event float osc2_vibrato_depth    [[ name: "osc2_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
+
+        input event float osc1_wavefolding      [[ name: "osc1_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
+        input event float osc2_wavefolding      [[ name: "osc2_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
+
         output stream float out;
 
         let voiceCount = VOICE_COUNT;
@@ -39,6 +47,10 @@ namespace Synth
             builder2 = WaveBuilder;
             voiceAllocator = std::voices::VoiceAllocator (voiceCount);
             waveControlPointParams = WaveControlPointParams;
+            // vibratoLfo1 = std::oscillators::LFO(std::oscillators::Shape::triangle);
+            // vibratoLfo2 = std::oscillators::LFO(std::oscillators::Shape::triangle);
+            vibratoLfo1 = std::oscillators::LFO();
+            vibratoLfo2 = std::oscillators::LFO();
 
             // fineTuneSmoother = std::smoothing::SmoothedValueStream (0.02f);
         }
@@ -67,6 +79,15 @@ namespace Synth
 
             fm_direction -> voices.fmDirection;
             fm_depth -> voices.fmDepth;
+
+            osc1_vibrato_rate -> vibratoLfo1.rateHzIn;
+            osc2_vibrato_rate -> vibratoLfo2.rateHzIn;
+            vibratoLfo1.out -> voices.vibrato1;
+            vibratoLfo2.out -> voices.vibrato2;
+            osc1_vibrato_depth -> voices.vibratoDepth1;
+            osc2_vibrato_depth -> voices.vibratoDepth2;
+            osc1_wavefolding -> voices.osc1Wavefolding;
+            osc2_wavefolding -> voices.osc2Wavefolding;
 
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;

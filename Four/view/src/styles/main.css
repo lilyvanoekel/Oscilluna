@@ -67,7 +67,7 @@ body {
 
 label {
   display: inline-block;
-  width: 90px;
+  width: 80px;
   text-align: center;
   line-height: 150%;
 }
@@ -75,7 +75,7 @@ label {
 input[type="range"] {
   -webkit-appearance: slider-vertical;
   display: inline-block;
-  width: 90px;
+  width: 80px;
 }
 
 .ib {

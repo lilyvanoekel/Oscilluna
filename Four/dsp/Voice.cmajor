@@ -20,8 +20,17 @@ namespace Synth
         input event float osc2Coarse;
         input event float osc1Fine;
         input event float osc2Fine;
+        input event float osc1Wavefolding;
+        input event float osc2Wavefolding;
 
-        input oscBank.fmDirection, oscBank.fmDepth, oscBank.wavetableIn1, oscBank.wavetableIn2;
+        input oscBank.fmDirection, 
+            oscBank.fmDepth,
+            oscBank.wavetableIn1,
+            oscBank.wavetableIn2,
+            oscBank.vibrato1,
+            oscBank.vibrato2,
+            oscBank.vibratoDepth1,
+            oscBank.vibratoDepth2;
 
         output stream float out;
 
@@ -37,6 +46,8 @@ namespace Synth
             coarseTuner2 = Util::TuneCoarse;
             fineTuner1 = Util::TuneFine;
             fineTuner2 = Util::TuneFine;
+            waveFolder1 = Common::WaveFolder;
+            waveFolder2 = Common::WaveFolder;
         }
 
         connection
@@ -75,8 +86,17 @@ namespace Synth
             envelope1.gainOut -> oscBank.osc1Gain;
             envelope2.gainOut -> oscBank.osc2Gain;
 
-            oscBank.out1 -> level1.in;
-            oscBank.out2 -> level2.in;
+            // oscBank.out1 -> level1.in;
+            // oscBank.out2 -> level2.in;
+
+            osc1Wavefolding -> waveFolder1.gain;
+            osc2Wavefolding -> waveFolder2.gain;
+
+            oscBank.out1 -> waveFolder1.in;
+            oscBank.out2 -> waveFolder2.in;
+
+            waveFolder1.out -> level1.in;
+            waveFolder2.out -> level2.in;
 
             level1 -> out;
             level2 -> out;

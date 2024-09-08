@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite Project</title>
-    <script type="module" crossorigin src="./assets/index-B6BN23aL.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BsJu8gc7.css">
+    <script type="module" crossorigin src="./assets/index-BQc9fwUj.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-ClfZTLdt.css">
   </head>
   <body>
     <div id="root"></div>
@@ -48,25 +48,36 @@
           />
         </div>
         <div class="ib">
-          <label for="range-1-vibrato-depth">Vibrato Depth</label><br />
+          <label for="osc1_vibrato_depth">Vibrato Depth</label><br />
           <input
-            id="range-1-vibrato-depth"
+            id="osc1_vibrato_depth"
             type="range"
             min="0"
-            max="100"
-            step="1"
+            max="1"
+            step="0.01"
             value="0"
           />
         </div>
         <div class="ib">
-          <label for="range-1-vibrato-speed">Vibrato Speed</label><br />
+          <label for="osc1_vibrato_rate">Vibrato Speed</label><br />
           <input
-            id="range-1-vibrato-speed"
+            id="osc1_vibrato_rate"
             type="range"
-            min="0"
-            max="100"
-            step="1"
-            value="0"
+            min="0.5"
+            max="10"
+            step="0.01"
+            value="0.5"
+          />
+        </div>
+        <div class="ib">
+          <label for="osc1_wavefolding">Wavefolding</label><br />
+          <input
+            id="osc1_wavefolding"
+            type="range"
+            min="0.9"
+            max="2"
+            step="0.1"
+            value="0.9"
           />
         </div>
         <div class="ib" style="width: 74px">
@@ -134,25 +145,36 @@
           />
         </div>
         <div class="ib">
-          <label for="range-2-vibrato-depth">Vibrato Depth</label><br />
+          <label for="osc2_vibrato_depth">Vibrato Depth</label><br />
           <input
-            id="range-2-vibrato-depth"
+            id="osc2_vibrato_depth"
             type="range"
             min="0"
-            max="100"
-            step="1"
+            max="1"
+            step="0.01"
             value="0"
           />
         </div>
         <div class="ib">
-          <label for="range-2-vibrato-speed">Vibrato Speed</label><br />
+          <label for="osc2_vibrato_rate">Vibrato Speed</label><br />
           <input
-            id="range-2-vibrato-speed"
+            id="osc2_vibrato_rate"
             type="range"
-            min="0"
-            max="100"
-            step="1"
-            value="0"
+            min="0.5"
+            max="10"
+            step="0.01"
+            value="0.5"
+          />
+        </div>
+        <div class="ib">
+          <label for="osc2_wavefolding">Wavefolding</label><br />
+          <input
+            id="osc2_wavefolding"
+            type="range"
+            min="0.9"
+            max="2"
+            step="0.1"
+            value="0.9"
           />
         </div>
       </div>

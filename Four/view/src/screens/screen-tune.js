@@ -39,6 +39,12 @@ export const BuildScreenTune = (patchConnection) => {
     "osc2_fine",
     "fm_depth",
     "fm_direction",
+    "osc1_vibrato_rate",
+    "osc2_vibrato_rate",
+    "osc1_vibrato_depth",
+    "osc2_vibrato_depth",
+    "osc1_wavefolding",
+    "osc2_wavefolding",
   ];
 
   const paramsUpdated = ({ endpointID, value }) => {

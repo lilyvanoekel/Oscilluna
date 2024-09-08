@@ -10,6 +10,7 @@
   "source": [
     "dsp/Constants.cmajor",
     "dsp/Util.cmajor",
+    "dsp/WaveFolder.cmajor",
     "dsp/WavetableOscillator.cmajor",
     "dsp/WaveBuilder.cmajor",
     "dsp/WaveControlPointParams.cmajor",

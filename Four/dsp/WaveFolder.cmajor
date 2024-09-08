@@ -1,0 +1,35 @@
+namespace Common
+{
+    processor WaveFolder {
+        input stream float in;
+        output stream float out;
+
+        input event float gain;
+
+        float gain_ = 1.0f;
+        float bypass_ = 0.0f;
+        float antiBypass_ = 1.0f;
+
+        event gain (float g)
+        {
+            gain_ = g;
+
+            if (gain_ < 1.0f) {
+                bypass_ = 1.0f;
+                antiBypass_ = 0.0f;
+            } else {
+                bypass_ = 0.0f;
+                antiBypass_ = 1.0f;
+            }
+        }
+
+        void main()
+        {
+            loop
+            {
+                out <- Util::fastSin(in * gain_) * antiBypass_ + bypass_ * in;
+                advance();
+            }
+        }
+    }
+}

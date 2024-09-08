@@ -94,4 +94,21 @@ namespace Util
         float frequency = pow(2.0f, log2_f);        
         return frequency;
     }
+
+    float fmod2(float x) {
+        return 2.0f * (x * 0.5f - floor(x * 0.5f));
+    }
+
+    // Fake sine approximation: https://bmtechjournal.wordpress.com/2020/05/27/super-fast-quadratic-sinusoid-approximation/
+    float fakeSin(float x) {
+        return x * (1.0f - abs(x));
+    }
+
+    float rangeLimiter(float x) {
+        return fmod2(x + 1.0f) - 1.0f;
+    }
+
+    float fastSin(float x) {
+        return fakeSin(rangeLimiter(x));
+    }
 }
