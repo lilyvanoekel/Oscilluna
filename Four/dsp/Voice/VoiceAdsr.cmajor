@@ -1,0 +1,38 @@
+namespace Synth
+{
+    graph VoiceAdsr {
+        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+        input event Params paramsIn;
+
+        output stream float gainOut1;
+        output stream float gainOut2;
+
+        node
+        {
+            envelope1 = Common::ADSR;
+            envelope2 = Common::ADSR;
+            paramSplitter = ParamSplitter;
+        }
+
+        connection
+        {
+            eventIn -> envelope1.eventIn;
+            eventIn -> envelope2.eventIn;
+
+            paramsIn -> paramSplitter.paramsIn;
+            
+            paramSplitter.adsr1Attack -> envelope1.attack;
+            paramSplitter.adsr1Decay -> envelope1.decay;
+            paramSplitter.adsr1Sustain -> envelope1.sustain;
+            paramSplitter.adsr1Release -> envelope1.release;
+
+            paramSplitter.adsr2Attack -> envelope2.attack;
+            paramSplitter.adsr2Decay -> envelope2.decay;
+            paramSplitter.adsr2Sustain -> envelope2.sustain;
+            paramSplitter.adsr2Release -> envelope2.release;
+
+            envelope1.gainOut -> gainOut1;
+            envelope2.gainOut -> gainOut2;
+        }
+    }
+}

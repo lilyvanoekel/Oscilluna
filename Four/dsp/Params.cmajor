@@ -1,0 +1,158 @@
+namespace Synth
+{
+    struct Params
+    {
+        float adsr1Attack;
+        float adsr1Decay;
+        float adsr1Sustain;
+        float adsr1Release;
+
+        float adsr2Attack;
+        float adsr2Decay;
+        float adsr2Sustain;
+        float adsr2Release;
+
+        float osc1Level;
+        float osc2Level;
+        float osc1Coarse;
+        float osc2Coarse;
+        float osc1Fine;
+        float osc2Fine;
+
+        int fmDirection;
+        float fmDepth;
+        float osc1Wavefolding;
+        float osc2Wavefolding;
+    }
+
+    Params createParams()
+    {
+        Params p;
+
+        p.adsr1Attack = 0.1f;
+        p.adsr1Decay = 0.1f;
+        p.adsr1Sustain = 0.7f;
+        p.adsr1Release = 0.1f;
+
+        p.adsr2Attack = 0.1f;
+        p.adsr2Decay = 0.1f;
+        p.adsr2Sustain = 0.7f;
+        p.adsr2Release = 0.1f;
+
+        p.osc1Level = 0.0f;
+        p.osc2Level = 0.0f;
+        p.osc1Coarse = 0.0f;
+        p.osc2Coarse = 0.0f;
+        p.osc1Fine = 0.0f;
+        p.osc2Fine = 0.0f;
+
+        p.fmDirection = 1;
+        p.fmDepth = 0.5f;
+        p.osc1Wavefolding = 0.0f;
+        p.osc2Wavefolding = 0.0f;
+
+        return p;
+    }
+
+    graph ParamSplitter {
+        input event Params paramsIn;
+
+        output event float adsr1Attack;
+        output event float adsr1Decay;
+        output event float adsr1Sustain;
+        output event float adsr1Release;
+
+        output event float adsr2Attack;
+        output event float adsr2Decay;
+        output event float adsr2Sustain;
+        output event float adsr2Release;
+
+        output event float osc1Level;
+        output event float osc2Level;
+        output event float osc1Coarse;
+        output event float osc2Coarse;
+        output event float osc1Fine;
+        output event float osc2Fine;
+
+        output event int fmDirection;
+        output event float fmDepth;
+        output event float osc1Wavefolding;
+        output event float osc2Wavefolding;
+
+        event paramsIn(Params p) {
+            adsr1Attack <- p.adsr1Attack;
+            adsr1Decay <- p.adsr1Decay;
+            adsr1Sustain <- p.adsr1Sustain;
+            adsr1Release <- p.adsr1Release;
+
+            adsr2Attack <- p.adsr2Attack;
+            adsr2Decay <- p.adsr2Decay;
+            adsr2Sustain <- p.adsr2Sustain;
+            adsr2Release <- p.adsr2Release;
+
+            osc1Level <- p.osc1Level;
+            osc2Level <- p.osc2Level;
+            osc1Coarse <- p.osc1Coarse;
+            osc2Coarse <- p.osc2Coarse;
+            osc1Fine <- p.osc1Fine;
+            osc2Fine <- p.osc2Fine;
+
+            fmDirection <- p.fmDirection;
+            fmDepth <- p.fmDepth;
+            osc1Wavefolding <- p.osc1Wavefolding;
+            osc2Wavefolding <- p.osc2Wavefolding;
+        }
+    }
+
+    processor ParamsProcessor
+    {
+        input event float adsr1_attack  [[ name: "adsr1_attack", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event float adsr1_decay   [[ name: "adsr1_decay", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event float adsr1_sustain [[ name: "adsr1_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
+        input event float adsr1_release [[ name: "adsr1_release", min: 0.0, max: 1.0, init: 0.1 ]];
+
+        input event float adsr2_attack  [[ name: "adsr2_attack", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event float adsr2_decay   [[ name: "adsr2_decay", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event float adsr2_sustain [[ name: "adsr2_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
+        input event float adsr2_release [[ name: "adsr2_release", min: 0.0, max: 1.0, init: 0.1 ]];
+
+        input event float osc1_level    [[ name: "osc1_level", unit: "dB", min: -85, max: 6, init: 0 ]];
+        input event float osc2_level    [[ name: "osc2_level", unit: "dB", min: -85, max: 6, init: 0 ]];
+
+        input event float osc1_coarse   [[ name: "osc1_coarse", min: -2, max: 2, init: 0, step: 1 ]];
+        input event float osc2_coarse   [[ name: "osc2_coarse", min: -2, max: 2, init: 0, step: 1 ]];
+
+        input event float osc1_fine     [[ name: "osc1_fine", min: -20, max: 20, init: 0, step: 1 ]];
+        input event float osc2_fine     [[ name: "osc2_fine", min: -20, max: 20, init: 0, step: 1 ]];
+
+        input event int fm_direction    [[ name: "fm_direction", min:0, max:2, init: 0, step: 1]];
+        input event float fm_depth      [[ name: "fm_depth", min: 0, max: 1, init: 0.5]];
+
+        input event float osc1_wavefolding      [[ name: "osc1_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
+        input event float osc2_wavefolding      [[ name: "osc2_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
+
+        output event Params paramsOut;
+
+        Params params = createParams();
+
+        event adsr1_attack (float f)            { params.adsr1Attack = f;           paramsOut <- params; }
+        event adsr1_decay (float f)             { params.adsr1Decay = f;            paramsOut <- params; }
+        event adsr1_sustain (float f)           { params.adsr1Sustain = f;          paramsOut <- params; }
+        event adsr1_release (float f)           { params.adsr1Release = f;          paramsOut <- params; }
+        event adsr2_attack (float f)            { params.adsr2Attack = f;           paramsOut <- params; }
+        event adsr2_decay (float f)             { params.adsr2Decay = f;            paramsOut <- params; }
+        event adsr2_sustain (float f)           { params.adsr2Sustain = f;          paramsOut <- params; }
+        event adsr2_release (float f)           { params.adsr2Release = f;          paramsOut <- params; }
+        event osc1_level (float f)              { params.osc1Level = f;             paramsOut <- params; }
+        event osc2_level (float f)              { params.osc2Level = f;             paramsOut <- params; }
+        event osc1_coarse (float f)             { params.osc1Coarse = f;            paramsOut <- params; }
+        event osc2_coarse (float f)             { params.osc2Coarse = f;            paramsOut <- params; }
+        event osc1_fine (float f)               { params.osc1Fine = f;              paramsOut <- params; }
+        event osc2_fine (float f)               { params.osc2Fine = f;              paramsOut <- params; }
+        event fm_direction (int f)              { params.fmDirection = f;           paramsOut <- params; }
+        event fm_depth (float f)                { params.fmDepth = f;               paramsOut <- params; }
+        event osc1_wavefolding (float f)        { params.osc1Wavefolding = f;       paramsOut <- params; }
+        event osc2_wavefolding (float f)        { params.osc2Wavefolding = f;       paramsOut <- params; }
+        
+    }
+}

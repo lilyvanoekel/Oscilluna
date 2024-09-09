@@ -31,42 +31,39 @@ namespace Synth
             
             loop
             {
-                if (gainIn > 0.0001) {
-                    let indexOffset = wavetableIndex * TABLE_SIZE;
-                    phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
-                    phase += phaseIncrement;
-                    phase += (fmIn * FM_FACTOR);
-                    
-                    // Wrap phase to stay within the bounds of the wavetable
-                    phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
-                    
-                    let index = wrap<TABLE_SIZE>(int32(phase));
-                    let nextIndex = wrap<TABLE_SIZE>(index + 1);
-                    let prevIndex = wrap<TABLE_SIZE>(index - 1);
-                    let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
-                    
-                    let frac = phase - float(index);
-                    
-                    // Fetch the four points needed for the interpolation
-                    float value0 = wavetable[indexOffset + prevIndex];
-                    float value1 = wavetable[indexOffset + index];
-                    float value2 = wavetable[indexOffset + nextIndex];
-                    float value3 = wavetable[indexOffset + nextNextIndex];
-                    
-                    // Perform Hermite interpolation
-                    float slope0 = (value2 - value0) * 0.5f;
-                    float slope1 = (value3 - value1) * 0.5f;
-                    float v = value1 - value2;
-                    float w = slope0 + v;
-                    float a = w + v + slope1;
-                    float b_neg = w + a;
-                    float stage1 = a * frac - b_neg;
-                    float stage2 = stage1 * frac + slope0;
-                    float outputSample = stage2 * frac + value1;
-                    out <- outputSample * gainIn;
-                } else {
-                    out <- 0.0f;
-                }
+                let indexOffset = wavetableIndex * TABLE_SIZE;
+                phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
+                phase += phaseIncrement;
+                phase += (fmIn * FM_FACTOR);
+                
+                // Wrap phase to stay within the bounds of the wavetable
+                phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
+                
+                let index = wrap<TABLE_SIZE>(int32(phase));
+                let nextIndex = wrap<TABLE_SIZE>(index + 1);
+                let prevIndex = wrap<TABLE_SIZE>(index - 1);
+                let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
+                
+                let frac = phase - float(index);
+                
+                // Fetch the four points needed for the interpolation
+                float value0 = wavetable[indexOffset + prevIndex];
+                float value1 = wavetable[indexOffset + index];
+                float value2 = wavetable[indexOffset + nextIndex];
+                float value3 = wavetable[indexOffset + nextNextIndex];
+                
+                // Perform Hermite interpolation
+                float slope0 = (value2 - value0) * 0.5f;
+                float slope1 = (value3 - value1) * 0.5f;
+                float v = value1 - value2;
+                float w = slope0 + v;
+                float a = w + v + slope1;
+                float b_neg = w + a;
+                float stage1 = a * frac - b_neg;
+                float stage2 = stage1 * frac + slope0;
+                float outputSample = stage2 * frac + value1;
+                out <- outputSample * gainIn;
+                
                 advance();
             }
         }

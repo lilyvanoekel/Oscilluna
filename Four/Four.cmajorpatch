@@ -9,14 +9,16 @@
   "isInstrument": true,
   "source": [
     "dsp/Constants.cmajor",
+    "dsp/Params.cmajor",
     "dsp/Util.cmajor",
-    "dsp/WaveFolder.cmajor",
+    "dsp/Common/WaveFolder.cmajor",
     "dsp/WavetableOscillator.cmajor",
     "dsp/WaveBuilder.cmajor",
     "dsp/WaveControlPointParams.cmajor",
-    "dsp/ADSR.cmajor",
-    "dsp/OscBank.cmajor",
-    "dsp/Voice.cmajor",
+    "dsp/Common/ADSR.cmajor",
+    "dsp/Voice/OscBank.cmajor",
+    "dsp/Voice/VoiceAdsr.cmajor",
+    "dsp/Voice/Voice.cmajor",
     "dsp/Four.cmajor"
   ],
   "view": {

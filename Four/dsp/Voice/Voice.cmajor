@@ -1,0 +1,164 @@
+namespace Synth
+{
+    processor Voice {
+        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+        input event Params paramsIn;
+
+        input event float[] wavetableIn1;
+        input event float[] wavetableIn2;
+
+        input event float vibratoDepth1;
+        input event float vibratoDepth2;
+
+        input stream float vibrato1;
+        input stream float vibrato2;
+
+        output stream float out;
+
+        node voiceAdsr = VoiceAdsr;
+        node subVoice = SubVoice;
+
+        event eventIn(std::notes::NoteOn e) {
+            voiceAdsr.eventIn <- e;
+            subVoice.eventIn <- e;
+        }
+        event eventIn(std::notes::NoteOff e) {
+            voiceAdsr.eventIn <- e;
+            subVoice.eventIn <- e;
+        }
+        event paramsIn(Params p) {
+            voiceAdsr.paramsIn <- p;
+            subVoice.paramsIn <- p;
+        }
+        event wavetableIn1(float[] w) { subVoice.wavetableIn1 <- w; }
+        event wavetableIn2(float[] w) { subVoice.wavetableIn2 <- w; }
+        event vibratoDepth1(float d) { subVoice.vibratoDepth1 <- d; }
+        event vibratoDepth2(float d) { subVoice.vibratoDepth2 <- d; }
+        
+        void main() {
+            loop {
+                let gain1 = voiceAdsr.gainOut1;
+                let gain2 = voiceAdsr.gainOut2;
+
+                if (gain1 > 0.0001f || gain2 > 0.0001f) {
+                    subVoice.vibrato1 <- vibrato1;
+                    subVoice.vibrato2 <- vibrato2;
+
+                    subVoice.osc1Gain <- voiceAdsr.gainOut1;
+                    subVoice.osc2Gain <- voiceAdsr.gainOut2;
+                
+                    out <- subVoice.out;
+                    
+                    subVoice.advance();
+                } else {
+                    out <- 0.0f;
+                }
+
+                voiceAdsr.advance();
+                advance();
+            }
+        }
+    }
+    
+    graph VoiceRemoveMeButAfterCommitingJustInCase {
+        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+        input event Params paramsIn;
+
+        input subVoice.wavetableIn1,
+            subVoice.wavetableIn2,
+            subVoice.vibrato1,
+            subVoice.vibrato2,
+            subVoice.vibratoDepth1,
+            subVoice.vibratoDepth2;
+
+        output stream float out;
+
+        node
+        {
+            voiceAdsr = VoiceAdsr;
+            subVoice = SubVoice;
+        }
+
+        connection
+        {
+            eventIn -> voiceAdsr.eventIn;
+            eventIn -> subVoice.eventIn;
+
+            paramsIn -> subVoice.paramsIn;
+            paramsIn -> voiceAdsr.paramsIn;
+            
+            voiceAdsr.gainOut1 -> subVoice.osc1Gain;
+            voiceAdsr.gainOut2 -> subVoice.osc2Gain;
+            subVoice -> out;
+        }
+    }
+    
+    graph SubVoice
+    {
+        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+        input event Params paramsIn;
+
+        input oscBank.wavetableIn1,
+            oscBank.wavetableIn2,
+            oscBank.vibrato1,
+            oscBank.vibrato2,
+            oscBank.vibratoDepth1,
+            oscBank.vibratoDepth2,
+            oscBank.osc1Gain,
+            oscBank.osc2Gain;
+
+        output stream float out;
+
+        node
+        {
+            paramSplitter = ParamSplitter;
+            oscBank = OscBank;
+            noteToFrequency = Util::NoteToFrequency;
+            level1 = std::levels::SmoothedGain(float, 0.2f);
+            level2 = std::levels::SmoothedGain(float, 0.2f);
+            coarseTuner1 = Util::TuneCoarse;
+            coarseTuner2 = Util::TuneCoarse;
+            fineTuner1 = Util::TuneFine;
+            fineTuner2 = Util::TuneFine;
+            waveFolder1 = Common::WaveFolder;
+            waveFolder2 = Common::WaveFolder;
+        }
+
+        connection
+        {
+            eventIn -> noteToFrequency;
+
+            paramsIn -> oscBank.paramsIn;
+
+            noteToFrequency -> coarseTuner1.in;
+            noteToFrequency -> coarseTuner2.in;
+
+            coarseTuner1.out -> fineTuner1.in;
+            coarseTuner2.out -> fineTuner2.in;
+
+            fineTuner1.out -> oscBank.osc1FreqIn;
+            fineTuner2.out -> oscBank.osc2FreqIn;
+
+            paramsIn -> paramSplitter.paramsIn;
+
+            paramSplitter.osc1Level -> level1.volume;
+            paramSplitter.osc2Level -> level2.volume;
+            paramSplitter.osc1Coarse -> coarseTuner1.octave;
+            paramSplitter.osc2Coarse -> coarseTuner2.octave;
+            paramSplitter.osc1Fine -> fineTuner1.cents;
+            paramSplitter.osc2Fine -> fineTuner2.cents;
+
+            paramSplitter.osc1Wavefolding -> waveFolder1.gain;
+            paramSplitter.osc2Wavefolding -> waveFolder2.gain;
+
+            oscBank.out1 -> waveFolder1.in;
+            oscBank.out2 -> waveFolder2.in;
+
+            waveFolder1.out -> level1.in;
+            waveFolder2.out -> level2.in;
+
+            level1 -> out;
+            level2 -> out;
+        }
+    }
+}
