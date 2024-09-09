@@ -60,39 +60,6 @@ namespace Synth
         }
     }
     
-    graph VoiceRemoveMeButAfterCommitingJustInCase {
-        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
-        input event Params paramsIn;
-
-        input subVoice.wavetableIn1,
-            subVoice.wavetableIn2,
-            subVoice.vibrato1,
-            subVoice.vibrato2,
-            subVoice.vibratoDepth1,
-            subVoice.vibratoDepth2;
-
-        output stream float out;
-
-        node
-        {
-            voiceAdsr = VoiceAdsr;
-            subVoice = SubVoice;
-        }
-
-        connection
-        {
-            eventIn -> voiceAdsr.eventIn;
-            eventIn -> subVoice.eventIn;
-
-            paramsIn -> subVoice.paramsIn;
-            paramsIn -> voiceAdsr.paramsIn;
-            
-            voiceAdsr.gainOut1 -> subVoice.osc1Gain;
-            voiceAdsr.gainOut2 -> subVoice.osc2Gain;
-            subVoice -> out;
-        }
-    }
-    
     graph SubVoice
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
