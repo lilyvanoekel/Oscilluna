@@ -7,11 +7,6 @@ namespace Synth
         input waveControlPointParams.*;
         input paramsProcessor.*;
         
-        input event float osc1_vibrato_rate     [[ name: "osc1_vibrato_rate", min: 0.5, max: 10.0, init: 0.423]];
-        input event float osc2_vibrato_rate     [[ name: "osc2_vibrato_rate", min: 0.5, max: 10.0, init: 0.8146]];
-        input event float osc1_vibrato_depth    [[ name: "osc1_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
-        input event float osc2_vibrato_depth    [[ name: "osc2_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
-
         output stream float out;
 
         let voiceCount = VOICE_COUNT;
@@ -19,6 +14,7 @@ namespace Synth
         node
         {
             paramsProcessor = ParamsProcessor;
+            paramSplitter = ParamSplitter;
             voices = Voice[voiceCount];
             builder1 = WaveBuilder;
             builder2 = WaveBuilder;
@@ -35,19 +31,20 @@ namespace Synth
             midiIn -> std::midi::MPEConverter -> voiceAllocator;
             voiceAllocator.voiceEventOut -> voices.eventIn;
             paramsProcessor.paramsOut -> voices.paramsIn;
+            paramsProcessor.paramsOut -> paramSplitter.paramsIn;
 
-            osc1_vibrato_rate -> vibratoLfo1.rateHzIn;
-            osc2_vibrato_rate -> vibratoLfo2.rateHzIn;
+            paramSplitter.osc1VibratoRate -> vibratoLfo1.rateHzIn;
+            paramSplitter.osc2VibratoRate -> vibratoLfo2.rateHzIn;
             vibratoLfo1.out -> voices.vibrato1;
             vibratoLfo2.out -> voices.vibrato2;
-            osc1_vibrato_depth -> voices.vibratoDepth1;
-            osc2_vibrato_depth -> voices.vibratoDepth2;
+            paramSplitter.osc1VibratoDepth -> voices.vibratoDepth1;
+            paramSplitter.osc2VibratoDepth -> voices.vibratoDepth2;
             
             waveControlPointParams.controlPoints1 -> builder1.controlPoints;
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;
             builder1.waveOut -> voices.wavetableIn1;
             builder2.waveOut -> voices.wavetableIn2;
-            voices -> std::levels::ConstantGain (float, 0.3f) -> out;
+            voices -> std::levels::ConstantGain (float, 0.25f) -> out;
         }
     }
 }

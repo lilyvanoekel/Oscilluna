@@ -1,0 +1,71 @@
+namespace Synth
+{
+    graph VoiceSoundSource
+    {
+        input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+        input event Params paramsIn;
+
+        input oscBank.wavetableIn1,
+            oscBank.wavetableIn2,
+            oscBank.vibrato1,
+            oscBank.vibrato2,
+            oscBank.vibratoDepth1,
+            oscBank.vibratoDepth2,
+            oscBank.osc1Gain,
+            oscBank.osc2Gain;
+
+        output stream float out;
+
+        node
+        {
+            paramSplitter = ParamSplitter;
+            oscBank = OscBank;
+            noteToFrequency = Util::NoteToFrequency;
+            level1 = std::levels::SmoothedGain(float, 0.2f);
+            level2 = std::levels::SmoothedGain(float, 0.2f);
+            coarseTuner1 = Util::TuneCoarse;
+            coarseTuner2 = Util::TuneCoarse;
+            fineTuner1 = Util::TuneFine;
+            fineTuner2 = Util::TuneFine;
+            waveFolder1 = Common::WaveFolder;
+            waveFolder2 = Common::WaveFolder;
+        }
+
+        connection
+        {
+            eventIn -> noteToFrequency;
+
+            paramsIn -> oscBank.paramsIn;
+
+            noteToFrequency -> coarseTuner1.in;
+            noteToFrequency -> coarseTuner2.in;
+
+            coarseTuner1.out -> fineTuner1.in;
+            coarseTuner2.out -> fineTuner2.in;
+
+            fineTuner1.out -> oscBank.osc1FreqIn;
+            fineTuner2.out -> oscBank.osc2FreqIn;
+
+            paramsIn -> paramSplitter.paramsIn;
+
+            paramSplitter.osc1Level -> level1.volume;
+            paramSplitter.osc2Level -> level2.volume;
+            paramSplitter.osc1Coarse -> coarseTuner1.octave;
+            paramSplitter.osc2Coarse -> coarseTuner2.octave;
+            paramSplitter.osc1Fine -> fineTuner1.cents;
+            paramSplitter.osc2Fine -> fineTuner2.cents;
+
+            paramSplitter.osc1Wavefolding -> waveFolder1.gain;
+            paramSplitter.osc2Wavefolding -> waveFolder2.gain;
+
+            oscBank.out1 -> waveFolder1.in;
+            oscBank.out2 -> waveFolder2.in;
+
+            waveFolder1.out -> level1.in;
+            waveFolder2.out -> level2.in;
+
+            level1 -> out;
+            level2 -> out;
+        }
+    }
+}

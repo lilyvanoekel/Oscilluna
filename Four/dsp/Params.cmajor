@@ -23,6 +23,11 @@ namespace Synth
         float fmDepth;
         float osc1Wavefolding;
         float osc2Wavefolding;
+
+        float osc1VibratoRate;
+        float osc2VibratoRate;
+        float osc1VibratoDepth;
+        float osc2VibratoDepth;
     }
 
     Params createParams()
@@ -50,6 +55,11 @@ namespace Synth
         p.fmDepth = 0.5f;
         p.osc1Wavefolding = 0.0f;
         p.osc2Wavefolding = 0.0f;
+
+        p.osc1VibratoRate = 0.0f;
+        p.osc2VibratoRate = 0.0f;
+        p.osc1VibratoDepth = 0.0f;
+        p.osc2VibratoDepth = 0.0f;
 
         return p;
     }
@@ -79,6 +89,11 @@ namespace Synth
         output event float osc1Wavefolding;
         output event float osc2Wavefolding;
 
+        output event float osc1VibratoRate;
+        output event float osc2VibratoRate;
+        output event float osc1VibratoDepth;
+        output event float osc2VibratoDepth;
+
         event paramsIn(Params p) {
             adsr1Attack <- p.adsr1Attack;
             adsr1Decay <- p.adsr1Decay;
@@ -101,6 +116,11 @@ namespace Synth
             fmDepth <- p.fmDepth;
             osc1Wavefolding <- p.osc1Wavefolding;
             osc2Wavefolding <- p.osc2Wavefolding;
+
+            osc1VibratoRate <- p.osc1VibratoRate;
+            osc2VibratoRate <- p.osc2VibratoRate;
+            osc1VibratoDepth <- p.osc1VibratoDepth;
+            osc2VibratoDepth <- p.osc2VibratoDepth;
         }
     }
 
@@ -131,6 +151,12 @@ namespace Synth
         input event float osc1_wavefolding      [[ name: "osc1_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
         input event float osc2_wavefolding      [[ name: "osc2_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
 
+        input event float osc1_vibrato_rate     [[ name: "osc1_vibrato_rate", min: 0.5, max: 10.0, init: 0.423]];
+        input event float osc2_vibrato_rate     [[ name: "osc2_vibrato_rate", min: 0.5, max: 10.0, init: 0.8146]];
+        input event float osc1_vibrato_depth    [[ name: "osc1_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
+        input event float osc2_vibrato_depth    [[ name: "osc2_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
+
+
         output event Params paramsOut;
 
         Params params = createParams();
@@ -153,6 +179,9 @@ namespace Synth
         event fm_depth (float f)                { params.fmDepth = f;               paramsOut <- params; }
         event osc1_wavefolding (float f)        { params.osc1Wavefolding = f;       paramsOut <- params; }
         event osc2_wavefolding (float f)        { params.osc2Wavefolding = f;       paramsOut <- params; }
-        
+        event osc1_vibrato_rate (float f)       { params.osc1VibratoRate = f;       paramsOut <- params; }
+        event osc2_vibrato_rate (float f)       { params.osc2VibratoRate = f;       paramsOut <- params; }
+        event osc1_vibrato_depth (float f)      { params.osc1VibratoDepth = f;      paramsOut <- params; }
+        event osc2_vibrato_depth (float f)      { params.osc2VibratoDepth = f;      paramsOut <- params; }
     }
 }

@@ -18,6 +18,7 @@
     "dsp/Common/ADSR.cmajor",
     "dsp/Voice/OscBank.cmajor",
     "dsp/Voice/VoiceAdsr.cmajor",
+    "dsp/Voice/VoiceSoundSource.cmajor",
     "dsp/Voice/Voice.cmajor",
     "dsp/Four.cmajor"
   ],
