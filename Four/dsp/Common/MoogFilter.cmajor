@@ -1,0 +1,59 @@
+namespace Common
+{
+    // Source: https://www.musicdsp.org/en/latest/Filters/24-moog-vcf.html
+    processor MoogFilter {
+        input stream float in;
+        output stream float out;
+
+        input event float cutoff;
+        input event float resonance;
+
+        float cutoff_;
+        float resonance_;
+        float y1, y2, y3, y4;
+        float oldx, oldy1, oldy2, oldy3;
+        float x, p, k, r;
+
+        event cutoff(float f)       { cutoff_ = f;      calc(); }
+        event resonance(float f)    { resonance_ = f;   calc(); }
+
+        void init() {
+            y1 = 0.0f;
+            y2 = 0.0f;
+            y3 = 0.0f;
+            y4 = 0.0f;
+            oldx = 0.0f;
+            oldy1 = 0.0f;
+            oldy2 = 0.0f;
+            oldy3 = 0.0f;
+            calc();
+        }
+
+        void calc() {
+            let kPi = 3.1415926535897931f;
+            let f = 2.0f * cutoff_ / float(processor.frequency);
+            k = 2.0f * sin(f * kPi * 0.5f) - 1.0f;
+            p = (k + 1.0f) * 0.5f;
+            float scale = exp((1.0f - p) * 1.386249f);
+            r = resonance_ * scale;
+        }
+
+        void main() {
+            loop {
+                x = in - r * y4;
+
+                y1 =  x * p + oldx  * p - k * y1;
+                y2 = y1 * p + oldy1 * p - k * y2;
+                y3 = y2 * p + oldy2 * p - k * y3;
+                y4 = y3 * p + oldy3 * p - k * y4;
+
+                y4 -= (y4 * y4 * y4) / 6.0f;
+
+                oldx = x; oldy1 = y1; oldy2 = y2; oldy3 = y3;
+
+                out <- y4;
+                advance();
+            }
+        }
+    }
+}

@@ -1,0 +1,33 @@
+namespace Common
+{
+    processor FilterCutoffCalculator {
+        input event float baseCutoff;
+        input event float keyTracking;
+        input event float noteFreq;
+
+        output event float cutoff;
+
+        float baseCutoff_ = 440.0f;
+        float keyTracking_ = 1.0f;
+        float noteFreq_ = 440.0f;
+
+        event baseCutoff(float base) {
+            baseCutoff_ = base;
+            calc();
+        }
+
+        event keyTracking(float tracking) {
+            keyTracking_ = tracking;
+            calc();
+        }
+
+        event noteFreq(float freq) {
+            noteFreq_ = freq;
+            calc();
+        }
+
+        void calc() {
+            cutoff <- baseCutoff_ * (1.0f + keyTracking_ * (noteFreq_ / 440.0f - 1.0f));
+        }
+    }
+}

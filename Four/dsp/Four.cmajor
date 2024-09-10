@@ -6,7 +6,7 @@ namespace Synth
 
         input waveControlPointParams.*;
         input paramsProcessor.*;
-        
+
         output stream float out;
 
         let voiceCount = VOICE_COUNT;

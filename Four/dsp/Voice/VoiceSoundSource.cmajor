@@ -29,6 +29,8 @@ namespace Synth
             fineTuner2 = Util::TuneFine;
             waveFolder1 = Common::WaveFolder;
             waveFolder2 = Common::WaveFolder;
+            filter = Common::MoogFilter;
+            cutoffCalc = Common::FilterCutoffCalculator;
         }
 
         connection
@@ -39,6 +41,7 @@ namespace Synth
 
             noteToFrequency -> coarseTuner1.in;
             noteToFrequency -> coarseTuner2.in;
+            noteToFrequency -> cutoffCalc.noteFreq;
 
             coarseTuner1.out -> fineTuner1.in;
             coarseTuner2.out -> fineTuner2.in;
@@ -58,14 +61,20 @@ namespace Synth
             paramSplitter.osc1Wavefolding -> waveFolder1.gain;
             paramSplitter.osc2Wavefolding -> waveFolder2.gain;
 
+            paramSplitter.cutoff -> cutoffCalc.baseCutoff;
+            cutoffCalc.cutoff -> filter.cutoff;
+            paramSplitter.resonance -> filter.resonance;
+
             oscBank.out1 -> waveFolder1.in;
             oscBank.out2 -> waveFolder2.in;
 
             waveFolder1.out -> level1.in;
             waveFolder2.out -> level2.in;
 
-            level1 -> out;
-            level2 -> out;
+            level1 -> filter.in;
+            level2 -> filter.in;
+
+            filter.out -> out;
         }
     }
 }
