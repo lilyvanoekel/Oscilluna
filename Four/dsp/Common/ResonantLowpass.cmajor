@@ -1,6 +1,6 @@
 namespace Common
 {
-    // Another moog style
+    // Another moog style, source: DaisySP https://github.com/electro-smith/DaisySP
     // @todo: figure out which to keep...
     processor ResonantLowpass {
         input stream float in;
