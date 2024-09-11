@@ -17,7 +17,7 @@
     "dsp/WaveControlPointParams.cmajor",
     "dsp/Common/ADSR.cmajor",
     "dsp/Common/FilterCutoffCalculator.cmajor",
-    "dsp/Common/MoogFilter.cmajor",
+    "dsp/Common/ResonantLowpass.cmajor",
     "dsp/Voice/OscBank.cmajor",
     "dsp/Voice/VoiceAdsr.cmajor",
     "dsp/Voice/VoiceSoundSource.cmajor",

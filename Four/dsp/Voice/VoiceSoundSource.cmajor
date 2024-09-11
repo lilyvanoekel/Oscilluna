@@ -1,5 +1,42 @@
 namespace Synth
 {
+    processor FilterBypass {
+        input stream float in;
+        output stream float out;
+
+        input event float cutoff;
+        input event float resonance;
+        input event bool bypass;
+
+        node filter = Common::ResonantLowpass;
+        bool bypass_ = false;
+
+        event cutoff(float f) {
+            filter.cutoff <- f;
+        }
+
+        event resonance(float f) {
+            filter.resonance <- f;
+        }
+
+        event bypass(bool b) {
+            bypass_ = b;
+        }
+
+        void main() {
+            loop {
+                if (bypass_) {
+                    out <- in;
+                } else {
+                    filter.in <- in;
+                    out <- filter.out;
+                    filter.advance();
+                }
+                advance();
+            }
+        }
+    }
+    
     graph VoiceSoundSource
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
@@ -29,7 +66,7 @@ namespace Synth
             fineTuner2 = Util::TuneFine;
             waveFolder1 = Common::WaveFolder;
             waveFolder2 = Common::WaveFolder;
-            filter = Common::MoogFilter;
+            filter = FilterBypass;
             cutoffCalc = Common::FilterCutoffCalculator;
         }
 
@@ -61,6 +98,7 @@ namespace Synth
             paramSplitter.osc1Wavefolding -> waveFolder1.gain;
             paramSplitter.osc2Wavefolding -> waveFolder2.gain;
 
+            paramSplitter.filterBypass -> filter.bypass;
             paramSplitter.cutoff -> cutoffCalc.baseCutoff;
             cutoffCalc.cutoff -> filter.cutoff;
             paramSplitter.resonance -> filter.resonance;
@@ -75,6 +113,9 @@ namespace Synth
             level2 -> filter.in;
 
             filter.out -> out;
+
+            // level1 -> out;
+            // level2 -> out;
         }
     }
 }

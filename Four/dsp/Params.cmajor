@@ -29,6 +29,7 @@ namespace Synth
         float osc1VibratoDepth;
         float osc2VibratoDepth;
 
+        bool filterBypass;
         float cutoff;
         float resonance;
     }
@@ -64,6 +65,7 @@ namespace Synth
         p.osc1VibratoDepth = 0.0f;
         p.osc2VibratoDepth = 0.0f;
 
+        p.filterBypass = true;
         p.cutoff = 8000.0f;
         p.resonance = 0.0f;
 
@@ -93,6 +95,7 @@ namespace Synth
         output event float osc1VibratoRate, osc2VibratoRate;
         output event float osc1VibratoDepth, osc2VibratoDepth;
 
+        output event bool filterBypass;
         output event float cutoff;
         output event float resonance;
 
@@ -124,6 +127,7 @@ namespace Synth
             osc1VibratoDepth <- p.osc1VibratoDepth;
             osc2VibratoDepth <- p.osc2VibratoDepth;
 
+            filterBypass <- p.filterBypass;
             cutoff <- p.cutoff;
             resonance <- p.resonance;
         }
@@ -156,13 +160,14 @@ namespace Synth
         input event float osc1_wavefolding      [[ name: "osc1_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
         input event float osc2_wavefolding      [[ name: "osc2_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
 
-        input event float osc1_vibrato_rate     [[ name: "osc1_vibrato_rate", min: 0.5, max: 10.0, init: 0.423]];
-        input event float osc2_vibrato_rate     [[ name: "osc2_vibrato_rate", min: 0.5, max: 10.0, init: 0.8146]];
-        input event float osc1_vibrato_depth    [[ name: "osc1_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
-        input event float osc2_vibrato_depth    [[ name: "osc2_vibrato_depth", min: 0.0, max: 1.0, init: 0.0]];
+        input event float osc1_vibrato_rate     [[ name: "osc1_vibrato_rate", min: 0.5, max: 10.0, init: 0.423 ]];
+        input event float osc2_vibrato_rate     [[ name: "osc2_vibrato_rate", min: 0.5, max: 10.0, init: 0.8146 ]];
+        input event float osc1_vibrato_depth    [[ name: "osc1_vibrato_depth", min: 0.0, max: 1.0, init: 0.0 ]];
+        input event float osc2_vibrato_depth    [[ name: "osc2_vibrato_depth", min: 0.0, max: 1.0, init: 0.0 ]];
 
-        input event float cutoff                [[ name: "cutoff", min: 200, max: 4000, init: 2000, step: 1]];
-        input event float resonance             [[ name: "resonance", min: 0, max: 1, init: 0.5]];
+        input event bool filter_enabled         [[ name: "filter_enabled", boolean, init: false ]];
+        input event float cutoff                [[ name: "cutoff", min: 440, max: 12000, init: 2000, step: 1 ]];
+        input event float resonance             [[ name: "resonance", min: 0, max: 1, init: 0.5 ]];
 
         output event Params paramsOut;
 
@@ -192,5 +197,6 @@ namespace Synth
         event osc2_vibrato_depth (float f)      { params.osc2VibratoDepth = f;      paramsOut <- params; }
         event cutoff (float f)                  { params.cutoff = f;                paramsOut <- params; }
         event resonance (float f)               { params.resonance = f;             paramsOut <- params; }
+        event filter_enabled(bool b)            { params.filterBypass = !b;         paramsOut <- params; }
     }
 }

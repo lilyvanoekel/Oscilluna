@@ -27,7 +27,8 @@ namespace Common
         }
 
         void calc() {
-            cutoff <- baseCutoff_ * (1.0f + keyTracking_ * (noteFreq_ / 440.0f - 1.0f));
+            let res = baseCutoff_ * (1.0f + keyTracking_ * (noteFreq_ / 440.0f - 1.0f));
+            cutoff <- min(res, float(processor.frequency) * 0.5f);
         }
     }
 }
