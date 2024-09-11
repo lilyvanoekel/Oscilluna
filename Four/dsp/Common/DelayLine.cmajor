@@ -1,0 +1,91 @@
+namespace Common
+{
+    processor DelayLine {
+        input stream float in;
+        output stream float out;
+
+        input stream float modIn;
+
+        input event float feedbackIn;
+        input event float delayTimeIn;
+        input event float modDepthIn;
+
+        float sampleRate;
+        let delayBufferSize = 44100 * 4;
+        float[delayBufferSize] delayBuffer;
+        wrap<delayBufferSize> writePointer = 0;
+        float delayTimeMs = 50.0f;
+        float feedback = 0.2f;
+        float modDepth = 0.02f;
+        float fractionalDelay = 0.0f;
+
+        void init() {
+            sampleRate = float(processor.frequency);
+            for (wrap<delayBufferSize> i) {
+                delayBuffer[i] = 0.0f;
+            }
+        }
+
+        event feedbackIn(float f) {
+            feedback = f;
+        }
+
+        event delayTimeIn(float timeMs) {
+            delayTimeMs = timeMs;
+            int delaySamples = int((delayTimeMs / 1000.0f) * sampleRate);
+            fractionalDelay = ((delayTimeMs / 1000.0f) * sampleRate) - delaySamples;
+        }
+
+        event modDepthIn(float d) {
+            modDepth = d;
+        }
+
+        float lagrangeInterpolate(float sample1, float sample2, float sample3, float sample4, float fraction) {
+            float d1 = fraction - 1.0f;
+            float d2 = fraction - 2.0f;
+            float d3 = fraction - 3.0f;
+
+            float c1 = -d1 * d2 * d3 / 6.0f;
+            float c2 = d2 * d3 * 0.5f;
+            float c3 = -d1 * d3 * 0.5f;
+            float c4 = d1 * d2 / 6.0f;
+
+            return sample1 * c1 + fraction * (sample2 * c2 + sample3 * c3 + sample4 * c4);
+        }
+
+        void main() {
+            loop {
+                float modValue = modIn * delayTimeMs * modDepth;
+                float modulatedDelayMs = delayTimeMs + modValue;
+                modulatedDelayMs = clamp(modulatedDelayMs, 1.0f, 1000.0f);
+
+                // Calculate the current read position based on delay time
+                int delaySamples = int((modulatedDelayMs * 0.001f) * sampleRate);
+                let readPointer1 = wrap<delayBufferSize>(writePointer - delaySamples - 1);
+                let readPointer2 = wrap<delayBufferSize>(writePointer - delaySamples);
+                let readPointer3 = wrap<delayBufferSize>(writePointer - delaySamples + 1);
+                let readPointer4 = wrap<delayBufferSize>(writePointer - delaySamples + 2);
+
+                // Get the four samples needed for Lagrange interpolation
+                float sample1 = delayBuffer[readPointer1];
+                float sample2 = delayBuffer[readPointer2];
+                float sample3 = delayBuffer[readPointer3];
+                float sample4 = delayBuffer[readPointer4];
+
+                // Perform Lagrange interpolation to calculate the delayed sample
+                float delayedSample = lagrangeInterpolate(sample1, sample2, sample3, sample4, fractionalDelay);
+
+                // Write the current input sample + feedback to the buffer
+                delayBuffer[writePointer] = in + delayedSample * feedback;
+                // Output the delayed sample
+                out <- delayedSample;
+
+                // Increment write pointer and wrap around the buffer size
+                writePointer = wrap<delayBufferSize>(writePointer + 1);
+
+                // Move to the next frame
+                advance();
+            }
+        }
+    }
+}

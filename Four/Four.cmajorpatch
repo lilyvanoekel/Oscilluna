@@ -16,6 +16,8 @@
     "dsp/WaveBuilder.cmajor",
     "dsp/WaveControlPointParams.cmajor",
     "dsp/Common/ADSR.cmajor",
+    "dsp/Common/DelayLine.cmajor",
+    "dsp/Common/Chorus.cmajor",
     "dsp/Common/FilterCutoffCalculator.cmajor",
     "dsp/Common/ResonantLowpass.cmajor",
     "dsp/Voice/OscBank.cmajor",

@@ -7,7 +7,12 @@ namespace Synth
         input waveControlPointParams.*;
         input paramsProcessor.*;
 
-        output stream float out;
+        input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 10.0, init: 2.0 ]];
+        input event float chorus_mod_depth          [[ name: "chorus_mod_depth", min: 0.01, max: 0.1, init: 0.02 ]];
+        input event float chorus_delay_time         [[ name: "chorus_delay_time", min: 5, max: 100, init: 50.0 ]];
+        input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
+
+        output stream float<2> out;
 
         let voiceCount = VOICE_COUNT;
 
@@ -22,6 +27,9 @@ namespace Synth
             waveControlPointParams = WaveControlPointParams;
             vibratoLfo1 = std::oscillators::LFO();
             vibratoLfo2 = std::oscillators::LFO();
+
+            gainLimiter = std::levels::ConstantGain (float, 0.25f);
+            chorus = Common::Chorus;
 
             // fineTuneSmoother = std::smoothing::SmoothedValueStream (0.02f);
         }
@@ -44,7 +52,16 @@ namespace Synth
             waveControlPointParams.controlPoints2 -> builder2.controlPoints;
             builder1.waveOut -> voices.wavetableIn1;
             builder2.waveOut -> voices.wavetableIn2;
-            voices -> std::levels::ConstantGain (float, 0.25f) -> out;
+            voices -> gainLimiter;
+
+            chorus_rate -> chorus.rateHzIn;
+            chorus_mod_depth -> chorus.modDepthIn;
+            chorus_delay_time -> chorus.delayTimeIn;
+            chorus_feedback -> chorus.feedbackIn;
+
+            gainLimiter -> chorus.in;
+            chorus -> out;
+            
         }
     }
 }

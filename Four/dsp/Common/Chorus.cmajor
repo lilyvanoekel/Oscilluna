@@ -1,0 +1,119 @@
+namespace Common
+{
+    processor DualStreamToVector {
+        input stream float in1, in2;
+        output stream float<2> out;
+
+        void main() {
+            loop {
+                out <- out.type(in1, in2);
+                advance();
+            }
+        }
+    }
+
+    graph Chorus {
+        input stream float in;
+        output stream float<2> out;
+
+        input event float feedbackIn;
+        input event float delayTimeIn;
+        input event float modDepthIn;
+        input event float rateHzIn;
+
+        event feedbackIn(float f) {
+            delay1.feedbackIn <- f * 0.91f;
+            delay2.feedbackIn <- f * 0.98f;
+            delay3.feedbackIn <- f * 1.04f;
+            delay4.feedbackIn <- f * 1.1f;
+        }
+
+        event delayTimeIn(float f) {
+            delay1.delayTimeIn <- f * 0.92f;
+            delay2.delayTimeIn <- f * 0.97f;
+            delay3.delayTimeIn <- f * 1.03f;
+            delay4.delayTimeIn <- f * 1.06f;
+        }
+        
+        event modDepthIn(float f) {
+            delay1.modDepthIn <- f * 0.93f;
+            delay2.modDepthIn <- f * 0.95f;
+            delay3.modDepthIn <- f * 1.01f;
+            delay4.modDepthIn <- f * 1.05f;
+        }
+
+        event rateHzIn(float f) {
+            lfo1.rateHzIn <- f * 0.9f;
+            lfo2.rateHzIn <- f * 0.96f;
+            lfo3.rateHzIn <- f * 1.02f;
+            lfo4.rateHzIn <- f * 1.07f;
+        }
+
+        node {
+            lowPass = std::filters::butterworth::Processor (
+                std::filters::butterworth::Mode::lowPass,
+                10000.0f
+            );
+
+            lfo1 = std::oscillators::LFO;
+            lfo2 = std::oscillators::LFO;
+            lfo3 = std::oscillators::LFO;
+            lfo4 = std::oscillators::LFO;
+            
+            delay1 = Common::DelayLine;
+            delay2 = Common::DelayLine;
+            delay3 = Common::DelayLine;
+            delay4 = Common::DelayLine;
+            
+            delayOutputGain1 = std::levels::ConstantGain (float, 0.25f);
+            delayOutputGain2 = std::levels::ConstantGain (float, 0.25f);
+            delayOutputGain3 = std::levels::ConstantGain (float, 0.25f);
+            delayOutputGain4 = std::levels::ConstantGain (float, 0.25f);
+
+            gainDelay2Left = std::levels::ConstantGain (float, 0.5f);
+            gainDelay2Right = std::levels::ConstantGain (float, 0.5f);
+            gainDelay3Left = std::levels::ConstantGain (float, 0.5f);
+            gainDelay3Right = std::levels::ConstantGain (float, 0.5f);
+
+            gainDry1 = std::levels::ConstantGain (float, 0.5f);
+            gainDry2 = std::levels::ConstantGain (float, 0.5f);
+
+            outputNode = DualStreamToVector;
+        }
+
+        connection
+        {
+            in -> lowPass.in;
+            
+            lowPass -> delay1.in;
+            lowPass -> delay2.in;
+            lowPass -> delay3.in;
+            lowPass -> delay4.in;
+
+            lfo1 -> delay1.modIn;
+            lfo2 -> delay2.modIn;
+            lfo3 -> delay3.modIn;
+            lfo4 -> delay4.modIn;
+
+            delay1 -> delayOutputGain1;
+            delay2 -> delayOutputGain2;
+            delay3 -> delayOutputGain3;
+            delay4 -> delayOutputGain4;
+
+            delayOutputGain1 -> outputNode.in1;
+
+            delayOutputGain2 -> gainDelay2Left -> outputNode.in1;
+            delayOutputGain2 -> gainDelay2Right -> outputNode.in2;
+
+            delayOutputGain3 -> gainDelay3Left -> outputNode.in1;
+            delayOutputGain3 -> gainDelay3Right -> outputNode.in2;
+
+            delayOutputGain4 -> outputNode.in2;
+            
+            in -> gainDry1 -> outputNode.in1;
+            in -> gainDry2 -> outputNode.in2;
+
+            outputNode -> out;
+        }
+    }
+}
