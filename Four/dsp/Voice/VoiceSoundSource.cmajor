@@ -11,17 +11,9 @@ namespace Synth
         node filter = Common::ResonantLowpass;
         bool bypass_ = false;
 
-        event cutoff(float f) {
-            filter.cutoff <- f;
-        }
-
-        event resonance(float f) {
-            filter.resonance <- f;
-        }
-
-        event bypass(bool b) {
-            bypass_ = b;
-        }
+        event cutoff(float f) { filter.cutoff <- f; }
+        event resonance(float f) { filter.resonance <- f; }
+        event bypass(bool b) { bypass_ = b; }
 
         void main() {
             loop {
