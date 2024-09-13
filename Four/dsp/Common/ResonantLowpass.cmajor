@@ -25,13 +25,6 @@ namespace Common
             calc();
         }
 
-        float fastTanh(float x) {
-            if (x > 3.0f) return 1.0f;
-            if (x < -3.0f) return -1.0f;
-            float x2 = x * x;
-            return x * (27.0f + x2) / (27.0f + 9.0f * x2);
-        }
-
         event cutoff(float f) {
             // @todo figure out with testing and fix better
             // cutoff_ = min(f, float(processor.frequency) * 0.32f);
@@ -64,7 +57,7 @@ namespace Common
         void main() {
             loop {
                 float u = in - (z1[3] - pbg * in) * K * qAdjust;
-                u = fastTanh(u);
+                u = Util::fastTanh(u);
                 float stage1 = LPF(u, 0);
                 float stage2 = LPF(stage1, 1);
                 float stage3 = LPF(stage2, 2);

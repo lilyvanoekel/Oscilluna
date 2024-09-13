@@ -12,7 +12,7 @@ namespace Synth
         input event bool bypass;
 
         node chorus = Common::Chorus;
-        bool bypass_ = false;
+        bool bypass_ = true;
 
         event feedbackIn(float f) { chorus.feedbackIn <- f; }
         event delayTimeIn(float f) { chorus.delayTimeIn <- f; }
@@ -97,8 +97,7 @@ namespace Synth
             chorus_wetdrymix -> chorus.wetDryMixIn;
 
             gainLimiter -> chorus.in;
-            chorus -> out;
-            
+            chorus -> Common::StereoLimiter -> out;
         }
     }
 }

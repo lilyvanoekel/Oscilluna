@@ -1,37 +1,5 @@
 namespace Common
 {
-    processor DualStreamToVector {
-        input stream float in1, in2;
-        output stream float<2> out;
-
-        void main() {
-            loop {
-                out <- out.type(in1, in2);
-                advance();
-            }
-        }
-    }
-
-    processor DynamicGain {
-        input stream float in;
-        output stream float out;
-
-        input event float gainIn;
-
-        float gain = 1.0f;
-
-        event gainIn(float g) {
-            gain = g;
-        }
-
-        void main() {
-            loop {
-                out <- in * gain;
-                advance();
-            }
-        }
-    }
-
     graph Chorus {
         input stream float in;
         output stream float<2> out;
@@ -43,10 +11,10 @@ namespace Common
         input event float wetDryMixIn;
 
         event feedbackIn(float f) {
-            delay1.feedbackIn <- f * 0.87f;
-            delay2.feedbackIn <- f * 1.0f;
-            delay3.feedbackIn <- f * 0.97f;
-            delay4.feedbackIn <- f * 0.93f;
+            delay1.feedbackIn <- f * 0.84f;
+            delay2.feedbackIn <- f * 0.8f;
+            delay3.feedbackIn <- f * 0.83f;
+            delay4.feedbackIn <- f * 0.85f;
         }
 
         event delayTimeIn(float f) {
@@ -109,15 +77,15 @@ namespace Common
             gainDelay3Left = std::levels::ConstantGain (float, 0.5f);
             gainDelay3Right = std::levels::ConstantGain (float, 0.5f);
 
-            wetGain1 = DynamicGain;
-            wetGain2 = DynamicGain;
-            wetGain3 = DynamicGain;
-            wetGain4 = DynamicGain;
+            wetGain1 = Util::DynamicGain;
+            wetGain2 = Util::DynamicGain;
+            wetGain3 = Util::DynamicGain;
+            wetGain4 = Util::DynamicGain;
 
-            gainDry1 = DynamicGain;
-            gainDry2 = DynamicGain;
+            gainDry1 = Util::DynamicGain;
+            gainDry2 = Util::DynamicGain;
 
-            outputNode = DualStreamToVector;
+            outputNode = Util::DualStreamToVector;
         }
 
         connection

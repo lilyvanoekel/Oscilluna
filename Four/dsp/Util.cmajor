@@ -11,6 +11,50 @@ namespace Util
         }
     }
 
+    processor DynamicGain {
+        input stream float in;
+        output stream float out;
+
+        input event float gainIn;
+
+        float gain = 1.0f;
+
+        event gainIn(float g) {
+            gain = g;
+        }
+
+        void main() {
+            loop {
+                out <- in * gain;
+                advance();
+            }
+        }
+    }
+
+    processor BipolarToUnipolar {
+        input stream float in;
+        output stream float out;
+
+        void main() {
+            loop {
+                out <- (in + 1.0f) * 0.5f;
+                advance();
+            }
+        }
+    }
+
+    processor DualStreamToVector {
+        input stream float in1, in2;
+        output stream float<2> out;
+
+        void main() {
+            loop {
+                out <- out.type(in1, in2);
+                advance();
+            }
+        }
+    }
+
     processor Mul(float32 m = 1.01f)
     {
         input event float32 in;
@@ -110,5 +154,12 @@ namespace Util
 
     float fastSin(float x) {
         return fakeSin(rangeLimiter(x));
+    }
+
+    float fastTanh(float x) {
+        if (x > 3.0f) return 1.0f;
+        if (x < -3.0f) return -1.0f;
+        float x2 = x * x;
+        return x * (27.0f + x2) / (27.0f + 9.0f * x2);
     }
 }

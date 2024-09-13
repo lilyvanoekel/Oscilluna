@@ -1,0 +1,52 @@
+namespace Common
+{
+    // @todo: this needs work/experimentation (currently not included in build)
+    graph Flanger {
+        input stream float in;
+        output stream float out;
+
+        input event float feedbackIn;
+        input event float delayTimeIn;
+        input event float modDepthIn;
+        input event float rateHzIn;
+        input event float wetDryMixIn;
+
+        event feedbackIn(float f) {
+            delay1.feedbackIn <- f * 0.8f;
+        }
+
+        event delayTimeIn(float f) {
+            delay1.delayTimeIn <- f;
+        }
+
+        event modDepthIn(float f) {
+            delay1.modDepthIn <- f;
+        }
+
+        event rateHzIn(float f) {
+            lfo.rateHzIn <- f;
+        }
+
+        event wetDryMixIn(float f) {
+            let dryGain = 1.0f - f;
+            dryGain1.gainIn <- dryGain;
+            wetGain.gainIn <- f;
+        }
+
+        node {
+            lfo = std::oscillators::LFO(std::oscillators::Shape::triangle, 1.0f, 1.0f, 0.0f);
+            delay1 = Common::DelayLine;
+            wetGain = Util::DynamicGain;
+            dryGain1 = Util::DynamicGain;
+        }
+
+        connection {
+            in -> dryGain1.in;
+            in -> delay1.in;
+            lfo -> Util::BipolarToUnipolar -> delay1.modIn;
+            delay1 -> wetGain.in;
+            wetGain -> out;
+            dryGain1 -> out;
+        }
+    }
+}

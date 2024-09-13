@@ -1,0 +1,20 @@
+namespace Common
+{
+    processor StereoLimiter
+    {
+        input stream float<2> in;
+        output stream float<2> out;
+
+        void main()
+        {
+            loop
+            {
+                out <- out.type(
+                    Util::fastTanh(in[0]),
+                    Util::fastTanh(in[1])
+                );
+                advance();
+            }
+        }
+    }
+}

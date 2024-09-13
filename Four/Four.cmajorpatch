@@ -20,6 +20,7 @@
     "dsp/Common/Chorus.cmajor",
     "dsp/Common/FilterCutoffCalculator.cmajor",
     "dsp/Common/ResonantLowpass.cmajor",
+    "dsp/Common/Limiter.cmajor",
     "dsp/Voice/OscBank.cmajor",
     "dsp/Voice/VoiceAdsr.cmajor",
     "dsp/Voice/VoiceSoundSource.cmajor",
