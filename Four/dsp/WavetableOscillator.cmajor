@@ -13,6 +13,7 @@ namespace Synth
         float freq = 0.0f;
         float[] wavetable;
         int wavetableIndex = 0;
+        float prevfmIn = 0.0f;
 
         event frequencyIn (float f)
         {
@@ -34,7 +35,8 @@ namespace Synth
                 let indexOffset = wavetableIndex * TABLE_SIZE;
                 phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
                 phase += phaseIncrement;
-                phase += (fmIn * FM_FACTOR);
+                phase += (0.5f * (fmIn + prevfmIn) * phaseIncrement * FM_FACTOR);
+                prevfmIn = fmIn;
                 
                 // Wrap phase to stay within the bounds of the wavetable
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
