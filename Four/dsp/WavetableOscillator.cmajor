@@ -14,6 +14,9 @@ namespace Synth
         float[] wavetable;
         int wavetableIndex = 0;
         float prevfmIn = 0.0f;
+        float prevSample = 0.0f;
+        float prevPrevSample = 0.0f;
+        float feedbackFmDepth = 0.2f;
 
         event frequencyIn (float f)
         {
@@ -36,6 +39,7 @@ namespace Synth
                 phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
                 phase += phaseIncrement;
                 phase += (0.5f * (fmIn + prevfmIn) * phaseIncrement * FM_FACTOR);
+                phase += (0.5f * (prevSample + prevPrevSample) * phaseIncrement * feedbackFmDepth);
                 prevfmIn = fmIn;
                 
                 // Wrap phase to stay within the bounds of the wavetable
@@ -64,7 +68,12 @@ namespace Synth
                 float stage1 = a * frac - b_neg;
                 float stage2 = stage1 * frac + slope0;
                 float outputSample = stage2 * frac + value1;
-                out <- outputSample * gainIn;
+                let sample = outputSample * gainIn;
+
+                prevPrevSample = prevSample;
+                prevSample = sample;
+
+                out <- sample;
                 
                 advance();
             }

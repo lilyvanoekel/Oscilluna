@@ -1,0 +1,59 @@
+// namespace Common
+// {
+//     graph Phaser {
+//         input stream float in;
+//         output stream float out;
+
+//         input event float feedbackIn;
+//         input event float rateHzIn;
+//         input event float wetDryMixIn;
+
+//         event feedbackIn(float fb) {
+//             apf1.feedbackIn <- fb;
+//             apf2.feedbackIn <- fb;
+//             apf3.feedbackIn <- fb;
+//             apf4.feedbackIn <- fb;
+//         }
+
+//         event rateHzIn(float rate) {
+//             lfo1.rateHzIn <- rate;
+//         }
+
+//         event wetDryMixIn(float f) {
+//             let dryGain = 1.0f - f;
+//             gainDry.gainIn <- dryGain;
+//             wetGain.gainIn <- f;
+//         }
+
+//         node {
+//             lfo1 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f);
+
+//             apf1 = Common::Filters::AllPassFilter;
+//             apf2 = Common::Filters::AllPassFilter;
+//             apf3 = Common::Filters::AllPassFilter;
+//             apf4 = Common::Filters::AllPassFilter;
+
+//             gainDry = Util::DynamicGain;
+//             wetGain = Util::DynamicGain;
+//         }
+
+//         connection {
+//             in -> apf1.in;
+
+//             apf1 -> apf2.in;
+//             apf2 -> apf3.in;
+//             apf3 -> apf4.in;
+
+//             lfo1 -> apf1.feedbackIn;
+//             lfo1 -> apf2.feedbackIn;
+//             lfo1 -> apf3.feedbackIn;
+//             lfo1 -> apf4.feedbackIn;
+
+//             in -> gainDry.in;
+//             apf4 -> wetGain.in;
+
+//             gainDry -> out;
+//             wetGain -> out;
+//         }
+//     }
+// }

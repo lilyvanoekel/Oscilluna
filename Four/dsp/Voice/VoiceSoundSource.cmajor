@@ -8,7 +8,7 @@ namespace Synth
         input event float resonance;
         input event bool bypass;
 
-        node filter = Common::ResonantLowpass;
+        node filter = Common::Filters::ResonantLowpass;
         bool bypass_ = false;
 
         event cutoff(float f) { filter.cutoff <- f; }
