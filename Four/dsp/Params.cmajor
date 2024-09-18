@@ -35,6 +35,13 @@ namespace Synth
         bool filterBypass;
         float cutoff;
         float resonance;
+
+        bool chorusBypass;
+        float chorusRate;
+        float chorusDepth;
+        float chorusDelayTime;
+        float chorusFeedback;
+        float chorusWetDryMix;
     }
 
     Params createParams()
@@ -74,6 +81,13 @@ namespace Synth
         p.filterBypass = true;
         p.cutoff = 8000.0f;
         p.resonance = 0.0f;
+
+        p.chorusBypass = true;
+        p.chorusRate = 0.6f;
+        p.chorusDepth = 0.35f;
+        p.chorusDelayTime = 20.0f;
+        p.chorusFeedback = 0.0f;
+        p.chorusWetDryMix = 0.66f;
 
         return p;
     }
@@ -178,6 +192,13 @@ namespace Synth
         input event float cutoff                [[ name: "cutoff", min: 440, max: 12000, init: 2000, step: 1 ]];
         input event float resonance             [[ name: "resonance", min: 0, max: 1, init: 0.5 ]];
 
+        input event bool chorus_enabled             [[ name: "chorus_enabled", boolean, init: false ]];
+        input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.6 ]];
+        input event float chorus_depth              [[ name: "chorus_depth", min: 0.0, max: 1.0, init: 0.35 ]];
+        input event float chorus_delay_time         [[ name: "chorus_delay_time", min: 5, max: 100, init: 20.0 ]];
+        input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
+        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.66 ]];
+
         output event Params paramsOut;
 
         Params params = createParams();
@@ -208,6 +229,12 @@ namespace Synth
         event osc2_feedback_fm (float f)        { params.osc2FeedbackFm = f;        paramsOut <- params; }
         event cutoff (float f)                  { params.cutoff = f;                paramsOut <- params; }
         event resonance (float f)               { params.resonance = f;             paramsOut <- params; }
-        event filter_enabled(bool b)            { params.filterBypass = !b;         paramsOut <- params; }
+        event filter_enabled (bool b)           { params.filterBypass = !b;         paramsOut <- params; }
+        event chorus_enabled (bool b)           { params.chorusBypass = !b;         paramsOut <- params; }
+        event chorus_rate (float f)             { params.chorusRate = f;            paramsOut <- params; }
+        event chorus_depth (float f)            { params.chorusDepth = f;           paramsOut <- params; }
+        event chorus_delay_time (float f)       { params.chorusDelayTime = f;       paramsOut <- params; }
+        event chorus_feedback (float f)         { params.chorusFeedback = f;        paramsOut <- params; }
+        event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       paramsOut <- params; }
     }
 }

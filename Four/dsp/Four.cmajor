@@ -4,22 +4,19 @@ namespace Synth
         input stream float in;
         output stream float<2> out;
 
-        input event float feedbackIn;
-        input event float delayTimeIn;
-        input event float modDepthIn;
-        input event float rateHzIn;
-        input event float wetDryMixIn;
-        input event bool bypass;
+        input event Params paramsIn;
 
         node chorus = Common::Chorus;
         bool bypass_ = true;
 
-        event feedbackIn(float f) { chorus.feedbackIn <- f; }
-        event delayTimeIn(float f) { chorus.delayTimeIn <- f; }
-        event modDepthIn(float f) { chorus.modDepthIn <- f; }
-        event rateHzIn(float f) { chorus.rateHzIn <- f; }
-        event wetDryMixIn(float f) { chorus.wetDryMixIn <- f; }
-        event bypass(bool b) { bypass_ = b; }
+        event paramsIn(Params p) {
+            chorus.feedbackIn <- p.chorusFeedback;
+            chorus.delayTimeIn <- p.chorusDelayTime;
+            chorus.modDepthIn <- p.chorusDepth;
+            chorus.rateHzIn <- p.chorusRate;
+            chorus.wetDryMixIn <- p.chorusWetDryMix;
+            bypass_ = p.chorusBypass;
+        }
 
         void main() {
             loop {
@@ -42,12 +39,6 @@ namespace Synth
         input waveControlPointParams.*;
         input paramsProcessor.*;
 
-        input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.6 ]];
-        input event float chorus_depth              [[ name: "chorus_depth", min: 0.0, max: 1.0, init: 0.35 ]];
-        input event float chorus_delay_time         [[ name: "chorus_delay_time", min: 5, max: 100, init: 20.0 ]];
-        input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
-        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.66 ]];
-
         output stream float<2> out;
 
         let voiceCount = VOICE_COUNT;
@@ -63,11 +54,8 @@ namespace Synth
             waveControlPointParams = WaveControlPointParams;
             vibratoLfo1 = std::oscillators::LFO();
             vibratoLfo2 = std::oscillators::LFO();
-
             gainLimiter = std::levels::ConstantGain (float, 0.2f);
             chorus = ChorusBypass;
-
-            // fineTuneSmoother = std::smoothing::SmoothedValueStream (0.02f);
         }
     
         connection
@@ -76,6 +64,7 @@ namespace Synth
             voiceAllocator.voiceEventOut -> voices.eventIn;
             paramsProcessor.paramsOut -> voices.paramsIn;
             paramsProcessor.paramsOut -> paramSplitter.paramsIn;
+            paramsProcessor.paramsOut -> chorus.paramsIn;
 
             paramSplitter.osc1VibratoRate -> vibratoLfo1.rateHzIn;
             paramSplitter.osc2VibratoRate -> vibratoLfo2.rateHzIn;
@@ -89,12 +78,6 @@ namespace Synth
             builder1.waveOut -> voices.wavetableIn1;
             builder2.waveOut -> voices.wavetableIn2;
             voices -> gainLimiter;
-
-            chorus_rate -> chorus.rateHzIn;
-            chorus_depth -> chorus.modDepthIn;
-            chorus_delay_time -> chorus.delayTimeIn;
-            chorus_feedback -> chorus.feedbackIn;
-            chorus_wetdrymix -> chorus.wetDryMixIn;
 
             gainLimiter -> chorus.in;
             chorus -> Common::StereoLimiter -> out;
