@@ -22,7 +22,6 @@ namespace Synth
         output stream float out2;
 
         int fm = 0;
-        float depth = 0.5;
         float vDepth1 = 0.0;
         float vDepth2 = 0.0;
 
@@ -31,7 +30,10 @@ namespace Synth
         
         event paramsIn(Params p) {
             fm = p.fmDirection;
-            depth = p.fmDepth;
+            oscillator1.fmDepthIn <- p.fmDepth;
+            oscillator2.fmDepthIn <- p.fmDepth;
+            oscillator1.feedbackFmDepthIn <- p.osc1FeedbackFm;
+            oscillator2.feedbackFmDepthIn <- p.osc2FeedbackFm;
         }
         event wavetableIn1(float[] w) { oscillator1.wavetableIn <- w; }
         event wavetableIn2(float[] w) { oscillator2.wavetableIn <- w; }
@@ -53,14 +55,14 @@ namespace Synth
                     oscillator1.gainIn <- osc1Gain;
                     float osc1Sample = oscillator1.out;
                     oscillator2.gainIn <- osc2Gain;
-                    oscillator2.fmIn <- osc1Sample * depth;
+                    oscillator2.fmIn <- osc1Sample;
                     out1 <- osc1Sample;
                     out2 <- oscillator2.out;
                 } else {
                     oscillator2.gainIn <- osc2Gain;
                     float osc2Sample = oscillator2.out;
                     oscillator1.gainIn <- osc1Gain;
-                    oscillator1.fmIn <- osc2Sample * depth;
+                    oscillator1.fmIn <- osc2Sample;
                     out1 <- oscillator1.out;
                     out2 <- osc2Sample;
                 }
