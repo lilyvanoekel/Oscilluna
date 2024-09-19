@@ -26,6 +26,7 @@ jobs:
           key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}-2
 
       - name: Convert submodule URLs from SSH to HTTPS
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           git submodule deinit -f .
           git config --global url."https://github.com/".insteadOf git@github.com:
@@ -37,8 +38,8 @@ jobs:
           cmake -Bbuild -G "Visual Studio 17 2022" -A x64 .
           cmake --build build --config Release
 
-      - name: Upload Cmajor Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: cmajor-build
-          path: ./build
+      # - name: Upload Cmajor Build Artifact
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: cmajor-build
+      #     path: ./build
