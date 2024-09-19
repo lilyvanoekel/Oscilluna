@@ -196,7 +196,9 @@ namespace Synth
         input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.6 ]];
         input event float chorus_depth              [[ name: "chorus_depth", min: 0.0, max: 1.0, init: 0.35 ]];
         input event float chorus_delay_time         [[ name: "chorus_delay_time", min: 5, max: 100, init: 20.0 ]];
-        input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
+        
+        // @todo: feedback is still unstable, fix some time, or remove
+        // input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
         input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.66 ]];
 
         output event Params paramsOut;
@@ -234,7 +236,7 @@ namespace Synth
         event chorus_rate (float f)             { params.chorusRate = f;            paramsOut <- params; }
         event chorus_depth (float f)            { params.chorusDepth = f;           paramsOut <- params; }
         event chorus_delay_time (float f)       { params.chorusDelayTime = f;       paramsOut <- params; }
-        event chorus_feedback (float f)         { params.chorusFeedback = f;        paramsOut <- params; }
+        // event chorus_feedback (float f)         { params.chorusFeedback = f;        paramsOut <- params; }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       paramsOut <- params; }
     }
 }

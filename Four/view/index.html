@@ -68,17 +68,6 @@
             value="0.5"
           />
         </div>
-        <div class="ib">
-          <label for="osc1_wavefolding">Wavefolding</label><br />
-          <input
-            id="osc1_wavefolding"
-            type="range"
-            min="0.9"
-            max="2"
-            step="0.1"
-            value="0.9"
-          />
-        </div>
         <div class="ib" style="width: 74px">
           <label class="block" style="text-align: left">
             <input type="radio" name="fm_direction" value="0" checked />
@@ -104,6 +93,17 @@
             max="1"
             step="0.001"
             value="0.5"
+          />
+        </div>
+        <div class="ib">
+          <label for="osc1_feedback_fm">Self FM</label><br />
+          <input
+            id="osc1_feedback_fm"
+            type="range"
+            min="0"
+            max="1"
+            value="0"
+            step="0.01"
           />
         </div>
       </div>
@@ -166,14 +166,14 @@
           />
         </div>
         <div class="ib">
-          <label for="osc2_wavefolding">Wavefolding</label><br />
+          <label for="osc2_feedback_fm">Self FM</label><br />
           <input
-            id="osc2_wavefolding"
+            id="osc2_feedback_fm"
             type="range"
-            min="0.9"
-            max="2"
-            step="0.1"
-            value="0.9"
+            min="0"
+            max="1"
+            step="0.01"
+            value="0"
           />
         </div>
       </div>
