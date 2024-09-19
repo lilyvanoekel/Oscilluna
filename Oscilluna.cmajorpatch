@@ -7,6 +7,10 @@
   "category": "generator",
   "manufacturer": "Lily's Nonexistent Company",
   "isInstrument": true,
+  "plugin": {
+    "pluginCode": "M8r9",
+    "manufacturerCode": "7Uw2"
+  },
   "source": [
     "dsp/Constants.cmajor",
     "dsp/Params.cmajor",

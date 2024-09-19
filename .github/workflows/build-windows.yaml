@@ -57,6 +57,12 @@ jobs:
       - name: Generate CLAP Plugin
         run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=${{ github.workspace }}\\oscilluna-clap --clapIncludePath=${{ github.workspace }}\\clap\\include --cmajorIncludePath=${{ github.workspace }}\\cmajor\\include ${{ github.workspace }}\\src\\Oscilluna.cmajorpatch
 
+      - name: Build CLAP plugin
+        run: |
+          cd oscilluna-clap
+          cmake -B build -DCLAP_INCLUDE_PATH="${{ github.workspace }}\\clap\\include" -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release
+
       # - name: Generate CLAP Plugin
       #   run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=./oscilluna-clap --clapIncludePath=./clap/include --cmajorIncludePath=./cmajor/include src/Oscilluna.cmajorpatch
 
