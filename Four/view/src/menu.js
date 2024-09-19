@@ -4,6 +4,7 @@ import {
   buttonIconTuningFork,
   buttonIconADSR,
   buttonIconEQ,
+  buttonIconFX,
 } from "./button-icons.js";
 
 export const BuildMenu = (canvas, ctx, updateTab) => {
@@ -23,6 +24,10 @@ export const BuildMenu = (canvas, ctx, updateTab) => {
     }),
     BuildButton(canvas, ctx, 12, 274, buttonIconEQ, () => {
       currentTab = 3;
+      updateActiveTab();
+    }),
+    BuildButton(canvas, ctx, 12, 360, buttonIconFX, () => {
+      currentTab = 4;
       updateActiveTab();
     }),
   ];

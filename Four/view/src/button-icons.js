@@ -181,3 +181,45 @@ export const buttonIconEQ = (
     ctx.fill();
   }
 };
+
+export const buttonIconFX = (
+  ctx,
+  buttonX,
+  buttonY,
+  buttonWidth,
+  buttonHeight,
+  isHover,
+  isActive
+) => {
+  const lineWidth = xUnits(6);
+  const size = xUnits(34);
+  const centerY = buttonY + buttonHeight / 2;
+
+  ctx.lineWidth = lineWidth;
+  ctx.strokeStyle = isHover ? "cyan" : "magenta";
+  if (isActive) {
+    ctx.strokeStyle = "rgba(255, 0, 255, .6)";
+  }
+
+  ctx.beginPath();
+
+  // Calculate the offset to center the drawing
+  const startX = xUnits(29);
+
+  // Draw the "F"
+  ctx.moveTo(startX, centerY - size / 2); // vertical line of F
+  ctx.lineTo(startX, centerY + size / 2);
+  ctx.moveTo(startX, centerY - size / 2); // top horizontal line of F
+  ctx.lineTo(startX + xUnits(16), centerY - size / 2);
+  ctx.moveTo(startX, centerY); // middle horizontal line of F
+  ctx.lineTo(startX + xUnits(10), centerY);
+
+  // Draw the "X"
+  const xStartX = startX + xUnits(22);
+  ctx.moveTo(xStartX, centerY - size / 2);
+  ctx.lineTo(xStartX + size / 2, centerY + size / 2);
+  ctx.moveTo(xStartX + size / 2, centerY - size / 2);
+  ctx.lineTo(xStartX, centerY + size / 2);
+
+  ctx.stroke();
+};
