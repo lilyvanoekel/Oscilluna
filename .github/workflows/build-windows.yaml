@@ -50,7 +50,7 @@ jobs:
       - name: Checkout CLAP
         uses: actions/checkout@v2
         with:
-          repository: clap-rs/clap
+          repository: free-audio/clap
           path: clap
           fetch-depth: 1
 
