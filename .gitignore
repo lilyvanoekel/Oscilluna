@@ -1,4 +1,4 @@
 node_modules
 .DS_Store
-Four/clap
-Four/juce
+/clap
+/juce
