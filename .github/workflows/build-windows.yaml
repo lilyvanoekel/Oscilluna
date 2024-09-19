@@ -1,0 +1,38 @@
+name: Build Plugin on Windows
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cache-cmajor:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Cmajor
+        uses: actions/checkout@v2
+        with:
+          repository: cmajor-lang/cmajor
+          fetch-depth: 1
+
+      - name: Cache Cmajor Build
+        uses: actions/cache@v3
+        with:
+          path: ./build/cmajor
+          key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}
+
+      - name: Build Cmajor if cache misses
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cmake -Bbuild -G"Visual Studio 16 2019" .
+          cmake --build build --config Release
+
+      - name: Upload Cmajor Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cmajor-build
+          path: ./build
