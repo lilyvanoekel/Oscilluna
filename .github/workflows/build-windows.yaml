@@ -46,7 +46,7 @@ jobs:
         run: |
           cd cmajor
           git config --global url."https://github.com/".insteadOf git@github.com:
-          git submodule update --init --recursive -- include/choc
+          git submodule update --init --recursive --depth 1 -- include/choc
 
       - name: Checkout current repository
         uses: actions/checkout@v2
@@ -69,11 +69,8 @@ jobs:
           cmake -B build -DCLAP_INCLUDE_PATH="${{ github.workspace }}\\clap\\include" -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      # - name: Generate CLAP Plugin
-      #   run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=./oscilluna-clap --clapIncludePath=./clap/include --cmajorIncludePath=./cmajor/include src/Oscilluna.cmajorpatch
-
-      # - name: Upload Cmajor Build Artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: cmajor-build
-      #     path: ./build
+      - name: Upload CLAP plugin artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Oscilluna-CLAP-Windows
+          path: oscilluna-clap/build/Release/Oscilluna.clap
