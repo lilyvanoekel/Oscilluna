@@ -3,7 +3,7 @@ name: Build Plugin on Windows
 on:
   push:
     tags:
-      - "v*.*.*"
+      - "*.*.*"
 
 jobs:
   build:
