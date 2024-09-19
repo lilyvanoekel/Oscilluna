@@ -22,7 +22,7 @@ jobs:
       - name: Cache Cmajor Build
         uses: actions/cache@v3
         with:
-          path: ./build/cmajor
+          path: ./build
           key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}-2
 
       - name: Convert submodule URLs from SSH to HTTPS
