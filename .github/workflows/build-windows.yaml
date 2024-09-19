@@ -19,11 +19,15 @@ jobs:
           repository: cmajor-lang/cmajor
           fetch-depth: 1
 
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+
       - name: Cache Cmajor Build
         uses: actions/cache@v3
         with:
           path: ./build/cmajor
-          key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}-1
+          key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}-2
 
       - name: Build Cmajor if cache misses
         if: steps.cache.outputs.cache-hit != 'true'
