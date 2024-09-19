@@ -28,7 +28,7 @@ jobs:
       - name: Build Cmajor if cache misses
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          cmake -Bbuild -G"Visual Studio 16 2019" .
+          cmake -Bbuild -G "Visual Studio 17 2022" -A x64 .
           cmake --build build --config Release
 
       - name: Upload Cmajor Build Artifact
