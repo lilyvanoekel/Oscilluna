@@ -19,17 +19,17 @@ jobs:
           repository: cmajor-lang/cmajor
           fetch-depth: 1
 
-      - name: Convert submodule URLs from SSH to HTTPS
-        run: |
-          git submodule deinit -f .
-          git config --global url."https://github.com/".insteadOf git@github.com:
-          git submodule update --init --recursive --depth 1
-
       - name: Cache Cmajor Build
         uses: actions/cache@v3
         with:
           path: ./build/cmajor
           key: cmajor-build-${{ hashFiles('**/CMakeLists.txt') }}-2
+
+      - name: Convert submodule URLs from SSH to HTTPS
+        run: |
+          git submodule deinit -f .
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git submodule update --init --recursive --depth 1
 
       - name: Build Cmajor if cache misses
         if: steps.cache.outputs.cache-hit != 'true'
