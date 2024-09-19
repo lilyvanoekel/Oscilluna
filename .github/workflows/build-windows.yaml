@@ -2,11 +2,8 @@ name: Build Plugin on Windows
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - "v*.*.*"
 
 jobs:
   build:
@@ -69,8 +66,10 @@ jobs:
           cmake -B build -DCLAP_INCLUDE_PATH="${{ github.workspace }}\\clap\\include" -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
-      - name: Upload CLAP plugin artifact
-        uses: actions/upload-artifact@v3
+      - name: Create release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Oscilluna-CLAP-Windows
-          path: oscilluna-clap/build/Release/Oscilluna.clap
+          files: oscilluna-clap/build/Release/Oscilluna.clap
+          tag_name: ${{ github.ref_name }}
+          name: Oscilluna CLAP Plugin (Windows) - ${{ github.ref_name }}"
+          prerelease: false
