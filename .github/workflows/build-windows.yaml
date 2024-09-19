@@ -55,7 +55,10 @@ jobs:
           fetch-depth: 1
 
       - name: Generate CLAP Plugin
-        run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=./oscilluna-clap --clapIncludePath=./clap/include --cmajorIncludePath=./cmajor/include src/Oscilluna.cmajorpatch
+        run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=${{ github.workspace }}\\oscilluna-clap --clapIncludePath=${{ github.workspace }}\\clap\\include --cmajorIncludePath=${{ github.workspace }}\\cmajor\\include ${{ github.workspace }}\\src\\Oscilluna.cmajorpatch
+
+      # - name: Generate CLAP Plugin
+      #   run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=./oscilluna-clap --clapIncludePath=./clap/include --cmajorIncludePath=./cmajor/include src/Oscilluna.cmajorpatch
 
       # - name: Upload Cmajor Build Artifact
       #   uses: actions/upload-artifact@v3
