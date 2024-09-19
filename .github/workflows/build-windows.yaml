@@ -19,6 +19,12 @@ jobs:
           repository: cmajor-lang/cmajor
           fetch-depth: 1
 
+      - name: Convert submodule URLs from SSH to HTTPS
+        run: |
+          git submodule deinit -f .
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git submodule update --init --recursive
+
       - name: Initialize submodules
         run: |
           git submodule update --init --recursive
