@@ -23,11 +23,7 @@ jobs:
         run: |
           git submodule deinit -f .
           git config --global url."https://github.com/".insteadOf git@github.com:
-          git submodule update --init --recursive
-
-      - name: Initialize submodules
-        run: |
-          git submodule update --init --recursive
+          git submodule update --init --recursive --depth 1
 
       - name: Cache Cmajor Build
         uses: actions/cache@v3
