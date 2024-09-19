@@ -32,7 +32,7 @@ namespace Synth
         }
     }
 
-    graph Four  [[main]]
+    graph Oscilluna  [[main]]
     {
         input event std::midi::Message midiIn;
 

@@ -1,11 +1,11 @@
 {
   "CmajorVersion": 1,
-  "ID": "com.your_name.your_patch_ID",
+  "ID": "com.lily.oscilluna",
   "version": "1.0",
-  "name": "Four",
-  "description": "Four",
+  "name": "Oscilluna",
+  "description": "Oscilluna is a creative synthesizer that lets you draw custom waveshapes.",
   "category": "generator",
-  "manufacturer": "Your Company Goes Here",
+  "manufacturer": "Lily's Nonexistent Company",
   "isInstrument": true,
   "source": [
     "dsp/Constants.cmajor",
@@ -26,7 +26,7 @@
     "dsp/Voice/VoiceAdsr.cmajor",
     "dsp/Voice/VoiceSoundSource.cmajor",
     "dsp/Voice/Voice.cmajor",
-    "dsp/Four.cmajor"
+    "dsp/Oscilluna.cmajor"
   ],
   "view": {
     "src": "view/dist/index.js",
