@@ -22,16 +22,16 @@ namespace Synth
         output stream float out2;
 
         int fm = 0;
-        float vDepth1 = 0.0;
-        float vDepth2 = 0.0;
+        float vDepth1 = 0.0f;
+        float vDepth2 = 0.0f;
+        float fmDepth = 0.0f;
 
         node oscillator1 = WavetableOscillator;
         node oscillator2 = WavetableOscillator;
         
         event paramsIn(Params p) {
             fm = p.fmDirection;
-            oscillator1.fmDepthIn <- p.fmDepth;
-            oscillator2.fmDepthIn <- p.fmDepth;
+            fmDepth = p.fmDepth;
             oscillator1.feedbackFmDepthIn <- p.osc1FeedbackFm;
             oscillator2.feedbackFmDepthIn <- p.osc2FeedbackFm;
         }
@@ -58,15 +58,15 @@ namespace Synth
                     oscillator1.gainIn <- osc1Gain;
                     float osc1Sample = oscillator1.out;
                     oscillator1.fmIn <- vibrato1 * vibratoDepthFactor * vDepth1;
-                    oscillator2.gainIn <- osc2Gain + vibrato2 * vibratoDepthFactor * vDepth2;
-                    oscillator2.fmIn <- osc1Sample;
+                    oscillator2.gainIn <- osc2Gain;
+                    oscillator2.fmIn <- osc1Sample * fmDepth + vibrato2 * vibratoDepthFactor * vDepth2;
                     out1 <- osc1Sample;
                     out2 <- oscillator2.out;
                 } else {
                     oscillator2.gainIn <- osc2Gain;
                     float osc2Sample = oscillator2.out;
                     oscillator1.gainIn <- osc1Gain;
-                    oscillator1.fmIn <- osc2Sample + vibrato1 * vibratoDepthFactor * vDepth1;
+                    oscillator1.fmIn <- osc2Sample * fmDepth + vibrato1 * vibratoDepthFactor * vDepth1;
                     oscillator2.fmIn <- vibrato2 * vibratoDepthFactor * vDepth2;
                     out1 <- oscillator1.out;
                     out2 <- osc2Sample;

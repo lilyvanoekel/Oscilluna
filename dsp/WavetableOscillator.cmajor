@@ -6,7 +6,6 @@ namespace Synth
         input event float[] wavetableIn;
         input stream float gainIn;
         input stream float fmIn;
-        input event float fmDepthIn;
         input event float feedbackFmDepthIn;
         output stream float out;
 
@@ -18,7 +17,6 @@ namespace Synth
         float prevfmIn = 0.0f;
         float prevSample = 0.0f;
         float prevPrevSample = 0.0f;
-        float fmDepth = 0.0f;
         float feedbackFmDepth = 0.0f;
 
         event frequencyIn (float f)
@@ -28,7 +26,6 @@ namespace Synth
         }
 
         event wavetableIn (float[] newTable)    { wavetable = newTable; }
-        event fmDepthIn (float f)               { fmDepth = f;          }
         event feedbackFmDepthIn (float f)       { feedbackFmDepth = f;  }
 
         void main()
@@ -44,7 +41,7 @@ namespace Synth
                 
                 float localPhase = phase;
                 
-                localPhase += (0.5f * (fmIn + prevfmIn) * fmDepth * maxFmIndex);
+                localPhase += (0.5f * (fmIn + prevfmIn) * maxFmIndex);
                 localPhase += (0.5f * (prevSample + prevPrevSample)) * feedbackFmDepth * maxFmFeedbackIndex;
                 prevfmIn = fmIn;
                 
