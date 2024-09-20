@@ -9,8 +9,8 @@ namespace Synth
         input event float feedbackFmDepthIn;
         output stream float out;
 
-        float phase = 0.0f;
-        float phaseIncrement = 0.0f;
+        float64 phase = 0.0f;
+        float64 phaseIncrement = 0.0;
         float freq = 0.0f;
         float[] wavetable;
         int wavetableIndex = 0;
@@ -18,11 +18,14 @@ namespace Synth
         float prevSample = 0.0f;
         float prevPrevSample = 0.0f;
         float feedbackFmDepth = 0.0f;
+        int indexOffset;
 
         event frequencyIn (float f)
         {
             freq = f;
             wavetableIndex = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
+            phaseIncrement = freq * (float(TABLE_SIZE) / float(processor.frequency));
+            indexOffset = wavetableIndex * TABLE_SIZE;
         }
 
         event wavetableIn (float[] newTable)    { wavetable = newTable; }
@@ -36,12 +39,9 @@ namespace Synth
             
             loop
             {
-                let indexOffset = wavetableIndex * TABLE_SIZE;
-                phaseIncrement = freq * (tableSizeFloat / float(processor.frequency));
+                float64 localPhase = phase;
                 
-                float localPhase = phase;
-                
-                localPhase += (0.5f * (fmIn + prevfmIn) * maxFmIndex);
+                localPhase += (0.5 * (fmIn + prevfmIn) * maxFmIndex);
                 localPhase += (0.5f * (prevSample + prevPrevSample)) * feedbackFmDepth * maxFmFeedbackIndex;
                 prevfmIn = fmIn;
                 
@@ -56,14 +56,14 @@ namespace Synth
                 let prevIndex = wrap<TABLE_SIZE>(index - 1);
                 let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
                 
-                let frac = localPhase - float(index);
+                float frac = float(localPhase) - float(index);
                 
                 // Fetch the four points needed for the interpolation
                 float value0 = wavetable[indexOffset + prevIndex];
                 float value1 = wavetable[indexOffset + index];
                 float value2 = wavetable[indexOffset + nextIndex];
                 float value3 = wavetable[indexOffset + nextNextIndex];
-                
+                 
                 // Perform Hermite interpolation
                 float slope0 = (value2 - value0) * 0.5f;
                 float slope1 = (value3 - value1) * 0.5f;
