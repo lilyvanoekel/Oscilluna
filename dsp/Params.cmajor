@@ -205,38 +205,42 @@ namespace Synth
 
         Params params = createParams();
 
-        event adsr1_attack (float f)            { params.adsr1Attack = f;           paramsOut <- params; }
-        event adsr1_decay (float f)             { params.adsr1Decay = f;            paramsOut <- params; }
-        event adsr1_sustain (float f)           { params.adsr1Sustain = f;          paramsOut <- params; }
-        event adsr1_release (float f)           { params.adsr1Release = f;          paramsOut <- params; }
-        event adsr2_attack (float f)            { params.adsr2Attack = f;           paramsOut <- params; }
-        event adsr2_decay (float f)             { params.adsr2Decay = f;            paramsOut <- params; }
-        event adsr2_sustain (float f)           { params.adsr2Sustain = f;          paramsOut <- params; }
-        event adsr2_release (float f)           { params.adsr2Release = f;          paramsOut <- params; }
-        event osc1_level (float f)              { params.osc1Level = f;             paramsOut <- params; }
-        event osc2_level (float f)              { params.osc2Level = f;             paramsOut <- params; }
-        event osc1_coarse (float f)             { params.osc1Coarse = f;            paramsOut <- params; }
-        event osc2_coarse (float f)             { params.osc2Coarse = f;            paramsOut <- params; }
-        event osc1_fine (float f)               { params.osc1Fine = f;              paramsOut <- params; }
-        event osc2_fine (float f)               { params.osc2Fine = f;              paramsOut <- params; }
-        event fm_direction (int f)              { params.fmDirection = f;           paramsOut <- params; }
-        event fm_depth (float f)                { params.fmDepth = f;               paramsOut <- params; }
-        event osc1_wavefolding (float f)        { params.osc1Wavefolding = f;       paramsOut <- params; }
-        event osc2_wavefolding (float f)        { params.osc2Wavefolding = f;       paramsOut <- params; }
-        event osc1_vibrato_rate (float f)       { params.osc1VibratoRate = f;       paramsOut <- params; }
-        event osc2_vibrato_rate (float f)       { params.osc2VibratoRate = f;       paramsOut <- params; }
-        event osc1_vibrato_depth (float f)      { params.osc1VibratoDepth = f;      paramsOut <- params; }
-        event osc2_vibrato_depth (float f)      { params.osc2VibratoDepth = f;      paramsOut <- params; }
-        event osc1_feedback_fm (float f)        { params.osc1FeedbackFm = f;        paramsOut <- params; }
-        event osc2_feedback_fm (float f)        { params.osc2FeedbackFm = f;        paramsOut <- params; }
-        event cutoff (float f)                  { params.cutoff = f;                paramsOut <- params; }
-        event resonance (float f)               { params.resonance = f;             paramsOut <- params; }
-        event filter_enabled (bool b)           { params.filterBypass = !b;         paramsOut <- params; }
-        event chorus_enabled (bool b)           { params.chorusBypass = !b;         paramsOut <- params; }
-        event chorus_rate (float f)             { params.chorusRate = f;            paramsOut <- params; }
-        event chorus_depth (float f)            { params.chorusDepth = f;           paramsOut <- params; }
-        event chorus_delay_time (float f)       { params.chorusDelayTime = f;       paramsOut <- params; }
-        // event chorus_feedback (float f)         { params.chorusFeedback = f;        paramsOut <- params; }
-        event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       paramsOut <- params; }
+        void update() {
+            paramsOut <- params;
+        }
+
+        event adsr1_attack (float f)            { params.adsr1Attack = f;           update(); }
+        event adsr1_decay (float f)             { params.adsr1Decay = f;            update(); }
+        event adsr1_sustain (float f)           { params.adsr1Sustain = f;          update(); }
+        event adsr1_release (float f)           { params.adsr1Release = f;          update(); }
+        event adsr2_attack (float f)            { params.adsr2Attack = f;           update(); }
+        event adsr2_decay (float f)             { params.adsr2Decay = f;            update(); }
+        event adsr2_sustain (float f)           { params.adsr2Sustain = f;          update(); }
+        event adsr2_release (float f)           { params.adsr2Release = f;          update(); }
+        event osc1_level (float f)              { params.osc1Level = f;             update(); }
+        event osc2_level (float f)              { params.osc2Level = f;             update(); }
+        event osc1_coarse (float f)             { params.osc1Coarse = f;            update(); }
+        event osc2_coarse (float f)             { params.osc2Coarse = f;            update(); }
+        event osc1_fine (float f)               { params.osc1Fine = f;              update(); }
+        event osc2_fine (float f)               { params.osc2Fine = f;              update(); }
+        event fm_direction (int f)              { params.fmDirection = f;           update(); }
+        event fm_depth (float f)                { params.fmDepth = f;               update(); }
+        event osc1_wavefolding (float f)        { params.osc1Wavefolding = f;       update(); }
+        event osc2_wavefolding (float f)        { params.osc2Wavefolding = f;       update(); }
+        event osc1_vibrato_rate (float f)       { params.osc1VibratoRate = f;       update(); }
+        event osc2_vibrato_rate (float f)       { params.osc2VibratoRate = f;       update(); }
+        event osc1_vibrato_depth (float f)      { params.osc1VibratoDepth = f;      update(); }
+        event osc2_vibrato_depth (float f)      { params.osc2VibratoDepth = f;      update(); }
+        event osc1_feedback_fm (float f)        { params.osc1FeedbackFm = f;        update(); }
+        event osc2_feedback_fm (float f)        { params.osc2FeedbackFm = f;        update(); }
+        event cutoff (float f)                  { params.cutoff = f;                update(); }
+        event resonance (float f)               { params.resonance = f;             update(); }
+        event filter_enabled (bool b)           { params.filterBypass = !b;         update(); }
+        event chorus_enabled (bool b)           { params.chorusBypass = !b;         update(); }
+        event chorus_rate (float f)             { params.chorusRate = f;            update(); }
+        event chorus_depth (float f)            { params.chorusDepth = f;           update(); }
+        event chorus_delay_time (float f)       { params.chorusDelayTime = f;       update(); }
+        // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
+        event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
     }
 }

@@ -50,8 +50,8 @@ namespace Synth
             paramSplitter = ParamSplitter;
             oscBank = OscBank;
             noteToFrequency = Util::NoteToFrequency;
-            level1 = std::levels::SmoothedGain(float, 0.2f);
-            level2 = std::levels::SmoothedGain(float, 0.2f);
+            level1 = std::levels::SmoothedGain(float, 0.002f);
+            level2 = std::levels::SmoothedGain(float, 0.002f);
             coarseTuner1 = Util::TuneCoarse;
             coarseTuner2 = Util::TuneCoarse;
             fineTuner1 = Util::TuneFine;
@@ -105,9 +105,6 @@ namespace Synth
             level2 -> filter.in;
 
             filter.out -> out;
-
-            // level1 -> out;
-            // level2 -> out;
         }
     }
 }
