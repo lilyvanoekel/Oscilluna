@@ -67,13 +67,11 @@ namespace Synth
                 // Perform Hermite interpolation
                 float slope0 = (value2 - value0) * 0.5f;
                 float slope1 = (value3 - value1) * 0.5f;
-                float v = value1 - value2;
-                float w = slope0 + v;
-                float a = w + v + slope1;
-                float b_neg = w + a;
-                float stage1 = a * frac - b_neg;
-                float stage2 = stage1 * frac + slope0;
-                float outputSample = stage2 * frac + value1;
+                float c0 = value1;
+                float c1 = slope0;
+                float c2 = 3.0f * (value2 - value1) - 2.0f * slope0 - slope1;
+                float c3 = 2.0f * (value1 - value2) + slope0 + slope1;
+                float outputSample = ((c3 * frac + c2) * frac + c1) * frac + c0;
                 
                 prevPrevSample = prevSample;
                 prevSample = outputSample;
