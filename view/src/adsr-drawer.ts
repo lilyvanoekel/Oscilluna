@@ -2,21 +2,22 @@ import * as THREE from "three";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
+import { BoundingBox } from "./domain/layout";
 
 export const BuildADSRDrawer = (
-  patchConnection,
-  scene,
-  root,
-  boundingBox,
-  pointPrefix
+  patchConnection: any,
+  scene: THREE.Scene,
+  root: HTMLElement,
+  boundingBox: BoundingBox,
+  pointPrefix: string
 ) => {
   let currentAttack = 0.1;
   let currentDecay = 0.3;
   let currentSustain = 0.7;
   let currentRelease = 0.2;
-  let adsrLine = [];
-  let selectedSegment = null;
-  let handleObjects = [];
+  let adsrLine: any = [];
+  let selectedSegment: any = null;
+  let handleObjects: any = [];
   let isVisible = false;
 
   const clipPlanes = [
@@ -58,7 +59,7 @@ export const BuildADSRDrawer = (
       }
     }
 
-    handleObjects.forEach((handle) => {
+    handleObjects.forEach((handle: any) => {
       scene.remove(handle);
       handle.geometry.dispose();
       handle.material.dispose();
@@ -114,7 +115,7 @@ export const BuildADSRDrawer = (
 
       const l = new Line2(
         geometry,
-        pIndex == 1 ? materialCyanDashed : materialCyan
+        pIndex === "1" ? materialCyanDashed : materialCyan
       );
       l.computeLineDistances();
       scene.add(l);
@@ -129,8 +130,8 @@ export const BuildADSRDrawer = (
     ]);
   };
 
-  const drawHandles = (points) => {
-    points.forEach((point) => {
+  const drawHandles = (points: any) => {
+    points.forEach((point: any) => {
       const circleGeometry = new THREE.CircleGeometry(10, 32);
       const circle = new THREE.Mesh(circleGeometry, materialMagenta);
       circle.position.set(point.x, point.y, 0);
@@ -139,7 +140,7 @@ export const BuildADSRDrawer = (
     });
   };
 
-  const onMouseDown = (event) => {
+  const onMouseDown = (event: any) => {
     if (!isVisible) {
       return;
     }
@@ -147,7 +148,7 @@ export const BuildADSRDrawer = (
     selectedSegment = findClosestSegment(mousePos);
   };
 
-  const onMouseMove = (event) => {
+  const onMouseMove = (event: any) => {
     if (selectedSegment === null) return;
 
     const mousePos = getMousePosition(event);
@@ -169,7 +170,7 @@ export const BuildADSRDrawer = (
     drawADSR();
   };
 
-  const updateAttack = (mouseX, boxWidth) => {
+  const updateAttack = (mouseX: number, boxWidth: number) => {
     const maxSegmentWidth = boxWidth / 4;
     currentAttack = THREE.MathUtils.clamp(
       (mouseX - boundingBox.left) / maxSegmentWidth,
@@ -178,7 +179,12 @@ export const BuildADSRDrawer = (
     );
   };
 
-  const updateDecay = (mouseX, mouseY, boxWidth, boxHeight) => {
+  const updateDecay = (
+    mouseX: number,
+    mouseY: number,
+    boxWidth: number,
+    boxHeight: number
+  ) => {
     const maxSegmentWidth = boxWidth / 4;
     currentDecay = THREE.MathUtils.clamp(
       (mouseX - boundingBox.left) / maxSegmentWidth - currentAttack,
@@ -192,7 +198,12 @@ export const BuildADSRDrawer = (
     );
   };
 
-  const updateReleaseAndSustain = (mouseX, mouseY, boxWidth, boxHeight) => {
+  const updateReleaseAndSustain = (
+    mouseX: number,
+    mouseY: number,
+    boxWidth: number,
+    boxHeight: number
+  ) => {
     const maxSegmentWidth = boxWidth / 4;
     currentRelease = THREE.MathUtils.clamp(
       (boundingBox.right - mouseX) / maxSegmentWidth,
@@ -214,14 +225,14 @@ export const BuildADSRDrawer = (
     updateEnvelopeValues();
   };
 
-  const getMousePosition = (event) => {
+  const getMousePosition = (event: any) => {
     const rect = root.getBoundingClientRect();
     const mouseX = event.clientX - rect.left - window.innerWidth / 2;
     const mouseY = window.innerHeight / 2 - (event.clientY - rect.top);
     return new THREE.Vector3(mouseX, mouseY, 0);
   };
 
-  const findClosestSegment = (mousePos) => {
+  const findClosestSegment = (mousePos: any) => {
     const boxWidth = boundingBox.right - boundingBox.left;
     const boxHeight = boundingBox.top - boundingBox.bottom;
 
@@ -282,7 +293,7 @@ export const BuildADSRDrawer = (
 
   drawADSR();
 
-  const paramsUpdated = ({ endpointID, value }) => {
+  const paramsUpdated = ({ endpointID, value }: any) => {
     const actions = {
       [`${pointPrefix}_attack`]: () => {
         currentAttack = value;
@@ -314,7 +325,7 @@ export const BuildADSRDrawer = (
   patchConnection?.requestParameterValue(`${pointPrefix}_release`);
 
   return {
-    setBoundingBox: (b) => {
+    setBoundingBox: (b: any) => {
       boundingBox = b;
       clipPlanes[0].set(new THREE.Vector3(1, 0, 0), -boundingBox.left);
       clipPlanes[1].set(new THREE.Vector3(-1, 0, 0), boundingBox.right);
@@ -323,7 +334,7 @@ export const BuildADSRDrawer = (
 
       drawADSR();
     },
-    setVisible: (v) => {
+    setVisible: (v: boolean) => {
       if (v == isVisible) {
         return;
       }

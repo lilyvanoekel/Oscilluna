@@ -1,16 +1,23 @@
-import { xUnits } from "./domain/layout";
+import { xUnits } from "../domain/layout";
 
-export const BuildButton = (canvas, ctx, x, y, drawContent, onClick) => {
-  let buttonX;
-  let buttonY;
-  let buttonWidth;
-  let buttonHeight;
+export const BuildButton = (
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  drawContent: any,
+  onClick: any
+) => {
+  let buttonX = 0;
+  let buttonY = 0;
+  let buttonWidth = 0;
+  let buttonHeight = 0;
   let borderRadius;
   let borderWidth;
   let isHover = false;
   let isActive = false;
 
-  function isMouseOverButton(mouseX, mouseY) {
+  function isMouseOverButton(mouseX: number, mouseY: number) {
     return (
       mouseX >= buttonX &&
       mouseX <= buttonX + buttonWidth &&
@@ -106,7 +113,7 @@ export const BuildButton = (canvas, ctx, x, y, drawContent, onClick) => {
 
   return {
     draw,
-    setActive: (a) => {
+    setActive: (a: boolean) => {
       isActive = a;
       draw();
     },

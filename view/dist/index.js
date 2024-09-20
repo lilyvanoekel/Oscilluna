@@ -1,3 +1,8 @@
+/**
+ * Glue script between Cmajor and the vite based frontend.
+ * Loads the view in an iframe and provides patch connection.
+ * Also sets scaling limits.
+ */
 class PatchView extends HTMLElement {
   constructor(patchConnection) {
     super();

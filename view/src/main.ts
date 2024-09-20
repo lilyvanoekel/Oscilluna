@@ -4,20 +4,24 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
-import { mockPatchConnection } from "./mock-patch-connection.js";
+import { mockPatchConnection } from "./mock-patch-connection";
 
-import { xUnits } from "./domain/layout.js";
+import { getBoundingBoxTop, getBoundingBoxBottom } from "./domain/layout";
 
-import { BuildMenu } from "./menu.js";
-import { BuildScreenWave } from "./screens/screen-wave.js";
-import { BuildScreenTune } from "./screens/screen-tune.js";
-import { BuildScreenAdsr } from "./screens/screen-adsr.js";
+import { BuildMenu } from "./menu/menu";
+import { BuildScreenWave } from "./screens/screen-wave";
+import { BuildScreenTune } from "./screens/screen-tune";
+import { BuildScreenAdsr } from "./screens/screen-adsr";
 
 import "./styles/main.css";
 
-let patchConnection = undefined;
-let scene, camera, renderer, composer;
-let bloomPass;
+declare global {
+  interface Element {
+    CmajorSingletonPatchConnection?: any;
+  }
+}
+
+let patchConnection: any = undefined;
 
 const params = {
   threshold: 0,
@@ -25,13 +29,19 @@ const params = {
   radius: 0,
 };
 
-const initThree = () => {
-  const root = document.getElementById("root");
+const initThree = (
+  root: HTMLElement
+): [
+  THREE.Scene,
+  THREE.OrthographicCamera,
+  THREE.WebGLRenderer,
+  EffectComposer,
+] => {
   const width = root.clientWidth;
   const height = root.clientHeight;
 
-  scene = new THREE.Scene();
-  camera = new THREE.OrthographicCamera(
+  const scene = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(
     width / -2,
     width / 2,
     height / 2,
@@ -41,44 +51,31 @@ const initThree = () => {
   );
   camera.position.z = 2;
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
   renderer.toneMapping = THREE.ReinhardToneMapping;
   renderer.localClippingEnabled = true;
   root.appendChild(renderer.domElement);
 
-  composer = new EffectComposer(renderer);
+  const composer = new EffectComposer(renderer);
   const renderPass = new RenderPass(scene, camera);
   composer.addPass(renderPass);
 
-  bloomPass = new UnrealBloomPass(
+  const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(width, height),
     params.strength,
     params.radius,
     params.threshold
   );
   composer.addPass(bloomPass);
-  animate();
+  animate(composer)();
+  return [scene, camera, renderer, composer];
 };
 
-const animate = () => {
-  requestAnimationFrame(animate);
+const animate = (composer: EffectComposer) => () => {
+  requestAnimationFrame(animate(composer));
   composer.render();
 };
-
-const getBoundingBoxTop = () => ({
-  left: -window.innerWidth / 2 + xUnits(100),
-  right: window.innerWidth / 2 - xUnits(14),
-  top: window.innerHeight / 2 - 18,
-  bottom: 0 + 18,
-});
-
-const getBoundingBoxBottom = () => ({
-  left: -window.innerWidth / 2 + xUnits(100),
-  right: window.innerWidth / 2 - xUnits(14),
-  top: 0 - 18,
-  bottom: -window.innerHeight / 2 + 18,
-});
 
 document.addEventListener("DOMContentLoaded", () => {
   if (
@@ -90,11 +87,17 @@ document.addEventListener("DOMContentLoaded", () => {
     patchConnection = mockPatchConnection;
   }
 
-  initThree();
+  const root = document.getElementById("root");
+  if (!root) {
+    return;
+  }
+
+  const [scene, camera, renderer, composer] = initThree(root);
 
   const screenWave = BuildScreenWave(
     patchConnection,
     scene,
+    root,
     getBoundingBoxTop,
     getBoundingBoxBottom
   );
@@ -104,13 +107,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const screenAdsr = BuildScreenAdsr(
     patchConnection,
     scene,
+    root,
     getBoundingBoxTop,
     getBoundingBoxBottom
   );
 
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-  const menu = BuildMenu(canvas, ctx, (currentTab) => {
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D; // @todo: get away with this casting
+  const menu = BuildMenu(canvas, ctx, (currentTab: number) => {
     if (currentTab === 0) {
       screenWave.setVisible(true);
     } else {
@@ -131,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const onWindowResize = () => {
-    const root = document.getElementById("root");
     const width = root.clientWidth;
     const height = root.clientHeight;
 
@@ -152,6 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const redraw = () => {
+    if (!canvas || !ctx) {
+      return;
+    }
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -4,12 +4,12 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
 
-import { debounce } from "./domain/debounce.js";
+import { debounce } from "./domain/debounce";
 import {
   NUMBER_OF_POINTS,
   generateCatmullRomControlPoints,
   decodeCatmullRom,
-} from "./domain/catmull.js";
+} from "./domain/catmull";
 import {
   normalizeWaveform,
   generateWaveform,
@@ -17,19 +17,21 @@ import {
   generateSquareWaveControlPoints,
   generateSawtoothWaveControlPoints,
   generateTriangleWaveControlPoints,
-} from "./domain/dsp.js";
+} from "./domain/dsp";
+import { BoundingBox } from "./domain/layout";
 
 export const BuildWaveDrawer = (
-  patchConnection,
-  scene,
-  root,
-  boundingBox,
-  pointPrefix
+  patchConnection: any,
+  scene: THREE.Scene,
+  root: HTMLElement,
+  boundingBox: BoundingBox,
+  pointPrefix: string
 ) => {
   let isDrawing = false;
-  let points = [];
-  let line, waveformLine;
-  let currentWaveform = null;
+  let points: any = [];
+  let line: any;
+  let waveformLine: any;
+  let currentWaveform: any = null;
   let isVisible = true;
 
   const standardWaves = [
@@ -95,7 +97,7 @@ export const BuildWaveDrawer = (
     clippingPlanes: clipPlanes,
   });
 
-  const onMouseDown = (event) => {
+  const onMouseDown = (event: any) => {
     if (!isVisible) {
       return;
     }
@@ -133,7 +135,10 @@ export const BuildWaveDrawer = (
     }
 
     let controlPoints;
-    if (points.length <= 2 || points.every((val) => val.y === points[0].y)) {
+    if (
+      points.length <= 2 ||
+      points.every((val: any) => val.y === points[0].y)
+    ) {
       currentStandardWave = (currentStandardWave + 1) % standardWaves.length;
       controlPoints = standardWaves[currentStandardWave];
     } else {
@@ -156,7 +161,7 @@ export const BuildWaveDrawer = (
     displayWaveform();
   }, 300);
 
-  const paramsUpdated = ({ endpointID, value }) => {
+  const paramsUpdated = ({ endpointID, value }: any) => {
     const match = endpointID.match(new RegExp(`^${pointPrefix}_(\\d+)`));
     if (match) {
       const index = parseInt(match[1], 10);
@@ -165,7 +170,7 @@ export const BuildWaveDrawer = (
     }
   };
 
-  const onMouseMove = (event) => {
+  const onMouseMove = (event: any) => {
     if (!isVisible || !isDrawing) {
       return;
     }
@@ -184,8 +189,8 @@ export const BuildWaveDrawer = (
       line.geometry.dispose();
     }
 
-    const positions = [];
-    points.forEach((point) => {
+    const positions: any = [];
+    points.forEach((point: any) => {
       positions.push(point.x, point.y, point.z);
     });
 
@@ -240,7 +245,7 @@ export const BuildWaveDrawer = (
   }
 
   return {
-    setBoundingBox: (b) => {
+    setBoundingBox: (b: any) => {
       boundingBox = b;
       clipPlanes[0].set(new THREE.Vector3(1, 0, 0), -boundingBox.left);
       clipPlanes[1].set(new THREE.Vector3(-1, 0, 0), boundingBox.right);
@@ -262,7 +267,7 @@ export const BuildWaveDrawer = (
 
       displayWaveform();
     },
-    setVisible: (v) => {
+    setVisible: (v: boolean) => {
       if (v == isVisible) {
         return;
       }

@@ -1,13 +1,17 @@
-import { BuildButton } from "./button.js";
+import { BuildButton } from "./button";
 import {
   buttonIconSine,
   buttonIconTuningFork,
   buttonIconADSR,
   buttonIconEQ,
   buttonIconFX,
-} from "./button-icons.js";
+} from "./button-icons";
 
-export const BuildMenu = (canvas, ctx, updateTab) => {
+export const BuildMenu = (
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  updateTab: (currentTab: number) => void
+) => {
   let currentTab = 0;
   const buttons = [
     BuildButton(canvas, ctx, 12, 16, buttonIconSine, () => {

@@ -1,15 +1,18 @@
-import { BuildADSRDrawer } from "../adsr-drawer.js";
+import * as THREE from "three";
+import { BuildADSRDrawer } from "../adsr-drawer";
+import { BoundingBox } from "../domain/layout";
 
 export const BuildScreenAdsr = (
-  patchConnection,
-  scene,
-  getBoundingBoxTop,
-  getBoundingBoxBottom
+  patchConnection: any,
+  scene: THREE.Scene,
+  root: HTMLElement,
+  getBoundingBoxTop: () => BoundingBox,
+  getBoundingBoxBottom: () => BoundingBox
 ) => {
   const adsr1 = BuildADSRDrawer(
     patchConnection,
     scene,
-    document.getElementById("root"),
+    root,
     getBoundingBoxTop(),
     "adsr1"
   );
@@ -17,7 +20,7 @@ export const BuildScreenAdsr = (
   const adsr2 = BuildADSRDrawer(
     patchConnection,
     scene,
-    document.getElementById("root"),
+    root,
     getBoundingBoxBottom(),
     "adsr2"
   );
@@ -27,7 +30,7 @@ export const BuildScreenAdsr = (
       adsr1.setBoundingBox(getBoundingBoxTop());
       adsr2.setBoundingBox(getBoundingBoxBottom());
     },
-    setVisible: (v) => {
+    setVisible: (v: boolean) => {
       adsr1.setVisible(v);
       adsr2.setVisible(v);
     },

@@ -1,18 +1,10 @@
-import { xUnits } from "../domain/layout.js";
+import { dbToLinear, linearToDb } from "../domain/dsp";
+import { xUnits } from "../domain/layout";
 
-function linearToDb(linearValue) {
-  if (linearValue <= 0) return -85;
-  return 20 * Math.log10(linearValue);
-}
-
-function dbToLinear(dbValue) {
-  return Math.pow(10, dbValue / 20);
-}
-
-const getRadiosByName = (name) =>
+const getRadiosByName = (name: string): NodeListOf<HTMLInputElement> =>
   document.querySelectorAll(`input[name="${name}"]`);
 
-function setRadioValue(name, value) {
+function setRadioValue(name: string, value: any) {
   const radios = getRadiosByName(name);
   radios.forEach((radio) => {
     if (radio.value == value) {
@@ -21,14 +13,23 @@ function setRadioValue(name, value) {
   });
 }
 
-export const BuildScreenTune = (patchConnection) => {
-  const parentDiv = document.getElementById("temporary-controls-tuning");
+export const BuildScreenTune = (patchConnection: any) => {
+  const parentDiv = document.getElementById(
+    "temporary-controls-tuning"
+  ) as HTMLElement;
   parentDiv.style.left = `${Math.round(xUnits(100))}px`;
 
-  const identity = (x) => x;
-  const paramTransformers = {
-    osc1_level: [(x) => linearToDb(x / 100), (x) => dbToLinear(x) * 100],
-    osc2_level: [(x) => linearToDb(x / 100), (x) => dbToLinear(x) * 100],
+  const identity = <T>(x: T): T => x;
+  type Transformer = (x: number) => number;
+  const paramTransformers: Record<string, [Transformer, Transformer]> = {
+    osc1_level: [
+      (x: number) => linearToDb(x / 100),
+      (x: number) => dbToLinear(x) * 100,
+    ],
+    osc2_level: [
+      (x: number) => linearToDb(x / 100),
+      (x: number) => dbToLinear(x) * 100,
+    ],
   };
 
   const supportedParams = [
@@ -47,7 +48,13 @@ export const BuildScreenTune = (patchConnection) => {
     "osc2_feedback_fm",
   ];
 
-  const paramsUpdated = ({ endpointID, value }) => {
+  const paramsUpdated = ({
+    endpointID,
+    value,
+  }: {
+    endpointID: string;
+    value: number;
+  }) => {
     if (!supportedParams.includes(endpointID)) {
       return;
     }
@@ -58,7 +65,8 @@ export const BuildScreenTune = (patchConnection) => {
     }
 
     const transformer = paramTransformers[endpointID]?.[1] ?? identity;
-    document.getElementById(endpointID).value = transformer(value);
+    const el = document.getElementById(endpointID) as HTMLInputElement;
+    el.value = `${transformer(value)}`;
   };
 
   patchConnection?.addAllParameterListener(paramsUpdated);
@@ -68,15 +76,20 @@ export const BuildScreenTune = (patchConnection) => {
       const radios = getRadiosByName("fm_direction");
       radios.forEach((radio) => {
         radio.addEventListener("change", (event) => {
-          const selectedValue = event.target.value;
+          const target = event.target as HTMLInputElement;
+          const selectedValue = target.value;
           patchConnection?.sendEventOrValue(param, selectedValue);
           patchConnection?.requestParameterValue(param);
         });
       });
     } else {
-      document.getElementById(param).addEventListener("change", function () {
+      document.getElementById(param)?.addEventListener("change", function () {
         const transformer = paramTransformers[param]?.[0] ?? identity;
-        patchConnection?.sendEventOrValue(param, transformer(this.value));
+        const element = this as HTMLInputElement;
+        patchConnection?.sendEventOrValue(
+          param,
+          transformer(parseFloat(element.value))
+        );
         patchConnection?.requestParameterValue(param);
       });
     }
@@ -88,7 +101,7 @@ export const BuildScreenTune = (patchConnection) => {
     resize: () => {
       parentDiv.style.left = `${Math.round(xUnits(100))}px`;
     },
-    setVisible: (v) => {
+    setVisible: (v: boolean) => {
       if (v) {
         parentDiv.style.display = "block";
       } else {

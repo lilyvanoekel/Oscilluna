@@ -1,15 +1,18 @@
-import { BuildWaveDrawer } from "../wave-drawer.js";
+import * as THREE from "three";
+import { BuildWaveDrawer } from "../wave-drawer";
+import { BoundingBox } from "../domain/layout";
 
 export const BuildScreenWave = (
-  patchConnection,
-  scene,
-  getBoundingBoxTop,
-  getBoundingBoxBottom
+  patchConnection: any,
+  scene: THREE.Scene,
+  root: HTMLElement,
+  getBoundingBoxTop: () => BoundingBox,
+  getBoundingBoxBottom: () => BoundingBox
 ) => {
   const drawer1 = BuildWaveDrawer(
     patchConnection,
     scene,
-    document.getElementById("root"),
+    root,
     getBoundingBoxTop(),
     "point1"
   );
@@ -17,7 +20,7 @@ export const BuildScreenWave = (
   const drawer2 = BuildWaveDrawer(
     patchConnection,
     scene,
-    document.getElementById("root"),
+    root,
     getBoundingBoxBottom(),
     "point2"
   );
@@ -26,7 +29,7 @@ export const BuildScreenWave = (
       drawer1.setBoundingBox(getBoundingBoxTop());
       drawer2.setBoundingBox(getBoundingBoxBottom());
     },
-    setVisible: (v) => {
+    setVisible: (v: boolean) => {
       drawer1.setVisible(v);
       drawer2.setVisible(v);
     },

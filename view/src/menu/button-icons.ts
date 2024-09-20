@@ -1,13 +1,13 @@
-import { xUnits } from "./domain/layout";
+import { xUnits } from "../domain/layout";
 
 export const buttonIconSine = (
-  ctx,
-  buttonX,
-  buttonY,
-  buttonWidth,
-  buttonHeight,
-  isHover,
-  isActive
+  ctx: CanvasRenderingContext2D,
+  buttonX: number,
+  buttonY: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  isHover: boolean,
+  isActive: boolean
 ) => {
   const waveAmplitude = xUnits(16);
   const wavePadding = xUnits(10);
@@ -39,13 +39,13 @@ export const buttonIconSine = (
 };
 
 export const buttonIconTuningFork = (
-  ctx,
-  buttonX,
-  buttonY,
-  buttonWidth,
-  buttonHeight,
-  isHover,
-  isActive
+  ctx: CanvasRenderingContext2D,
+  buttonX: number,
+  buttonY: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  isHover: boolean,
+  isActive: boolean
 ) => {
   const prongWidth = xUnits(10);
   const prongHeight = xUnits(60);
@@ -87,13 +87,13 @@ export const buttonIconTuningFork = (
 };
 
 export const buttonIconADSR = (
-  ctx,
-  buttonX,
-  buttonY,
-  buttonWidth,
-  buttonHeight,
-  isHover,
-  isActive
+  ctx: CanvasRenderingContext2D,
+  buttonX: number,
+  buttonY: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  isHover: boolean,
+  isActive: boolean
 ) => {
   const paddingX = xUnits(10);
   const paddingY = xUnits(20);
@@ -126,13 +126,13 @@ export const buttonIconADSR = (
 };
 
 export const buttonIconEQ = (
-  ctx,
-  buttonX,
-  buttonY,
-  buttonWidth,
-  buttonHeight,
-  isHover,
-  isActive
+  ctx: CanvasRenderingContext2D,
+  buttonX: number,
+  buttonY: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  isHover: boolean,
+  isActive: boolean
 ) => {
   const sliderCount = 3;
   const sliderWidth = xUnits(4);
@@ -145,9 +145,9 @@ export const buttonIconEQ = (
     (buttonWidth * 0.9 - sliderCount * sliderWidth) / (sliderCount + 1);
 
   const sliderPositions = [
-    buttonY + sliderHeight * 0.3, // Low slider (30% up)
-    buttonY + sliderHeight * 0.7, // Mid slider (70% up)
-    buttonY + sliderHeight * 0.5, // High slider (50% up)
+    buttonY + sliderHeight * 0.3,
+    buttonY + sliderHeight * 0.7,
+    buttonY + sliderHeight * 0.5,
   ];
 
   ctx.strokeStyle = isHover ? "cyan" : "magenta";
@@ -183,13 +183,13 @@ export const buttonIconEQ = (
 };
 
 export const buttonIconFX = (
-  ctx,
-  buttonX,
-  buttonY,
-  buttonWidth,
-  buttonHeight,
-  isHover,
-  isActive
+  ctx: CanvasRenderingContext2D,
+  buttonX: number,
+  buttonY: number,
+  buttonWidth: number,
+  buttonHeight: number,
+  isHover: boolean,
+  isActive: boolean
 ) => {
   const lineWidth = xUnits(6);
   const size = xUnits(34);
@@ -203,15 +203,14 @@ export const buttonIconFX = (
 
   ctx.beginPath();
 
-  // Calculate the offset to center the drawing
   const startX = xUnits(29);
 
   // Draw the "F"
-  ctx.moveTo(startX, centerY - size / 2); // vertical line of F
+  ctx.moveTo(startX, centerY - size / 2);
   ctx.lineTo(startX, centerY + size / 2);
-  ctx.moveTo(startX, centerY - size / 2); // top horizontal line of F
+  ctx.moveTo(startX, centerY - size / 2);
   ctx.lineTo(startX + xUnits(16), centerY - size / 2);
-  ctx.moveTo(startX, centerY); // middle horizontal line of F
+  ctx.moveTo(startX, centerY);
   ctx.lineTo(startX + xUnits(10), centerY);
 
   // Draw the "X"

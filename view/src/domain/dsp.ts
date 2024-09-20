@@ -1,4 +1,6 @@
-export const wrapWaveform = (waveform, shiftAmount = 512) => {
+import { BoundingBox } from "./layout";
+
+export const wrapWaveform = (waveform: number[], shiftAmount = 512) => {
   const length = waveform.length;
 
   // Ensure shiftAmount is within bounds
@@ -14,7 +16,7 @@ export const wrapWaveform = (waveform, shiftAmount = 512) => {
   return wrappedWaveform;
 };
 
-export const normalizeWaveform = (waveform) => {
+export const normalizeWaveform = (waveform: number[]) => {
   const mean =
     waveform.reduce((sum, value) => sum + value, 0) / waveform.length;
   const waveform2 = waveform.map((value) => value - mean);
@@ -22,20 +24,25 @@ export const normalizeWaveform = (waveform) => {
   return waveform2.map((value) => value / maxAbsValue);
 };
 
-export const generateWaveform = (points, boundingBox) => {
+export const generateWaveform = (
+  points: { x: number; y: number }[],
+  boundingBox: BoundingBox
+) => {
   const numPoints = points.length;
   const targetLength = 1024;
   const waveform = [];
 
-  // Function to perform linear interpolation
-  const interpolate = (x1, y1, x2, y2, x) => {
+  const interpolate = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    x: number
+  ) => {
     return y1 + (y2 - y1) * ((x - x1) / (x2 - x1));
   };
 
-  // Scale factor to map the original points to the target length
   const scale = (numPoints - 1) / (targetLength - 1);
-
-  // Calculate the bounding box height
   const boxHeight = boundingBox.top - boundingBox.bottom;
 
   for (let i = 0; i < targetLength; i++) {
@@ -44,7 +51,6 @@ export const generateWaveform = (points, boundingBox) => {
     const x2 = Math.ceil(x);
 
     if (x1 === x2) {
-      // Normalize y within the bounding box height
       waveform.push((points[x1].y - boundingBox.bottom) / boxHeight);
     } else {
       const y1 = (points[x1].y - boundingBox.bottom) / boxHeight;
@@ -61,8 +67,8 @@ export const generateWaveform = (points, boundingBox) => {
   return normalizeWaveform(waveform);
 };
 
-export const generateSineWaveControlPoints = (numberOfPoints) => {
-  const controlPoints = [];
+export const generateSineWaveControlPoints = (numberOfPoints: number) => {
+  const controlPoints: number[] = [];
   const step = (2 * Math.PI) / numberOfPoints;
 
   for (let i = 0; i < numberOfPoints; i++) {
@@ -74,8 +80,8 @@ export const generateSineWaveControlPoints = (numberOfPoints) => {
   return controlPoints;
 };
 
-export const generateSquareWaveControlPoints = (numberOfPoints) => {
-  const controlPoints = [];
+export const generateSquareWaveControlPoints = (numberOfPoints: number) => {
+  const controlPoints: number[] = [];
 
   for (let i = 0; i < numberOfPoints; i++) {
     const y = i < numberOfPoints / 2 ? 1 : -1;
@@ -85,8 +91,8 @@ export const generateSquareWaveControlPoints = (numberOfPoints) => {
   return controlPoints;
 };
 
-export const generateSawtoothWaveControlPoints = (numberOfPoints) => {
-  const controlPoints = [];
+export const generateSawtoothWaveControlPoints = (numberOfPoints: number) => {
+  const controlPoints: number[] = [];
 
   for (let i = 0; i < numberOfPoints; i++) {
     const y = 2 * (i / numberOfPoints) - 1;
@@ -96,8 +102,8 @@ export const generateSawtoothWaveControlPoints = (numberOfPoints) => {
   return controlPoints;
 };
 
-export const generateTriangleWaveControlPoints = (numberOfPoints) => {
-  const controlPoints = [];
+export const generateTriangleWaveControlPoints = (numberOfPoints: number) => {
+  const controlPoints: number[] = [];
 
   for (let i = 0; i < numberOfPoints; i++) {
     let phase = i / numberOfPoints;
@@ -106,4 +112,13 @@ export const generateTriangleWaveControlPoints = (numberOfPoints) => {
   }
 
   return controlPoints;
+};
+
+export const linearToDb = (linearValue: number) => {
+  if (linearValue <= 0) return -85;
+  return 20 * Math.log10(linearValue);
+};
+
+export const dbToLinear = (dbValue: number) => {
+  return Math.pow(10, dbValue / 20);
 };
