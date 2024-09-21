@@ -130,6 +130,9 @@ export const BuildScreenTune = (
     endpointID: string;
     value: number;
   }) => {
+    if (!fieldIdToElement[endpointID]) {
+      return;
+    }
     const [element, transformer] = fieldIdToElement[endpointID];
     element.setValue(transformer(value));
   };
