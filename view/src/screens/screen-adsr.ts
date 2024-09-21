@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BuildADSRDrawer } from "../adsr-drawer";
+import { BuildADSRDrawer } from "../elements/adsr-drawer";
 import { BoundingBox } from "../domain/layout";
 
 export const BuildScreenAdsr = (

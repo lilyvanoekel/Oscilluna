@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { BuildWaveDrawer } from "../wave-drawer";
+import { BuildWaveDrawer } from "../elements/wave-drawer";
 import { BoundingBox } from "../domain/layout";
 
 export const BuildScreenWave = (

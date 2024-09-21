@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { BuildScreenAdsr } from "./screen-adsr";
 import { BoundingBox } from "../domain/layout";
-import * as adsrDrawerModule from "../adsr-drawer";
+import * as adsrDrawerModule from "../elements/adsr-drawer";
 
 const mockScene = {};
 

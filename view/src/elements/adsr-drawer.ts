@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
-import { BoundingBox } from "./domain/layout";
+import { BoundingBox } from "../domain/layout";
 
 export const BuildADSRDrawer = (
   patchConnection: any,

@@ -4,12 +4,12 @@ import { LineGeometry } from "three/examples/jsm/lines/LineGeometry.js";
 import { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
 import { Line2 } from "three/examples/jsm/lines/Line2.js";
 
-import { debounce } from "./domain/debounce";
+import { debounce } from "../domain/debounce";
 import {
   NUMBER_OF_POINTS,
   generateCatmullRomControlPoints,
   decodeCatmullRom,
-} from "./domain/catmull";
+} from "../domain/catmull";
 import {
   normalizeWaveform,
   generateWaveform,
@@ -17,8 +17,8 @@ import {
   generateSquareWaveControlPoints,
   generateSawtoothWaveControlPoints,
   generateTriangleWaveControlPoints,
-} from "./domain/dsp";
-import { BoundingBox } from "./domain/layout";
+} from "../domain/dsp";
+import { BoundingBox } from "../domain/layout";
 
 export const BuildWaveDrawer = (
   patchConnection: any,

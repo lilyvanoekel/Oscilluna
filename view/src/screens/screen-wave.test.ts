@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { BuildScreenWave } from "./screen-wave";
 import { BoundingBox } from "../domain/layout";
-import * as waveDrawerModule from "../wave-drawer";
+import * as waveDrawerModule from "../elements/wave-drawer";
 
 const mockScene = {};
 
