@@ -22,3 +22,24 @@ export const getBoundingBoxBottom = (): BoundingBox => ({
   top: 0 - 18,
   bottom: -window.innerHeight / 2 + 18,
 });
+
+export const splitBoundingBoxHorizontal = (
+  divisions: number,
+  boundingBox: BoundingBox
+): BoundingBox[] => {
+  const width = boundingBox.right - boundingBox.left;
+  const sectionWidth = width / divisions;
+
+  const boundingBoxes: BoundingBox[] = [];
+
+  for (let i = 0; i < divisions; i++) {
+    boundingBoxes.push({
+      left: boundingBox.left + i * sectionWidth,
+      right: boundingBox.left + (i + 1) * sectionWidth,
+      top: boundingBox.top,
+      bottom: boundingBox.bottom,
+    });
+  }
+
+  return boundingBoxes;
+};

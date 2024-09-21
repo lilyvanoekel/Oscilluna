@@ -94,6 +94,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const [scene, camera, renderer, composer] = initThree(root);
 
+  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
+  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D; // @todo: get away with this casting
+
   const screenWave = BuildScreenWave(
     patchConnection,
     scene,
@@ -102,7 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
     getBoundingBoxBottom
   );
 
-  const screenTune = BuildScreenTune(patchConnection);
+  const screenTune = BuildScreenTune(
+    patchConnection,
+    scene,
+    root,
+    ctx,
+    getBoundingBoxTop,
+    getBoundingBoxBottom
+  );
 
   const screenAdsr = BuildScreenAdsr(
     patchConnection,
@@ -112,8 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
     getBoundingBoxBottom
   );
 
-  const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D; // @todo: get away with this casting
   const menu = BuildMenu(canvas, ctx, (currentTab: number) => {
     if (currentTab === 0) {
       screenWave.setVisible(true);
@@ -132,6 +140,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       screenAdsr.setVisible(false);
     }
+
+    canvasDraw();
   });
 
   const onWindowResize = () => {
@@ -151,10 +161,10 @@ document.addEventListener("DOMContentLoaded", () => {
     screenTune.resize();
     screenAdsr.resize();
 
-    redraw();
+    canvasDraw();
   };
 
-  const redraw = () => {
+  const canvasDraw = () => {
     if (!canvas || !ctx) {
       return;
     }
@@ -163,9 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     menu.draw();
+    screenTune.canvasDraw();
   };
 
   window.addEventListener("resize", onWindowResize, false);
-  redraw();
+  canvasDraw();
   menu.triggerTabUpdate();
 });

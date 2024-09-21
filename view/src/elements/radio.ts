@@ -21,7 +21,7 @@ export const BuildRadio = (
   const materialMagenta = new THREE.MeshBasicMaterial({ color: 0xff00ff });
 
   const getFontSizeSpacing = () => {
-    const fontSize = Math.round(xUnits(28));
+    const fontSize = Math.round(xUnits(22));
     const optionSpacing = fontSize + xUnits(12);
 
     return { fontSize, optionSpacing };
@@ -47,7 +47,7 @@ export const BuildRadio = (
       : 0;
 
     options.forEach((option, index) => {
-      const bulletRadius = index === currentIndex ? xUnits(11) : xUnits(8);
+      const bulletRadius = index === currentIndex ? xUnits(10) : xUnits(8);
       const material = index === currentIndex ? materialCyan : materialMagenta;
 
       const circleGeometry = new THREE.CircleGeometry(bulletRadius, 32);
@@ -103,7 +103,7 @@ export const BuildRadio = (
       ctx.textAlign = "left";
       ctx.fillText(
         option,
-        canvasX + xUnits(40),
+        canvasX + xUnits(44),
         canvasY + textHeightAdjustment + xUnits(8) + bottomAlignAdjust
       );
 
@@ -142,6 +142,10 @@ export const BuildRadio = (
       return;
     }
 
+    if (event.clientY < top || event.clientY > bottom) {
+      return;
+    }
+
     options.forEach((_, index) => {
       const optionTop = top + optionSpacing * index + bottomAlignAdjust;
       const optionBottom = optionTop + optionSpacing + bottomAlignAdjust;
@@ -163,7 +167,7 @@ export const BuildRadio = (
   drawBullets();
 
   return {
-    setSelectedIndex: (index: number) => {
+    setValue: (index: number) => {
       currentIndex = index;
       drawBullets();
     },

@@ -1,52 +1,127 @@
+import * as THREE from "three";
+
 import { dbToLinear, linearToDb } from "../domain/dsp";
-import { xUnits } from "../domain/layout";
+import { BoundingBox, splitBoundingBoxHorizontal } from "../domain/layout";
+import { BuildSlider } from "../elements/slider";
+import { BuildRadio } from "../elements/radio";
 
-const getRadiosByName = (name: string): NodeListOf<HTMLInputElement> =>
-  document.querySelectorAll(`input[name="${name}"]`);
+const identity = <T>(x: T): T => x;
+type Transformer = (x: number) => number;
+type ScreenElement =
+  | [
+      "slider",
+      string,
+      number,
+      number,
+      string,
+      (
+        | [number, number, number, Transformer, Transformer]
+        | [number, number, number]
+      ),
+    ]
+  | ["radio", string[], number, number, string];
 
-function setRadioValue(name: string, value: any) {
-  const radios = getRadiosByName(name);
-  radios.forEach((radio) => {
-    if (radio.value == value) {
-      radio.checked = true;
-    }
-  });
-}
-
-export const BuildScreenTune = (patchConnection: any) => {
-  const parentDiv = document.getElementById(
-    "temporary-controls-tuning"
-  ) as HTMLElement;
-  parentDiv.style.left = `${Math.round(xUnits(100))}px`;
-
-  const identity = <T>(x: T): T => x;
-  type Transformer = (x: number) => number;
-  const paramTransformers: Record<string, [Transformer, Transformer]> = {
-    osc1_level: [
-      (x: number) => linearToDb(x / 100),
-      (x: number) => dbToLinear(x) * 100,
+export const BuildScreenTune = (
+  patchConnection: any,
+  scene: THREE.Scene,
+  root: HTMLElement,
+  ctx: CanvasRenderingContext2D,
+  getBoundingBoxTop: () => BoundingBox,
+  getBoundingBoxBottom: () => BoundingBox
+) => {
+  const elements: ScreenElement[] = [
+    [
+      "slider",
+      "Output\nLevel",
+      0,
+      0,
+      "osc1_level",
+      [0, 1, 0.01, linearToDb, dbToLinear],
     ],
-    osc2_level: [
-      (x: number) => linearToDb(x / 100),
-      (x: number) => dbToLinear(x) * 100,
-    ],
-  };
+    ["slider", "Course\nTune", 0, 1, "osc1_coarse", [-2, 2, 1]],
+    ["slider", "Fine\nTune", 0, 2, "osc1_fine", [-20, 20, 1]],
+    ["slider", "Vibrato\nDepth", 0, 3, "osc1_vibrato_depth", [0, 1, 0.01]],
+    ["slider", "Vibrato\nSpeed", 0, 4, "osc1_vibrato_rate", [0.5, 10, 0.01]],
+    ["radio", ["No FM", "1 → 2", "2 → 1"], 0, 5, "fm_direction"],
+    ["slider", "FM\nDepth", 0, 6, "fm_depth", [0, 1, 0.01]],
+    ["slider", "Self\nFM", 0, 7, "osc1_feedback_fm", [0, 1, 0.01]],
 
-  const supportedParams = [
-    ...Object.keys(paramTransformers),
-    "osc1_coarse",
-    "osc1_fine",
-    "osc2_coarse",
-    "osc2_fine",
-    "fm_depth",
-    "fm_direction",
-    "osc1_vibrato_rate",
-    "osc2_vibrato_rate",
-    "osc1_vibrato_depth",
-    "osc2_vibrato_depth",
-    "osc1_feedback_fm",
-    "osc2_feedback_fm",
+    [
+      "slider",
+      "Output\nLevel",
+      1,
+      0,
+      "osc2_level",
+      [0, 1, 0.01, linearToDb, dbToLinear],
+    ],
+    ["slider", "Course\nTune", 1, 1, "osc2_coarse", [-2, 2, 1]],
+    ["slider", "Fine\nTune", 1, 2, "osc2_fine", [-20, 20, 1]],
+    ["slider", "Vibrato\nDepth", 1, 3, "osc2_vibrato_depth", [0, 1, 0.01]],
+    ["slider", "Vibrato\nSpeed", 1, 4, "osc2_vibrato_rate", [0.5, 10, 0.01]],
+    ["slider", "Self\nFM", 1, 5, "osc2_feedback_fm", [0, 1, 0.01]],
   ];
+
+  const bb = [
+    splitBoundingBoxHorizontal(8, getBoundingBoxTop()),
+    splitBoundingBoxHorizontal(8, getBoundingBoxBottom()),
+  ];
+  const sliders: [ReturnType<typeof BuildSlider>, number, number][] = [];
+  const radios: [ReturnType<typeof BuildRadio>, number, number][] = [];
+  const fieldIdToElement: Record<
+    string,
+    [
+      ReturnType<typeof BuildSlider> | ReturnType<typeof BuildRadio>,
+      Transformer,
+    ]
+  > = {};
+
+  for (const [elType, nameOrOptions, y, x, fieldId, sliderParams] of elements) {
+    if (elType === "slider") {
+      const [
+        min,
+        max,
+        step,
+        transformerOut = identity,
+        transformerIn = identity,
+      ] = sliderParams;
+      const slider = BuildSlider(
+        nameOrOptions,
+        scene,
+        root,
+        ctx,
+        bb[y][x],
+        (value) => {
+          patchConnection?.sendEventOrValue(fieldId, transformerOut(value));
+          patchConnection?.requestParameterValue(fieldId);
+        },
+        0,
+        min,
+        max,
+        step,
+        false
+      );
+
+      sliders.push([slider, y, x]);
+      fieldIdToElement[fieldId] = [slider, transformerIn];
+    } else if (elType === "radio") {
+      const radio = BuildRadio(
+        nameOrOptions,
+        scene,
+        ctx,
+        bb[y][x],
+        (value) => {
+          patchConnection?.sendEventOrValue(fieldId, value);
+          patchConnection?.requestParameterValue(fieldId);
+        },
+        0,
+        true,
+        false
+      );
+
+      radios.push([radio, y, x]);
+      fieldIdToElement[fieldId] = [radio, identity];
+    }
+  }
 
   const paramsUpdated = ({
     endpointID,
@@ -55,57 +130,43 @@ export const BuildScreenTune = (patchConnection: any) => {
     endpointID: string;
     value: number;
   }) => {
-    if (!supportedParams.includes(endpointID)) {
-      return;
-    }
-
-    if (endpointID === "fm_direction") {
-      setRadioValue("fm_direction", value);
-      return;
-    }
-
-    const transformer = paramTransformers[endpointID]?.[1] ?? identity;
-    const el = document.getElementById(endpointID) as HTMLInputElement;
-    el.value = `${transformer(value)}`;
+    const [element, transformer] = fieldIdToElement[endpointID];
+    element.setValue(transformer(value));
   };
 
   patchConnection?.addAllParameterListener(paramsUpdated);
 
-  for (const param of supportedParams) {
-    if (param === "fm_direction") {
-      const radios = getRadiosByName("fm_direction");
-      radios.forEach((radio) => {
-        radio.addEventListener("change", (event) => {
-          const target = event.target as HTMLInputElement;
-          const selectedValue = target.value;
-          patchConnection?.sendEventOrValue(param, selectedValue);
-          patchConnection?.requestParameterValue(param);
-        });
-      });
-    } else {
-      document.getElementById(param)?.addEventListener("change", function () {
-        const transformer = paramTransformers[param]?.[0] ?? identity;
-        const element = this as HTMLInputElement;
-        patchConnection?.sendEventOrValue(
-          param,
-          transformer(parseFloat(element.value))
-        );
-        patchConnection?.requestParameterValue(param);
-      });
-    }
-
-    patchConnection?.requestParameterValue(param);
+  for (const [elType, nameOrOptions, y, x, fieldId, sliderParams] of elements) {
+    patchConnection?.requestParameterValue(fieldId);
   }
 
   return {
     resize: () => {
-      parentDiv.style.left = `${Math.round(xUnits(100))}px`;
+      const bb = [
+        splitBoundingBoxHorizontal(8, getBoundingBoxTop()),
+        splitBoundingBoxHorizontal(8, getBoundingBoxBottom()),
+      ];
+      for (const [slider, y, x] of sliders) {
+        slider.setBoundingBox(bb[y][x]);
+      }
+      for (const [radio, y, x] of radios) {
+        radio.setBoundingBox(bb[y][x]);
+      }
     },
     setVisible: (v: boolean) => {
-      if (v) {
-        parentDiv.style.display = "block";
-      } else {
-        parentDiv.style.display = "none";
+      for (const [slider] of sliders) {
+        slider.setVisible(v);
+      }
+      for (const [radio] of radios) {
+        radio.setVisible(v);
+      }
+    },
+    canvasDraw: () => {
+      for (const [slider] of sliders) {
+        slider.draw();
+      }
+      for (const [radio] of radios) {
+        radio.draw();
       }
     },
   };

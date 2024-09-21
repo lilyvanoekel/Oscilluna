@@ -13,7 +13,11 @@ export const BuildSlider = (
   boundingBox: BoundingBox,
   onValueChanged: (value: number) => void,
   value: number,
-  visible: boolean = true
+  min: number,
+  max: number,
+  step: number,
+  visible: boolean = true,
+  debugBoundingBox: boolean = false
 ) => {
   let currentValue = value;
   let handleObject: any = null;
@@ -65,7 +69,11 @@ export const BuildSlider = (
     sliderTrack.computeLineDistances();
     scene.add(sliderTrack);
 
-    const handleY = boundingBox.bottom + currentValue * sliderHeight + 15;
+    const handleY =
+      boundingBox.bottom +
+      ((currentValue - min) / (max - min)) * sliderHeight +
+      15;
+
     const circleGeometry = new THREE.CircleGeometry(10, 32);
     const circle = new THREE.Mesh(circleGeometry, materialMagenta);
     circle.position.set(centerX, handleY, 0);
@@ -74,7 +82,7 @@ export const BuildSlider = (
   };
 
   const calculateLabelHeight = () => {
-    let fontSize = Math.round(xUnits(28));
+    let fontSize = Math.round(xUnits(22));
     const margin = xUnits(8);
     const textHeightAdjustment = fontSize * 0.75;
     const line1Y = textHeightAdjustment + margin;
@@ -85,6 +93,7 @@ export const BuildSlider = (
   };
 
   const drawLabelText = () => {
+    if (!isVisible) return;
     const { fontSize, line1Y, line2Y } = calculateLabelHeight();
 
     const canvasWidth = ctx.canvas.width;
@@ -95,6 +104,22 @@ export const BuildSlider = (
 
     const textX = canvasWidth / 2 + centerX;
     const textY = canvasHeight / 2 - centerY;
+    const left = canvasWidth / 2 + boundingBox.left;
+    const right = canvasWidth / 2 + boundingBox.right;
+    const top = canvasHeight / 2 - centerY;
+    const bottom = canvasHeight / 2 - boundingBox.bottom;
+
+    if (debugBoundingBox) {
+      ctx.beginPath();
+      ctx.strokeStyle = "red";
+      ctx.lineWidth = 1;
+      ctx.moveTo(left, top);
+      ctx.lineTo(left, bottom);
+      ctx.lineTo(right, bottom);
+      ctx.lineTo(right, top);
+      ctx.lineTo(left, top);
+      ctx.stroke();
+    }
 
     const t = labelText.split("\n");
 
@@ -126,15 +151,21 @@ export const BuildSlider = (
 
   const moveKnobToPosition = (mousePos: THREE.Vector3) => {
     const { labelHeight } = calculateLabelHeight();
+    const oldValue = currentValue;
     const sliderHeight =
       boundingBox.top - boundingBox.bottom - labelHeight - 30;
+
     currentValue = THREE.MathUtils.clamp(
       (mousePos.y - boundingBox.bottom - 15) / sliderHeight,
       0,
       1
     );
+    currentValue = min + currentValue * (max - min);
+    currentValue = Math.round(currentValue / step) * step;
     drawSlider();
-    onValueChanged(currentValue);
+    if (currentValue != oldValue) {
+      onValueChanged(currentValue);
+    }
   };
 
   const onMouseDown = (event: any) => {
