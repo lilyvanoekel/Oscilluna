@@ -1,59 +1,177 @@
-// namespace Common
-// {
-//     graph Phaser {
-//         input stream float in;
-//         output stream float out;
+namespace Common
+{
+    processor Phaser {
+        input stream float in;
+        output stream float out;
 
-//         input event float feedbackIn;
-//         input event float rateHzIn;
-//         input event float wetDryMixIn;
+        input event float coefficientIn;
+        input event float rateHzIn;
+        input event float spreadIn;
+        input event float depthIn;
 
-//         event feedbackIn(float fb) {
-//             apf1.feedbackIn <- fb;
-//             apf2.feedbackIn <- fb;
-//             apf3.feedbackIn <- fb;
-//             apf4.feedbackIn <- fb;
-//         }
+        float rate = 0.5f;
+        float spread = 1.0f;
 
-//         event rateHzIn(float rate) {
-//             lfo1.rateHzIn <- rate;
-//         }
+        node phaser = PhaserGraph;
+        
+        event coefficientIn(float f) {
+            phaser.coefficientIn <- f;
+        }
 
-//         event wetDryMixIn(float f) {
-//             let dryGain = 1.0f - f;
-//             gainDry.gainIn <- dryGain;
-//             wetGain.gainIn <- f;
-//         }
+        event rateHzIn(float f) {
+            rate = f;
+            setRates();
+        }
 
-//         node {
-//             lfo1 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f);
+        event spreadIn(float f) {
+            spread = f;
+            setRates();
+        }
 
-//             apf1 = Common::Filters::AllPassFilter;
-//             apf2 = Common::Filters::AllPassFilter;
-//             apf3 = Common::Filters::AllPassFilter;
-//             apf4 = Common::Filters::AllPassFilter;
+        event depthIn(float f) {
+            phaser.depthIn <- f;
+        }
 
-//             gainDry = Util::DynamicGain;
-//             wetGain = Util::DynamicGain;
-//         }
+        void setRates() {
+            let rate1 = 1.0f + spread * (0.93f - 1.0f);
+            let rate2 = 1.0f + spread * (1.12f - 1.0f);
+            let rate3 = 1.0f + spread * (1.06f - 1.0f);
+            let rate4 = 1.0f + spread * (0.73f - 1.0f);
+            
+            phaser.rateHzIn1 <- rate * rate1;
+            phaser.rateHzIn2 <- rate * rate2;
+            phaser.rateHzIn3 <- rate * rate3;
+            phaser.rateHzIn4 <- rate * rate4;
+            phaser.syncIn <- 0;
+        }
 
-//         connection {
-//             in -> apf1.in;
+        void main() {
+            phaser.wetDryMixIn <- 0.5f;
+            loop {
+                phaser.in <- in;
+                out <- phaser.out;
+                phaser.advance();
+                advance();
+            }
+        }
+    }
+    
+    
+    graph PhaserGraph {
+        input stream float in;
+        output stream float out;
 
-//             apf1 -> apf2.in;
-//             apf2 -> apf3.in;
-//             apf3 -> apf4.in;
+        input event float coefficientIn;
+        input event float rateHzIn1;
+        input event float rateHzIn2;
+        input event float rateHzIn3;
+        input event float rateHzIn4;
+        input event float syncIn;
+        input event float depthIn;
+        input event float wetDryMixIn;
 
-//             lfo1 -> apf1.feedbackIn;
-//             lfo1 -> apf2.feedbackIn;
-//             lfo1 -> apf3.feedbackIn;
-//             lfo1 -> apf4.feedbackIn;
+        event coefficientIn(float c) {
+            apf1.coefficientIn <- c;
+            apf2.coefficientIn <- c;
+            apf3.coefficientIn <- c;
+            apf4.coefficientIn <- c;
+            apf1b.coefficientIn <- c;
+            apf2b.coefficientIn <- c;
+            apf3b.coefficientIn <- c;
+            apf4b.coefficientIn <- c;
+        }
 
-//             in -> gainDry.in;
-//             apf4 -> wetGain.in;
+        event rateHzIn1(float f) {
+            lfo1.rateHzIn <- f;
+        }
 
-//             gainDry -> out;
-//             wetGain -> out;
-//         }
-//     }
-// }
+        event rateHzIn2(float f) {
+            lfo2.rateHzIn <- f;
+        }
+
+        event rateHzIn3(float f) {
+            lfo3.rateHzIn <- f;
+        }
+
+        event rateHzIn4(float f) {
+            lfo4.rateHzIn <- f;
+        }
+
+        event syncIn(float syncValue) {
+            lfo1.syncIn <- syncValue;
+            lfo2.syncIn <- syncValue;
+            lfo3.syncIn <- syncValue;
+            lfo4.syncIn <- syncValue;
+        }
+
+        event depthIn(float f) {
+            apf1.modDepthIn <- f;
+            apf2.modDepthIn <- f;
+            apf3.modDepthIn <- f;
+            apf4.modDepthIn <- f;
+            apf1b.modDepthIn <- f;
+            apf2b.modDepthIn <- f;
+            apf3b.modDepthIn <- f;
+            apf4b.modDepthIn <- f;
+        }
+
+        event wetDryMixIn(float f) {
+            let dryGain = 1.0f - f;
+            gainDry.gainIn <- dryGain;
+            wetGain.gainIn <- f;
+        }
+
+        node {
+            crossover = std::filters::crossover::Processor (200.0f);
+            
+            lfo1 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
+            lfo2 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
+            lfo3 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
+            lfo4 = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
+
+            apf1 = Common::Filters::AllPassFilter;
+            apf2 = Common::Filters::AllPassFilter;
+            apf3 = Common::Filters::AllPassFilter;
+            apf4 = Common::Filters::AllPassFilter;
+
+            apf1b = Common::Filters::AllPassFilter;
+            apf2b = Common::Filters::AllPassFilter;
+            apf3b = Common::Filters::AllPassFilter;
+            apf4b = Common::Filters::AllPassFilter;
+
+            gainDry = Util::DynamicGain;
+            wetGain = Util::DynamicGain;
+        }
+
+        connection {
+            in -> crossover.in;
+            crossover.highOut -> apf1.in;
+
+            apf1 -> apf2.in;
+            apf2 -> apf3.in;
+            apf3 -> apf4.in;
+
+            apf4 -> apf1b.in;
+            apf1b -> apf2b.in;
+            apf2b -> apf3b.in;
+            apf3b -> apf4b.in;
+
+            lfo1 -> apf1.coefficientMod;
+            lfo2 -> apf2.coefficientMod;
+            lfo3 -> apf3.coefficientMod;
+            lfo4 -> apf4.coefficientMod;
+
+            lfo1 -> apf1b.coefficientMod;
+            lfo2 -> apf2b.coefficientMod;
+            lfo3 -> apf3b.coefficientMod;
+            lfo4 -> apf4b.coefficientMod;
+
+            crossover.highOut -> gainDry.in;
+            apf4b -> wetGain.in;
+
+            gainDry -> out;
+            wetGain -> out;
+            crossover.lowOut -> out;
+        }
+    }
+}

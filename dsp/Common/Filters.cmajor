@@ -1,32 +1,38 @@
 namespace Common
 {
     namespace Filters {
-        // processor AllPassFilter {
-        //     input stream float in;
-        //     output stream float out;
+        processor AllPassFilter {
+            input stream float in;
+            output stream float out;
 
-        //     input event float feedbackIn;
+            input stream float coefficientMod;
+            input event float coefficientIn;
+            input event float modDepthIn;
 
-        //     float feedback;
+            float state = 0.0f;
+            float coefficient = 0.5f;
+            float modDepth = 0.2f;
 
-        //     event feedbackIn(float fb) {
-        //         feedback = fb;
-        //     }
+            event coefficientIn(float coef) {
+                coefficient = clamp(coef, 0.2f, 0.8f);
+            }
 
-        //     float state = 0.0f;
+            event modDepthIn(float f) {
+                modDepth = f * 0.2f;
+            }
 
-        //     void main()
-        //     {
-        //         loop
-        //         {
-        //             let result = state + feedback * (in - state);
-        //             state = in - feedback * result;
-        //             out <- result;
-        //             advance();
-        //         }
-        //     }
-        // }
-
+            void main()
+            {
+                loop
+                {
+                    let moddedCoefficient = coefficient + coefficientMod * modDepth;
+                    let result = -moddedCoefficient * in + state;
+                    state = in + moddedCoefficient * result;
+                    out <- result;
+                    advance();
+                }
+            }
+        }
 
         // Another moog style, source: DaisySP https://github.com/electro-smith/DaisySP
         // @todo: figure out which to keep...

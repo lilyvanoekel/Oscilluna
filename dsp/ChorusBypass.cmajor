@@ -1,0 +1,34 @@
+namespace Synth
+{
+    processor ChorusBypass {
+        input stream float in;
+        output stream float<2> out;
+
+        input event Params paramsIn;
+
+        node chorus = Common::Chorus;
+        bool bypass_ = true;
+
+        event paramsIn(Params p) {
+            chorus.feedbackIn <- p.chorusFeedback;
+            chorus.delayTimeIn <- p.chorusDelayTime;
+            chorus.modDepthIn <- p.chorusDepth;
+            chorus.rateHzIn <- p.chorusRate;
+            chorus.wetDryMixIn <- p.chorusWetDryMix;
+            bypass_ = p.chorusBypass;
+        }
+
+        void main() {
+            loop {
+                if (bypass_) {
+                    out <- out.type (in);
+                } else {
+                    chorus.in <- in;
+                    out <- chorus.out;
+                    chorus.advance();
+                }
+                advance();
+            }
+        }
+    }
+}

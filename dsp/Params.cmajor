@@ -42,6 +42,12 @@ namespace Synth
         float chorusDelayTime;
         float chorusFeedback;
         float chorusWetDryMix;
+
+        bool phaserBypass;
+        float phaserRate;
+        float phaserSpread;
+        float phaserCoef;
+        float phaserDepth;
     }
 
     Params createParams()
@@ -87,7 +93,13 @@ namespace Synth
         p.chorusDepth = 0.35f;
         p.chorusDelayTime = 20.0f;
         p.chorusFeedback = 0.0f;
-        p.chorusWetDryMix = 0.66f;
+        p.chorusWetDryMix = 0.5f;
+
+        p.phaserBypass = true;
+        p.phaserRate = 0.7f;
+        p.phaserDepth = 1.0f;
+        p.phaserSpread = 0.0f;
+        p.phaserCoef = 0.75f;
 
         return p;
     }
@@ -201,6 +213,12 @@ namespace Synth
         // input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
         input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.66 ]];
 
+        input event bool phaser_enabled             [[ name: "phaser_enabled", boolean, init: false ]];
+        input event float phaser_rate               [[ name: "phaser_rate", min: 0.2, max: 2.0, init: 0.7 ]];
+        input event float phaser_spread             [[ name: "phaser_spread", min: 0.0, max: 1.0, init: 0.0 ]];
+        input event float phaser_coef               [[ name: "phaser_coef", min: 0.2, max: 0.8, init: 0.75 ]];
+        input event float phaser_depth              [[ name: "phaser_depth", min: 0.0, max: 1.0, init: 1.0 ]];
+
         output event Params paramsOut;
 
         Params params = createParams();
@@ -242,5 +260,11 @@ namespace Synth
         event chorus_delay_time (float f)       { params.chorusDelayTime = f;       update(); }
         // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
+
+        event phaser_enabled (bool b)           { params.phaserBypass = !b;         update(); }
+        event phaser_rate (float f)             { params.phaserRate = f;            update(); }
+        event phaser_spread (float f)           { params.phaserSpread = f;          update(); }
+        event phaser_coef (float f)             { params.phaserCoef = f;            update(); }
+        event phaser_depth (float f)            { params.phaserDepth = f;           update(); }
     }
 }

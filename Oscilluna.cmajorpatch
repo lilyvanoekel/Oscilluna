@@ -30,6 +30,8 @@
     "dsp/Voice/VoiceAdsr.cmajor",
     "dsp/Voice/VoiceSoundSource.cmajor",
     "dsp/Voice/Voice.cmajor",
+    "dsp/ChorusBypass.cmajor",
+    "dsp/PhaserBypass.cmajor",
     "dsp/Oscilluna.cmajor"
   ],
   "view": {
