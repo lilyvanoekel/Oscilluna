@@ -14,6 +14,7 @@ import { BuildScreenTune } from "./screens/screen-tune";
 import { BuildScreenAdsr } from "./screens/screen-adsr";
 
 import "./styles/main.css";
+import { BuildScreenFx } from "./screens/screen-fx";
 
 declare global {
   interface Element {
@@ -114,6 +115,15 @@ document.addEventListener("DOMContentLoaded", () => {
     getBoundingBoxBottom
   );
 
+  const screenFx = BuildScreenFx(
+    patchConnection,
+    scene,
+    root,
+    ctx,
+    getBoundingBoxTop,
+    getBoundingBoxBottom
+  );
+
   const screenAdsr = BuildScreenAdsr(
     patchConnection,
     scene,
@@ -141,6 +151,12 @@ document.addEventListener("DOMContentLoaded", () => {
       screenAdsr.setVisible(false);
     }
 
+    if (currentTab === 4) {
+      screenFx.setVisible(true);
+    } else {
+      screenFx.setVisible(false);
+    }
+
     canvasDraw();
   });
 
@@ -160,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     screenWave.resize();
     screenTune.resize();
     screenAdsr.resize();
+    screenFx.resize();
 
     canvasDraw();
   };
@@ -174,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     menu.draw();
     screenTune.canvasDraw();
+    screenFx.canvasDraw();
   };
 
   window.addEventListener("resize", onWindowResize, false);

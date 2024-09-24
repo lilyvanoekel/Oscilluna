@@ -211,7 +211,7 @@ namespace Synth
         
         // @todo: feedback is still unstable, fix some time, or remove
         // input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
-        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.66 ]];
+        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.5 ]];
 
         input event bool phaser_enabled             [[ name: "phaser_enabled", boolean, init: false ]];
         input event float phaser_rate               [[ name: "phaser_rate", min: 0.2, max: 2.0, init: 0.7 ]];

@@ -82,7 +82,7 @@ export const BuildSlider = (
   };
 
   const calculateLabelHeight = () => {
-    let fontSize = Math.round(xUnits(22));
+    const fontSize = Math.round(xUnits(22));
     const margin = xUnits(8);
     const textHeightAdjustment = fontSize * 0.75;
     const line1Y = textHeightAdjustment + margin;
