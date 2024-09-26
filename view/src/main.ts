@@ -102,6 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     patchConnection,
     scene,
     root,
+    ctx,
     getBoundingBoxTop,
     getBoundingBoxBottom
   );
@@ -128,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     patchConnection,
     scene,
     root,
+    ctx,
     getBoundingBoxTop,
     getBoundingBoxBottom
   );
@@ -190,7 +192,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     menu.draw();
+    screenWave.canvasDraw();
     screenTune.canvasDraw();
+    screenAdsr.canvasDraw();
     screenFx.canvasDraw();
   };
 

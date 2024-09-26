@@ -5,6 +5,23 @@ import * as waveDrawerModule from "../elements/wave-drawer";
 
 const mockScene = {};
 
+// @todo: make nice and useful
+function createMockObject() {
+  const mockObject = vi.fn();
+
+  return new Proxy(mockObject, {
+    get: (target, prop) => {
+      // @ts-ignore
+      if (!target[prop]) {
+        // @ts-ignore
+        target[prop] = createMockObject();
+      }
+      // @ts-ignore
+      return target[prop];
+    },
+  });
+}
+
 const boundingBoxTop: BoundingBox = {
   left: 0,
   right: 100,
@@ -39,6 +56,7 @@ describe("BuildScreenWave", () => {
       patchConnection,
       mockScene as any,
       root,
+      createMockObject() as any,
       getBoundingBoxTop,
       getBoundingBoxBottom
     );
@@ -69,6 +87,7 @@ describe("BuildScreenWave", () => {
       patchConnection,
       mockScene as any,
       root,
+      createMockObject() as any,
       getBoundingBoxTop,
       getBoundingBoxBottom
     );
@@ -91,6 +110,7 @@ describe("BuildScreenWave", () => {
       patchConnection,
       mockScene as any,
       root,
+      createMockObject() as any,
       getBoundingBoxTop,
       getBoundingBoxBottom
     );

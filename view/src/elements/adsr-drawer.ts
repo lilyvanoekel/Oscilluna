@@ -9,7 +9,8 @@ export const BuildADSRDrawer = (
   scene: THREE.Scene,
   root: HTMLElement,
   boundingBox: BoundingBox,
-  pointPrefix: string
+  pointPrefix: string,
+  exponential = false
 ) => {
   let currentAttack = 0.1;
   let currentDecay = 0.3;
@@ -19,6 +20,7 @@ export const BuildADSRDrawer = (
   let selectedSegment: any = null;
   let handleObjects: any = [];
   let isVisible = false;
+  let isExponential = exponential;
 
   const clipPlanes = [
     new THREE.Plane(new THREE.Vector3(1, 0, 0), -boundingBox.left),
@@ -90,44 +92,96 @@ export const BuildADSRDrawer = (
     const maxY = boundingBox.top;
     const sustainY = boundingBox.bottom + currentSustain * boxHeight;
 
-    const positions = [
-      [
-        boundingBox.left,
-        boundingBox.bottom,
-        0,
-        attackX,
-        maxY,
-        0,
-        decayX,
-        sustainY,
-        0,
-      ],
-      [decayX, sustainY, 0, sustainX, sustainY, 0],
-      [sustainX, sustainY, 0, releaseX, boundingBox.bottom, 0],
-    ];
-
     clear();
 
-    for (const pIndex in positions) {
-      const p = positions[pIndex];
-      const geometry = new LineGeometry();
-      geometry.setPositions(p);
+    const startPoint = new THREE.Vector3(
+      boundingBox.left,
+      boundingBox.bottom,
+      0
+    );
+    const attackPoint = new THREE.Vector3(attackX, maxY, 0);
+    const decayPoint = new THREE.Vector3(decayX, sustainY, 0);
+    const releasePoint = new THREE.Vector3(sustainX, sustainY, 0);
+    const endPoint = new THREE.Vector3(
+      boundingBox.right,
+      boundingBox.bottom,
+      0
+    );
 
-      const l = new Line2(
-        geometry,
-        pIndex === "1" ? materialCyanDashed : materialCyan
+    const exponentialCurve = (t: number) => {
+      const exponentFactor = 3;
+      return (
+        (1 - Math.exp(-exponentFactor * t)) / (1 - Math.exp(-exponentFactor))
       );
-      l.computeLineDistances();
-      scene.add(l);
+    };
 
-      adsrLine.push(l);
+    // @todo: replace with identity
+    const linearCurve = (t: number) => t;
+    const interpolate = isExponential ? exponentialCurve : linearCurve;
+
+    const attackSegments = Math.max(
+      Math.floor(startPoint.distanceTo(attackPoint) / 5)
+    );
+
+    const attackCurve = [];
+    for (let i = 0; i <= attackSegments; i++) {
+      const t = i / attackSegments;
+      const x = boundingBox.left + t * attackWidth;
+      const y =
+        boundingBox.bottom + interpolate(t) * (maxY - boundingBox.bottom);
+      attackCurve.push([x, y, 0]);
     }
 
-    drawHandles([
-      new THREE.Vector3(attackX, maxY, 0),
-      new THREE.Vector3(decayX, sustainY, 0),
-      new THREE.Vector3(sustainX, sustainY, 0),
-    ]);
+    const decaySegments = Math.max(
+      Math.floor(attackPoint.distanceTo(decayPoint) / 5)
+    );
+
+    const decayCurve = [];
+    for (let i = 0; i <= decaySegments; i++) {
+      const t = i / decaySegments;
+      const x = attackX + t * decayWidth;
+      const y = maxY - interpolate(t) * (maxY - sustainY);
+      decayCurve.push([x, y, 0]);
+    }
+
+    const releaseSgments = Math.max(
+      Math.floor(releasePoint.distanceTo(endPoint) / 5)
+    );
+
+    const releaseCurve = [];
+    for (let i = 0; i <= releaseSgments; i++) {
+      const t = i / releaseSgments;
+      const x = sustainX + t * releaseWidth;
+      const y = sustainY - interpolate(t) * (sustainY - boundingBox.bottom);
+      releaseCurve.push([x, y, 0]);
+    }
+
+    const attackGeometry = new LineGeometry();
+    attackGeometry.setPositions(attackCurve.flat());
+    const attackLine = new Line2(attackGeometry, materialCyan);
+    scene.add(attackLine);
+    adsrLine.push(attackLine);
+
+    const decayGeometry = new LineGeometry();
+    decayGeometry.setPositions(decayCurve.flat());
+    const decayLine = new Line2(decayGeometry, materialCyan);
+    scene.add(decayLine);
+    adsrLine.push(decayLine);
+
+    const sustainGeometry = new LineGeometry();
+    sustainGeometry.setPositions([decayX, sustainY, 0, sustainX, sustainY, 0]);
+    const sustainLine = new Line2(sustainGeometry, materialCyanDashed);
+    sustainLine.computeLineDistances();
+    scene.add(sustainLine);
+    adsrLine.push(sustainLine);
+
+    const releaseGeometry = new LineGeometry();
+    releaseGeometry.setPositions(releaseCurve.flat());
+    const releaseLine = new Line2(releaseGeometry, materialCyan);
+    scene.add(releaseLine);
+    adsrLine.push(releaseLine);
+
+    drawHandles([attackPoint, decayPoint, releasePoint]);
   };
 
   const drawHandles = (points: any) => {
@@ -332,6 +386,10 @@ export const BuildADSRDrawer = (
       clipPlanes[2].set(new THREE.Vector3(0, -1, 0), boundingBox.top);
       clipPlanes[3].set(new THREE.Vector3(0, 1, 0), -boundingBox.bottom);
 
+      drawADSR();
+    },
+    setExponential: (e: boolean) => {
+      isExponential = e;
       drawADSR();
     },
     setVisible: (v: boolean) => {

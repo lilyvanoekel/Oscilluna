@@ -43,3 +43,30 @@ export const splitBoundingBoxHorizontal = (
 
   return boundingBoxes;
 };
+
+export const renderTextInBoundingBox = (
+  ctx: CanvasRenderingContext2D,
+  boundingBox: BoundingBox,
+  text: string,
+  align: "left" | "center" = "left"
+) => {
+  const fontSize = Math.round(xUnits(22));
+  const margin = xUnits(8);
+  const textHeightAdjustment = fontSize * 0.75;
+  const line1Y = textHeightAdjustment + margin;
+
+  const canvasWidth = ctx.canvas.width;
+  const canvasHeight = ctx.canvas.height;
+
+  const centerX = (boundingBox.left + boundingBox.right) / 2;
+  const centerY = boundingBox.top;
+
+  const left = canvasWidth / 2 + boundingBox.left;
+  const textX = canvasWidth / 2 + centerX;
+  const textY = canvasHeight / 2 - centerY;
+
+  ctx.font = `${fontSize}px Consolas, monospace`;
+  ctx.fillStyle = "white";
+  ctx.textAlign = align;
+  ctx.fillText(text, align == "left" ? left : textX, textY + line1Y);
+};

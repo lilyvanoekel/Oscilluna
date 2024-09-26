@@ -1,10 +1,9 @@
 import * as THREE from "three";
 
-import { dbToLinear, linearToDb } from "../domain/dsp";
 import {
   BoundingBox,
+  renderTextInBoundingBox,
   splitBoundingBoxHorizontal,
-  xUnits,
 } from "../domain/layout";
 import { BuildSlider } from "../elements/slider";
 import { BuildRadio } from "../elements/radio";
@@ -128,35 +127,13 @@ export const BuildScreenFx = (
     patchConnection?.requestParameterValue(fieldId);
   }
 
-  // @todo: logic here is duplicated from slider, extract
-  const renderTextInBoundingBox = (boundingBox: BoundingBox, text: string) => {
-    const fontSize = Math.round(xUnits(22));
-    const margin = xUnits(8);
-    const textHeightAdjustment = fontSize * 0.75;
-    const line1Y = textHeightAdjustment + margin;
-
-    const canvasWidth = ctx.canvas.width;
-    const canvasHeight = ctx.canvas.height;
-
-    const centerX = (boundingBox.left + boundingBox.right) / 2;
-    const centerY = boundingBox.top;
-
-    const textX = canvasWidth / 2 + centerX;
-    const textY = canvasHeight / 2 - centerY;
-
-    ctx.font = `${fontSize}px Consolas, monospace`;
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.fillText(text, textX, textY + line1Y);
-  };
-
   const renderLabels = () => {
     if (!isVisible) {
       return;
     }
     const bb = splitBoundingBoxHorizontal(8, getBoundingBoxTop());
-    renderTextInBoundingBox(bb[0], "Chorus");
-    renderTextInBoundingBox(bb[3], "Phaser");
+    renderTextInBoundingBox(ctx, bb[0], "Chorus");
+    renderTextInBoundingBox(ctx, bb[3], "Phaser");
   };
 
   return {
