@@ -8,6 +8,7 @@ namespace Common
         input event float rateHzIn;
         input event float spreadIn;
         input event float depthIn;
+        input event bool doubeFiltersIn;
 
         float rate = 0.5f;
         float spread = 1.0f;
@@ -41,6 +42,10 @@ namespace Common
         event depthIn(float f) {
             block1.depthIn <- f;
             block2.depthIn <- f;
+        }
+
+        event doubeFiltersIn(bool d) {
+            doubleFilters = d;
         }
 
         void setRates() {

@@ -38,7 +38,7 @@ export const BuildScreenFx = (
     ["radio", ["Off", "On"], 0, 0, "chorus_enabled"],
     ["slider", "\nRate", 0, 1, "chorus_rate", [0.1, 6, 0.01]],
     ["slider", "\nDepth", 0, 2, "chorus_depth", [0.0, 1, 0.01]],
-    ["radio", ["Off", "On"], 0, 3, "phaser_enabled"],
+    ["radio", ["Off", "4 Stage", "8 Stage"], 0, 3, "phaser_mode"],
     ["slider", "\nRate", 0, 4, "phaser_rate", [0.1, 2, 0.01]],
     ["slider", "\nSpread", 0, 5, "phaser_spread", [0.0, 1, 0.01]],
     ["slider", "\nCoef", 0, 6, "phaser_coef", [0.2, 0.8, 0.05]],

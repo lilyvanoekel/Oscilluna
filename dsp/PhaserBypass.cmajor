@@ -14,7 +14,8 @@ namespace Synth
             phaser.rateHzIn <- p.phaserRate;
             phaser.spreadIn <- p.phaserSpread;
             phaser.depthIn <- p.phaserDepth;
-            bypass_ = p.phaserBypass;
+            phaser.doubeFiltersIn <- p.phaserMode == 2;
+            bypass_ = p.phaserMode == 0;
         }
 
         void main() {

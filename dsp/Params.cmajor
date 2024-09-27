@@ -43,7 +43,7 @@ namespace Synth
         float chorusFeedback;
         float chorusWetDryMix;
 
-        bool phaserBypass;
+        int phaserMode;
         float phaserRate;
         float phaserSpread;
         float phaserCoef;
@@ -95,7 +95,7 @@ namespace Synth
         p.chorusFeedback = 0.0f;
         p.chorusWetDryMix = 0.5f;
 
-        p.phaserBypass = true;
+        p.phaserMode = 0;
         p.phaserRate = 0.7f;
         p.phaserDepth = 1.0f;
         p.phaserSpread = 0.0f;
@@ -213,7 +213,7 @@ namespace Synth
         // input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
         input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.5 ]];
 
-        input event bool phaser_enabled             [[ name: "phaser_enabled", boolean, init: false ]];
+        input event int phaser_mode                 [[ name: "phaser_mode", min: 0, max: 2, init: 0, text: "Off|4 Stages|8 Stages"  ]];
         input event float phaser_rate               [[ name: "phaser_rate", min: 0.2, max: 2.0, init: 0.7 ]];
         input event float phaser_spread             [[ name: "phaser_spread", min: 0.0, max: 1.0, init: 0.0 ]];
         input event float phaser_coef               [[ name: "phaser_coef", min: 0.2, max: 0.8, init: 0.75 ]];
@@ -261,7 +261,7 @@ namespace Synth
         // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
 
-        event phaser_enabled (bool b)           { params.phaserBypass = !b;         update(); }
+        event phaser_mode (int m)              { params.phaserMode = m;         update(); }
         event phaser_rate (float f)             { params.phaserRate = f;            update(); }
         event phaser_spread (float f)           { params.phaserSpread = f;          update(); }
         event phaser_coef (float f)             { params.phaserCoef = f;            update(); }

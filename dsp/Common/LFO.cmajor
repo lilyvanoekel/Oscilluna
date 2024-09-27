@@ -1,0 +1,64 @@
+namespace Common
+{
+    processor LFO {
+        input event float rateHzIn;
+        input event float syncIn;
+        output stream float out;
+
+        float rate = 1.0f;
+        float phase = 0.0f;
+        float targetPhase = 0.0f;
+        float phaseIncrement = 0.0f;
+        float phaseStep = 0.0f;
+        const float PI = 3.141592653589793f;
+        const float PI_PI = PI * 2.0f;
+        bool isSyncing = false;
+        int syncSamples = 0;
+
+        event rateHzIn(float f) {
+            rate = f;
+            phaseIncrement = (2.0f * PI * rate) / float(processor.frequency);
+        }
+
+        event syncIn(float targetPhase) {
+            syncSamples = int(float(processor.frequency) / 2.0f);
+            phaseStep = (targetPhase - phase) / float(syncSamples);
+            isSyncing = true;
+        }
+
+        float fastSin(float x) {
+            let B = 1.2732395447351627f;  // 4.0 / π
+            let C = -0.4052847345693511f; // -4.0 / (π * π)
+            let P = 0.225f;
+
+            float y = B * x + C * x * abs(x);
+            y = P * (y * abs(y) - y) + y;
+            return y;
+        }
+
+        void main() {
+            loop {
+                // Gradually adjust phase during sync
+                if (isSyncing && syncSamples > 0) {
+                    phase += phaseStep;
+                    syncSamples--;
+                    if (syncSamples <= 0) {
+                        phase = targetPhase;  // Snap to target phase
+                        isSyncing = false;    // Stop syncing once we reach target
+                    }
+                } else {
+                    phase += phaseIncrement;
+                }
+
+                float x = fmod(phase + PI, PI_PI) - PI;
+                
+                out <- fastSin(x);
+                if (phase >= PI_PI) {
+                    phase -= PI_PI;
+                }
+
+                advance();
+            }
+        }
+    }
+}
