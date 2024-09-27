@@ -37,7 +37,7 @@
   "view": {
     "src": "view/dist/index.js",
     "width": 800,
-    "height": 480,
+    "height": 520,
     "resizable": true
   }
 }
