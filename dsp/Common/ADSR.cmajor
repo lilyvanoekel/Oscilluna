@@ -5,8 +5,7 @@ namespace Common
         input event float decay;
         input event float sustain;
         input event float release;
-
-        input event bool exponential;
+        input event int modeIn;
 
         input event ( std::notes::NoteOn, std::notes::NoteOff ) eventIn;
 
@@ -15,7 +14,9 @@ namespace Common
         float keyDownVelocity, currentLevel, attackSeconds, decaySeconds, sustainLevel, releaseSeconds;
         float minimumLevel = 0.001f;
         bool newNoteOn = true;
-        bool isExponential = true;
+
+        // 0 = Linear, 1 = Exponential
+        int mode = 1;
 
         float interpolateValue(float in, float exponent, float minimum, float maximum) {
             let scaledInput = pow(in, exponent);
@@ -47,19 +48,19 @@ namespace Common
             keyDownVelocity = 0;
         }
 
-        event exponential(bool e) {
-            isExponential = e;
+        event modeIn(int m) {
+            mode = m;
         }
 
         float calculateMultiplier(float startLevel, float endLevel, int32 lengthInSamples) {
-            if (!isExponential) {
+            if (mode == 0) {
                 return 1;
             }
             return 1.0f + (log(endLevel) - log(startLevel)) / (lengthInSamples);
         }
 
         float calculateLinearStep(float startLevel, float endLevel, int32 lengthInSamples) {
-            if (isExponential) {
+            if (mode == 1) {
                 return 0;
             }
             return (endLevel - startLevel) / float(lengthInSamples);
@@ -80,7 +81,7 @@ namespace Common
                 float target = keyDownVelocity;
                 float stepSize = 0.0f;
                 
-                if (isExponential) {
+                if (mode == 1) {
                     float attackCoeff = exp(-3.2f / attackSamples);
                     while (attackSamples > 0 && keyDownVelocity > 0 && !newNoteOn)
                     {

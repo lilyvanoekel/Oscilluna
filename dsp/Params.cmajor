@@ -6,11 +6,13 @@ namespace Synth
         float adsr1Decay;
         float adsr1Sustain;
         float adsr1Release;
+        int adsr1Mode;
 
         float adsr2Attack;
         float adsr2Decay;
         float adsr2Sustain;
         float adsr2Release;
+        int adsr2Mode;
 
         float osc1Level;
         float osc2Level;
@@ -58,11 +60,13 @@ namespace Synth
         p.adsr1Decay = 0.1f;
         p.adsr1Sustain = 0.7f;
         p.adsr1Release = 0.1f;
+        p.adsr1Mode = 1;
 
         p.adsr2Attack = 0.1f;
         p.adsr2Decay = 0.1f;
         p.adsr2Sustain = 0.7f;
         p.adsr2Release = 0.1f;
+        p.adsr2Mode = 1;
 
         p.osc1Level = 0.0f;
         p.osc2Level = 0.0f;
@@ -111,11 +115,13 @@ namespace Synth
         output event float adsr1Decay;
         output event float adsr1Sustain;
         output event float adsr1Release;
+        output event int adsr1Mode;
 
         output event float adsr2Attack;
         output event float adsr2Decay;
         output event float adsr2Sustain;
         output event float adsr2Release;
+        output event int adsr2Mode;
 
         output event float osc1Level, osc2Level;
         output event float osc1Coarse, osc2Coarse;
@@ -136,11 +142,13 @@ namespace Synth
             adsr1Decay <- p.adsr1Decay;
             adsr1Sustain <- p.adsr1Sustain;
             adsr1Release <- p.adsr1Release;
+            adsr1Mode <- p.adsr1Mode;
 
             adsr2Attack <- p.adsr2Attack;
             adsr2Decay <- p.adsr2Decay;
             adsr2Sustain <- p.adsr2Sustain;
             adsr2Release <- p.adsr2Release;
+            adsr2Mode <- p.adsr2Mode;
 
             osc1Level <- p.osc1Level;
             osc2Level <- p.osc2Level;
@@ -171,11 +179,13 @@ namespace Synth
         input event float adsr1_decay   [[ name: "adsr1_decay", min: 0.0, max: 1.0, init: 0.1 ]];
         input event float adsr1_sustain [[ name: "adsr1_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
         input event float adsr1_release [[ name: "adsr1_release", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event int adsr1_mode      [[ name: "adsr1_mode", min: 0, max: 1, init: 1, text: "Linear|Exponential" ]];
 
         input event float adsr2_attack  [[ name: "adsr2_attack", min: 0.0, max: 1.0, init: 0.1 ]];
         input event float adsr2_decay   [[ name: "adsr2_decay", min: 0.0, max: 1.0, init: 0.1 ]];
         input event float adsr2_sustain [[ name: "adsr2_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
         input event float adsr2_release [[ name: "adsr2_release", min: 0.0, max: 1.0, init: 0.1 ]];
+        input event int adsr2_mode      [[ name: "adsr2_mode", min: 0, max: 1, init: 1, text: "Linear|Exponential" ]];
 
         input event float osc1_level    [[ name: "osc1_level", unit: "dB", min: -85, max: 6, init: 0 ]];
         input event float osc2_level    [[ name: "osc2_level", unit: "dB", min: -85, max: 6, init: 0 ]];
@@ -231,10 +241,12 @@ namespace Synth
         event adsr1_decay (float f)             { params.adsr1Decay = f;            update(); }
         event adsr1_sustain (float f)           { params.adsr1Sustain = f;          update(); }
         event adsr1_release (float f)           { params.adsr1Release = f;          update(); }
+        event adsr1_mode (int m)                { params.adsr1Mode = m;             update(); }
         event adsr2_attack (float f)            { params.adsr2Attack = f;           update(); }
         event adsr2_decay (float f)             { params.adsr2Decay = f;            update(); }
         event adsr2_sustain (float f)           { params.adsr2Sustain = f;          update(); }
         event adsr2_release (float f)           { params.adsr2Release = f;          update(); }
+        event adsr2_mode (int m)                { params.adsr2Mode = m;             update(); }
         event osc1_level (float f)              { params.osc1Level = f;             update(); }
         event osc2_level (float f)              { params.osc2Level = f;             update(); }
         event osc1_coarse (float f)             { params.osc1Coarse = f;            update(); }
@@ -261,7 +273,7 @@ namespace Synth
         // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
 
-        event phaser_mode (int m)              { params.phaserMode = m;         update(); }
+        event phaser_mode (int m)              { params.phaserMode = m;             update(); }
         event phaser_rate (float f)             { params.phaserRate = f;            update(); }
         event phaser_spread (float f)           { params.phaserSpread = f;          update(); }
         event phaser_coef (float f)             { params.phaserCoef = f;            update(); }

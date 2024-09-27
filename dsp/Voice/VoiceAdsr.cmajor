@@ -11,7 +11,7 @@ namespace Synth
         {
             envelope1 = Common::ADSR;
             envelope2 = Common::ADSR;
-            paramSplitter = ParamSplitter;
+            p = ParamSplitter;
         }
 
         connection
@@ -19,17 +19,19 @@ namespace Synth
             eventIn -> envelope1.eventIn;
             eventIn -> envelope2.eventIn;
 
-            paramsIn -> paramSplitter.paramsIn;
+            paramsIn -> p.paramsIn;
             
-            paramSplitter.adsr1Attack -> envelope1.attack;
-            paramSplitter.adsr1Decay -> envelope1.decay;
-            paramSplitter.adsr1Sustain -> envelope1.sustain;
-            paramSplitter.adsr1Release -> envelope1.release;
+            p.adsr1Attack -> envelope1.attack;
+            p.adsr1Decay -> envelope1.decay;
+            p.adsr1Sustain -> envelope1.sustain;
+            p.adsr1Release -> envelope1.release;
+            p.adsr1Mode -> envelope1.modeIn;
 
-            paramSplitter.adsr2Attack -> envelope2.attack;
-            paramSplitter.adsr2Decay -> envelope2.decay;
-            paramSplitter.adsr2Sustain -> envelope2.sustain;
-            paramSplitter.adsr2Release -> envelope2.release;
+            p.adsr2Attack -> envelope2.attack;
+            p.adsr2Decay -> envelope2.decay;
+            p.adsr2Sustain -> envelope2.sustain;
+            p.adsr2Release -> envelope2.release;
+            p.adsr2Mode -> envelope2.modeIn;
 
             envelope1.gainOut -> gainOut1;
             envelope2.gainOut -> gainOut2;
