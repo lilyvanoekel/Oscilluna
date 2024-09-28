@@ -41,31 +41,56 @@ export const BuildScreenAdsr = (
     "adsr2"
   );
 
-  const radio1 = BuildRadio(
+  const adsr1Mode = BuildRadio(
     ["Linear", "Exp"],
     scene,
     ctx,
     adjustBoundingBoxRadio(getBoundingBoxTop()),
     (value) => {
-      adsr1.setExponential(!!value);
+      patchConnection?.sendEventOrValue("adsr1_mode", value);
+      patchConnection?.requestParameterValue("adsr1_mode");
     },
     0,
     true,
     false
   );
 
-  const radio2 = BuildRadio(
+  const adsr2Mode = BuildRadio(
     ["Linear", "Exp"],
     scene,
     ctx,
     adjustBoundingBoxRadio(getBoundingBoxBottom()),
     (value) => {
-      adsr2.setExponential(!!value);
+      patchConnection?.sendEventOrValue("adsr2_mode", value);
+      patchConnection?.requestParameterValue("adsr2_mode");
     },
     0,
     true,
     false
   );
+
+  const paramsUpdated = ({
+    endpointID,
+    value,
+  }: {
+    endpointID: string;
+    value: number;
+  }) => {
+    if (endpointID == "adsr1_mode") {
+      adsr1Mode.setValue(value);
+      adsr1.setExponential(!!value);
+    }
+
+    if (endpointID == "adsr2_mode") {
+      adsr2Mode.setValue(value);
+      adsr2.setExponential(!!value);
+    }
+  };
+
+  patchConnection?.addAllParameterListener(paramsUpdated);
+
+  patchConnection?.requestParameterValue("adsr1_mode");
+  patchConnection?.requestParameterValue("adsr2_mode");
 
   const renderLabels = () => {
     if (!isVisible) {
@@ -81,21 +106,21 @@ export const BuildScreenAdsr = (
       adsr1.setBoundingBox(adjustBoundingBox(getBoundingBoxTop()));
       adsr2.setBoundingBox(adjustBoundingBox(getBoundingBoxBottom()));
 
-      radio1.setBoundingBox(adjustBoundingBoxRadio(getBoundingBoxTop()));
-      radio2.setBoundingBox(adjustBoundingBoxRadio(getBoundingBoxBottom()));
+      adsr1Mode.setBoundingBox(adjustBoundingBoxRadio(getBoundingBoxTop()));
+      adsr2Mode.setBoundingBox(adjustBoundingBoxRadio(getBoundingBoxBottom()));
     },
     setVisible: (v: boolean) => {
       isVisible = v;
       adsr1.setVisible(v);
       adsr2.setVisible(v);
-      radio1.setVisible(v);
-      radio2.setVisible(v);
+      adsr1Mode.setVisible(v);
+      adsr2Mode.setVisible(v);
     },
     canvasDraw: () => {
       renderLabels();
 
-      radio1.draw();
-      radio2.draw();
+      adsr1Mode.draw();
+      adsr2Mode.draw();
     },
   };
 };
