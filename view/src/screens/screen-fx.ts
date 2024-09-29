@@ -42,7 +42,7 @@ export const BuildScreenFx = (
     ["slider", "\nRate", 0, 4, "phaser_rate", [0.1, 2, 0.01]],
     ["slider", "\nSpread", 0, 5, "phaser_spread", [0.0, 1, 0.01]],
     ["slider", "\nCoef", 0, 6, "phaser_coef", [0.2, 0.8, 0.05]],
-    ["slider", "\nDepth", 0, 7, "phaser_depth", [0.0, 1, 0.01]],
+    ["slider", "\nAmount", 0, 7, "phaser_amount", [0.0, 1, 0.01]],
   ];
 
   const bb = [
