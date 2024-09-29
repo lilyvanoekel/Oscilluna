@@ -26,12 +26,14 @@
     "dsp/Common/FilterCutoffCalculator.cmajor",
     "dsp/Common/Filters.cmajor",
     "dsp/Common/Limiter.cmajor",
+    "dsp/Common/Brilliance.cmajor",
     "dsp/Voice/OscBank.cmajor",
     "dsp/Voice/VoiceAdsr.cmajor",
     "dsp/Voice/VoiceSoundSource.cmajor",
     "dsp/Voice/Voice.cmajor",
-    "dsp/ChorusBypass.cmajor",
-    "dsp/PhaserBypass.cmajor",
+    "dsp/Helpers/ChorusBypass.cmajor",
+    "dsp/Helpers/FilterBypass.cmajor",
+    "dsp/Helpers/PhaserBypass.cmajor",
     "dsp/Oscilluna.cmajor"
   ],
   "view": {

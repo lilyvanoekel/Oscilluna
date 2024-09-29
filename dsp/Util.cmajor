@@ -66,6 +66,34 @@ namespace Util
         }
     }
 
+    processor MultiplyStreams()
+    {
+        input stream float stream1;
+        input stream float stream2;
+        output stream float out;
+
+        void main() {
+            loop {
+                out <- stream1 * stream2;
+                advance();
+            }
+        }
+    }
+
+    processor MaxStreams()
+    {
+        input stream float stream1;
+        input stream float stream2;
+        output stream float out;
+
+        void main() {
+            loop {
+                out <- max(stream1, stream2);
+                advance();
+            }
+        }
+    }
+
     processor Add(float32 m = 1.0f)
     {
         input event float32 in;

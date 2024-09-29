@@ -1,0 +1,80 @@
+namespace Common
+{
+    processor Brilliance {
+        input event float frequencyIn;
+        output stream float out;
+        input event float amountIn;
+
+        const int tableSize = 4096;
+        const float PI = 3.141592653589793f;
+        const float PI_PI = PI * 2.0f;
+        const float phaseToIndexMultiplier = float(tableSize) / PI_PI;
+        const float<4> baseMultipliers = (1.0f, 0.75f, 0.5f, 0.25f);
+
+        float[tableSize] sineTable;
+
+        float<4> frequency = (1.0f, 1.0f, 1.0f, 1.0f);
+        float<4> phase = 0.0f;
+        float<4> phaseIncrement = 0.0f;
+        float<4> multipliers = (1.0f, 0.75f, 0.5f, 0.25f);
+        float amount = 0.0f;
+
+        void init() {
+            for (wrap<tableSize> i) {
+                sineTable[i] = sin(2.0f * PI * float(i) / float(tableSize));
+            }
+        }
+
+        event frequencyIn(float f) {
+            frequency = (f * 1.0f, f * 1.25f, f * 1.5f, f * 2.0f);
+            frequency *= 16.0f;
+
+            let nyquist = float(processor.frequency) * 0.5f;
+
+            for (wrap<4> i) {
+                multipliers[i] = frequency[i] > nyquist ? 0.0f : baseMultipliers[i];
+            }
+
+            phaseIncrement = (PI_PI * frequency) / float(processor.frequency);
+        }
+
+        event amountIn(float f) {
+            amount = f;
+        }
+
+        void main() {
+            loop {
+                phase += phaseIncrement;
+
+                for (wrap<4> i) {
+                    if (phase[i] >= PI_PI) {
+                        phase[i] -= PI_PI;
+                    }
+                }
+
+                let indexFloat = phase * phaseToIndexMultiplier;
+                let index = int<4>(indexFloat);
+                let nextIndex = index + 1;
+                let frac = indexFloat - float<4>(index);
+
+                float<4> currentSamples = (
+                    sineTable[wrap<tableSize>(index[0])],
+                    sineTable[wrap<tableSize>(index[1])],
+                    sineTable[wrap<tableSize>(index[2])],
+                    sineTable[wrap<tableSize>(index[3])]
+                );
+
+                float<4> nextSamples = (
+                    sineTable[wrap<tableSize>(nextIndex[0])],
+                    sineTable[wrap<tableSize>(nextIndex[1])],
+                    sineTable[wrap<tableSize>(nextIndex[2])],
+                    sineTable[wrap<tableSize>(nextIndex[3])]
+                );
+                float<4> sample = currentSamples * (1.0f - frac) + nextSamples * frac;
+                sample *= multipliers;
+                out <- sum(sample) * 0.2f * amount;
+                advance();
+            }
+        }
+    }
+}

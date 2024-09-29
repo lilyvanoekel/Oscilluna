@@ -50,6 +50,8 @@ namespace Synth
         float phaserSpread;
         float phaserCoef;
         float phaserDepth;
+
+        float brilliance;
     }
 
     Params createParams()
@@ -105,6 +107,8 @@ namespace Synth
         p.phaserSpread = 0.0f;
         p.phaserCoef = 0.75f;
 
+        p.brilliance = 0.0f;
+
         return p;
     }
 
@@ -136,6 +140,8 @@ namespace Synth
         output event bool filterBypass;
         output event float cutoff;
         output event float resonance;
+
+        output event float brilliance;
 
         event paramsIn(Params p) {
             adsr1Attack <- p.adsr1Attack;
@@ -170,6 +176,8 @@ namespace Synth
             filterBypass <- p.filterBypass;
             cutoff <- p.cutoff;
             resonance <- p.resonance;
+
+            brilliance <- p.brilliance;
         }
     }
 
@@ -228,6 +236,9 @@ namespace Synth
         input event float phaser_spread             [[ name: "phaser_spread", min: 0.0, max: 1.0, init: 0.0 ]];
         input event float phaser_coef               [[ name: "phaser_coef", min: 0.2, max: 0.8, init: 0.75 ]];
         input event float phaser_depth              [[ name: "phaser_depth", min: 0.0, max: 1.0, init: 1.0 ]];
+        
+        input event float brilliance                [[ name: "brilliance", min: 0.0, max: 1.0, init: 0.0 ]];
+
 
         output event Params paramsOut;
 
@@ -272,11 +283,12 @@ namespace Synth
         event chorus_delay_time (float f)       { params.chorusDelayTime = f;       update(); }
         // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
-
-        event phaser_mode (int m)              { params.phaserMode = m;             update(); }
+        event phaser_mode (int m)               { params.phaserMode = m;            update(); }
         event phaser_rate (float f)             { params.phaserRate = f;            update(); }
         event phaser_spread (float f)           { params.phaserSpread = f;          update(); }
         event phaser_coef (float f)             { params.phaserCoef = f;            update(); }
         event phaser_depth (float f)            { params.phaserDepth = f;           update(); }
+        event brilliance(float f)               { params.brilliance = f;            update(); }
+
     }
 }

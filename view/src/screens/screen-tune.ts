@@ -123,6 +123,23 @@ export const BuildScreenTune = (
     }
   }
 
+  const brillianceSlider = BuildSlider(
+    "\nBrilliance",
+    scene,
+    root,
+    ctx,
+    bb[1][7],
+    (value) => {
+      patchConnection?.sendEventOrValue("brilliance", value);
+      patchConnection?.requestParameterValue("brilliance");
+    },
+    0,
+    0,
+    1,
+    0.01,
+    false
+  );
+
   const paramsUpdated = ({
     endpointID,
     value,
@@ -130,6 +147,11 @@ export const BuildScreenTune = (
     endpointID: string;
     value: number;
   }) => {
+    if (endpointID == "brilliance") {
+      brillianceSlider.setValue(value);
+      return;
+    }
+
     if (!fieldIdToElement[endpointID]) {
       return;
     }
@@ -155,6 +177,7 @@ export const BuildScreenTune = (
       for (const [radio, y, x] of radios) {
         radio.setBoundingBox(bb[y][x]);
       }
+      brillianceSlider.setBoundingBox(bb[1][7]);
     },
     setVisible: (v: boolean) => {
       for (const [slider] of sliders) {
@@ -163,6 +186,7 @@ export const BuildScreenTune = (
       for (const [radio] of radios) {
         radio.setVisible(v);
       }
+      brillianceSlider.setVisible(v);
     },
     canvasDraw: () => {
       for (const [slider] of sliders) {
@@ -171,6 +195,7 @@ export const BuildScreenTune = (
       for (const [radio] of radios) {
         radio.draw();
       }
+      brillianceSlider.draw();
     },
   };
 };

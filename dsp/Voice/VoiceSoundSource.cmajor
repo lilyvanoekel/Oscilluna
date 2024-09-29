@@ -1,53 +1,25 @@
 namespace Synth
 {
-    processor FilterBypass {
-        input stream float in;
-        output stream float out;
-
-        input event float cutoff;
-        input event float resonance;
-        input event bool bypass;
-
-        node filter = Common::Filters::ResonantLowpass;
-        bool bypass_ = false;
-
-        event cutoff(float f) { filter.cutoff <- f; }
-        event resonance(float f) { filter.resonance <- f; }
-        event bypass(bool b) { bypass_ = b; }
-
-        void main() {
-            loop {
-                if (bypass_) {
-                    out <- in;
-                } else {
-                    filter.in <- in;
-                    out <- filter.out;
-                    filter.advance();
-                }
-                advance();
-            }
-        }
-    }
-    
     graph VoiceSoundSource
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
         input event Params paramsIn;
+
+        input stream float osc1Gain;
+        input stream float osc2Gain;
 
         input oscBank.wavetableIn1,
             oscBank.wavetableIn2,
             oscBank.vibrato1,
             oscBank.vibrato2,
             oscBank.vibratoDepth1,
-            oscBank.vibratoDepth2,
-            oscBank.osc1Gain,
-            oscBank.osc2Gain;
+            oscBank.vibratoDepth2;
 
         output stream float out;
 
         node
         {
-            paramSplitter = ParamSplitter;
+            p = ParamSplitter;
             oscBank = OscBank;
             noteToFrequency = Util::NoteToFrequency;
             level1 = std::levels::SmoothedGain(float, 0.002f);
@@ -60,6 +32,9 @@ namespace Synth
             waveFolder2 = Common::WaveFolder;
             filter = FilterBypass;
             cutoffCalc = Common::FilterCutoffCalculator;
+            brilliance = Common::Brilliance;
+            brillianceMultiplier = Util::MultiplyStreams;
+            gainCombiner = Util::MaxStreams;
         }
 
         connection
@@ -67,10 +42,15 @@ namespace Synth
             eventIn -> noteToFrequency;
 
             paramsIn -> oscBank.paramsIn;
+            osc1Gain -> oscBank.osc1Gain;
+            osc2Gain -> oscBank.osc2Gain;
 
             noteToFrequency -> coarseTuner1.in;
             noteToFrequency -> coarseTuner2.in;
             noteToFrequency -> cutoffCalc.noteFreq;
+
+            // @todo: decide if brilliance should be the raw frequency or the "tuned" frequency
+            noteToFrequency -> brilliance.frequencyIn;
 
             coarseTuner1.out -> fineTuner1.in;
             coarseTuner2.out -> fineTuner2.in;
@@ -78,22 +58,23 @@ namespace Synth
             fineTuner1.out -> oscBank.osc1FreqIn;
             fineTuner2.out -> oscBank.osc2FreqIn;
 
-            paramsIn -> paramSplitter.paramsIn;
+            paramsIn -> p.paramsIn;
 
-            paramSplitter.osc1Level -> level1.volume;
-            paramSplitter.osc2Level -> level2.volume;
-            paramSplitter.osc1Coarse -> coarseTuner1.octave;
-            paramSplitter.osc2Coarse -> coarseTuner2.octave;
-            paramSplitter.osc1Fine -> fineTuner1.cents;
-            paramSplitter.osc2Fine -> fineTuner2.cents;
+            p.osc1Level -> level1.volume;
+            p.osc2Level -> level2.volume;
+            p.osc1Coarse -> coarseTuner1.octave;
+            p.osc2Coarse -> coarseTuner2.octave;
+            p.osc1Fine -> fineTuner1.cents;
+            p.osc2Fine -> fineTuner2.cents;
 
-            paramSplitter.osc1Wavefolding -> waveFolder1.gain;
-            paramSplitter.osc2Wavefolding -> waveFolder2.gain;
+            p.osc1Wavefolding -> waveFolder1.gain;
+            p.osc2Wavefolding -> waveFolder2.gain;
 
-            paramSplitter.filterBypass -> filter.bypass;
-            paramSplitter.cutoff -> cutoffCalc.baseCutoff;
+            p.filterBypass -> filter.bypass;
+            p.cutoff -> cutoffCalc.baseCutoff;
             cutoffCalc.cutoff -> filter.cutoff;
-            paramSplitter.resonance -> filter.resonance;
+            p.resonance -> filter.resonance;
+            p.brilliance -> brilliance.amountIn;
 
             oscBank.out1 -> waveFolder1.in;
             oscBank.out2 -> waveFolder2.in;
@@ -103,6 +84,12 @@ namespace Synth
 
             level1 -> filter.in;
             level2 -> filter.in;
+
+            brilliance -> brillianceMultiplier.stream1;
+            osc1Gain -> gainCombiner.stream1;
+            osc2Gain -> gainCombiner.stream2;
+            gainCombiner -> brillianceMultiplier.stream2;
+            brillianceMultiplier -> out;
 
             filter.out -> out;
         }
