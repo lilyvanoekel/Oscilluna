@@ -8,10 +8,12 @@ namespace Common
         input event float rateHzIn;
         input event float spreadIn;
         input event float depthIn;
+        input event float amountIn;
         input event bool doubeFiltersIn;
 
         float rate = 0.5f;
         float spread = 1.0f;
+        float amount = 1.0f;
         bool doubleFilters = true;
 
         node {
@@ -48,6 +50,10 @@ namespace Common
             doubleFilters = d;
         }
 
+        event amountIn(float f) {
+            amount = f;
+        }
+
         void setRates() {
             let rate1 = 1.0f + spread * (0.93f - 1.0f);
             let rate2 = 1.0f + spread * (1.12f - 1.0f);
@@ -81,13 +87,13 @@ namespace Common
                     block2.coefficientMod4 <- lfo4.out;
 
                     block2.in <- block1.out;
-                    out <- block2.out * 0.5f;
+                    out <- block2.out * 0.5f * amount;
                     block2.advance();
                 } else {
-                    out <- block1.out * 0.5f;
+                    out <- block1.out * 0.5f * amount;
                 }
                 
-                out <- crossover.highOut * 0.5f;
+                out <- crossover.highOut * 0.5f * (1.0f + (1.0f - amount));
                 out <- crossover.lowOut;
                 
                 block1.advance();
