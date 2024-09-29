@@ -1,6 +1,6 @@
 namespace Synth
 {
-    graph VoiceSoundSource
+    graph Voice
     {
         input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
         input event Params paramsIn;
@@ -20,7 +20,7 @@ namespace Synth
         node
         {
             p = ParamSplitter;
-            oscBank = OscBank;
+            oscBank = Controllers::Oscillators;
             noteToFrequency = Util::NoteToFrequency;
             level1 = std::levels::SmoothedGain(float, 0.002f);
             level2 = std::levels::SmoothedGain(float, 0.002f);
@@ -30,7 +30,7 @@ namespace Synth
             fineTuner2 = Util::TuneFine;
             waveFolder1 = Common::WaveFolder;
             waveFolder2 = Common::WaveFolder;
-            filter = FilterBypass;
+            filter = Controllers::Filter;
             cutoffCalc = Common::FilterCutoffCalculator;
             brilliance = Common::Brilliance;
             brillianceMultiplier = Util::MultiplyStreams;

@@ -1,0 +1,103 @@
+namespace Synth
+{
+    namespace Controllers
+    {
+        graph VoiceAdsr {
+            input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+            input event Params paramsIn;
+
+            output stream float gainOut1;
+            output stream float gainOut2;
+
+            node
+            {
+                envelope1 = Common::ADSR;
+                envelope2 = Common::ADSR;
+                p = ParamSplitter;
+            }
+
+            connection
+            {
+                eventIn -> envelope1.eventIn;
+                eventIn -> envelope2.eventIn;
+
+                paramsIn -> p.paramsIn;
+                
+                p.adsr1Attack -> envelope1.attack;
+                p.adsr1Decay -> envelope1.decay;
+                p.adsr1Sustain -> envelope1.sustain;
+                p.adsr1Release -> envelope1.release;
+                p.adsr1Mode -> envelope1.modeIn;
+
+                p.adsr2Attack -> envelope2.attack;
+                p.adsr2Decay -> envelope2.decay;
+                p.adsr2Sustain -> envelope2.sustain;
+                p.adsr2Release -> envelope2.release;
+                p.adsr2Mode -> envelope2.modeIn;
+
+                envelope1.gainOut -> gainOut1;
+                envelope2.gainOut -> gainOut2;
+            }
+        }
+
+        processor Voice {
+            input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+            input event Params paramsIn;
+
+            input event float[] wavetableIn1;
+            input event float[] wavetableIn2;
+
+            input event float vibratoDepth1;
+            input event float vibratoDepth2;
+
+            input stream float vibrato1;
+            input stream float vibrato2;
+
+            output stream float out;
+
+            node voiceAdsr = VoiceAdsr;
+            node voiceSoundSource = Synth::Voice;
+
+            event eventIn(std::notes::NoteOn e) {
+                voiceAdsr.eventIn <- e;
+                voiceSoundSource.eventIn <- e;
+            }
+            event eventIn(std::notes::NoteOff e) {
+                voiceAdsr.eventIn <- e;
+                voiceSoundSource.eventIn <- e;
+            }
+            event paramsIn(Params p) {
+                voiceAdsr.paramsIn <- p;
+                voiceSoundSource.paramsIn <- p;
+            }
+            event wavetableIn1(float[] w) { voiceSoundSource.wavetableIn1 <- w; }
+            event wavetableIn2(float[] w) { voiceSoundSource.wavetableIn2 <- w; }
+            event vibratoDepth1(float d) { voiceSoundSource.vibratoDepth1 <- d; }
+            event vibratoDepth2(float d) { voiceSoundSource.vibratoDepth2 <- d; }
+            
+            void main() {
+                loop {
+                    let gain1 = voiceAdsr.gainOut1;
+                    let gain2 = voiceAdsr.gainOut2;
+
+                    if (gain1 > 0.0001f || gain2 > 0.0001f) {
+                        voiceSoundSource.vibrato1 <- vibrato1;
+                        voiceSoundSource.vibrato2 <- vibrato2;
+
+                        voiceSoundSource.osc1Gain <- voiceAdsr.gainOut1;
+                        voiceSoundSource.osc2Gain <- voiceAdsr.gainOut2;
+                    
+                        out <- voiceSoundSource.out;
+                        
+                        voiceSoundSource.advance();
+                    } else {
+                        out <- 0.0f;
+                    }
+
+                    voiceAdsr.advance();
+                    advance();
+                }
+            }
+        }
+    }
+}

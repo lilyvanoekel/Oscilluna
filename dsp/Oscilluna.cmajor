@@ -15,7 +15,7 @@ namespace Synth
         {
             paramsProcessor = ParamsProcessor;
             paramSplitter = ParamSplitter;
-            voices = Voice[voiceCount];
+            voices = Controllers::Voice[voiceCount];
             builder1 = WaveBuilder;
             builder2 = WaveBuilder;
             voiceAllocator = std::voices::VoiceAllocator (voiceCount);
@@ -23,8 +23,8 @@ namespace Synth
             vibratoLfo1 = std::oscillators::LFO();
             vibratoLfo2 = std::oscillators::LFO();
             gainLimiter = std::levels::ConstantGain (float, 0.2f);
-            chorus = ChorusBypass;
-            phaser = PhaserBypass;
+            chorus = Controllers::Chorus;
+            phaser = Controllers::Phaser;
         }
     
         connection

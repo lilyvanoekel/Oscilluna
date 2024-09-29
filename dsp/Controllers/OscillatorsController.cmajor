@@ -1,0 +1,84 @@
+namespace Synth
+{
+    namespace Controllers
+    {
+        processor Oscillators {
+            input event Params paramsIn;
+
+            input event float[] wavetableIn1;
+            input event float[] wavetableIn2;
+
+            input event float osc1FreqIn;
+            input event float osc2FreqIn;
+
+            input event float vibratoDepth1;
+            input event float vibratoDepth2;
+
+            input stream float osc1Gain;
+            input stream float osc2Gain;
+
+            input stream float vibrato1;
+            input stream float vibrato2;
+
+            output stream float out1;
+            output stream float out2;
+
+            int fm = 0;
+            float vDepth1 = 0.0f;
+            float vDepth2 = 0.0f;
+            float fmDepth = 0.0f;
+
+            node oscillator1 = WavetableOscillator;
+            node oscillator2 = WavetableOscillator;
+            
+            event paramsIn(Params p) {
+                fm = p.fmDirection;
+                fmDepth = p.fmDepth;
+                oscillator1.feedbackFmDepthIn <- p.osc1FeedbackFm;
+                oscillator2.feedbackFmDepthIn <- p.osc2FeedbackFm;
+            }
+            event wavetableIn1(float[] w) { oscillator1.wavetableIn <- w; }
+            event wavetableIn2(float[] w) { oscillator2.wavetableIn <- w; }
+            event osc1FreqIn(float f) { oscillator1.frequencyIn <- f; }
+            event osc2FreqIn(float f) { oscillator2.frequencyIn <- f; }
+            event vibratoDepth1(float d) { vDepth1 = d; }
+            event vibratoDepth2(float d) { vDepth2 = d; }
+
+            void main() {
+                float tableSizeFloat = float(TABLE_SIZE);
+                float vibratoDepthFactor = tableSizeFloat * 0.0002f;
+
+                loop {
+                    if (fm == 0) {
+                        oscillator1.gainIn <- osc1Gain;
+                        oscillator2.gainIn <- osc2Gain;
+                        oscillator1.fmIn <- vibrato1 * vibratoDepthFactor * vDepth1;
+                        oscillator2.fmIn <- vibrato2 * vibratoDepthFactor * vDepth2;
+                        out1 <- oscillator1.out;
+                        out2 <- oscillator2.out;
+                    } else if (fm == 1) {
+                        oscillator1.gainIn <- osc1Gain;
+                        float osc1Sample = oscillator1.out;
+                        oscillator1.fmIn <- vibrato1 * vibratoDepthFactor * vDepth1;
+                        oscillator2.gainIn <- osc2Gain;
+                        oscillator2.fmIn <- osc1Sample * fmDepth + vibrato2 * vibratoDepthFactor * vDepth2;
+                        out1 <- osc1Sample;
+                        out2 <- oscillator2.out;
+                    } else {
+                        oscillator2.gainIn <- osc2Gain;
+                        float osc2Sample = oscillator2.out;
+                        oscillator1.gainIn <- osc1Gain;
+                        oscillator1.fmIn <- osc2Sample * fmDepth + vibrato1 * vibratoDepthFactor * vDepth1;
+                        oscillator2.fmIn <- vibrato2 * vibratoDepthFactor * vDepth2;
+                        out1 <- oscillator1.out;
+                        out2 <- osc2Sample;
+                    }
+
+                    oscillator1.advance();
+                    oscillator2.advance();
+                    advance();
+                }
+            }
+        }
+    }
+}

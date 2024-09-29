@@ -1,0 +1,34 @@
+namespace Synth
+{
+    namespace Controllers
+    {
+        processor Filter {
+            input stream float in;
+            output stream float out;
+
+            input event float cutoff;
+            input event float resonance;
+            input event bool bypass;
+
+            node filter = Common::Filters::ResonantLowpass;
+            bool bypass_ = false;
+
+            event cutoff(float f) { filter.cutoff <- f; }
+            event resonance(float f) { filter.resonance <- f; }
+            event bypass(bool b) { bypass_ = b; }
+
+            void main() {
+                loop {
+                    if (bypass_) {
+                        out <- in;
+                    } else {
+                        filter.in <- in;
+                        out <- filter.out;
+                        filter.advance();
+                    }
+                    advance();
+                }
+            }
+        }
+    }
+}
