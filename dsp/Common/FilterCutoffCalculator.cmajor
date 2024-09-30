@@ -2,7 +2,7 @@ namespace Common
 {
     processor FilterCutoffCalculator {
         input event float baseCutoff;
-        input event float keyTracking;
+        input event float keytrackIn;
         input event float noteFreq;
 
         output event float cutoff;
@@ -16,7 +16,7 @@ namespace Common
             calc();
         }
 
-        event keyTracking(float tracking) {
+        event keytrackIn(float tracking) {
             keyTracking_ = tracking;
             calc();
         }

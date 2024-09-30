@@ -8,7 +8,8 @@ import {
 } from "../domain/layout";
 import { BuildRadio } from "../elements/radio";
 import { BuildSlider } from "../elements/slider";
-import { BuildFilterBlock } from "./blocks/filter-block";
+import { BuildFilterBlock, FilterBlockValue } from "./blocks/filter-block";
+import { debounce } from "../domain/debounce";
 
 export const BuildScreenFilter = (
   patchConnection: any,
@@ -23,6 +24,20 @@ export const BuildScreenFilter = (
   let adsrVisible = false;
   let depthSliderVisible = false;
   let rateSliderVisible = false;
+
+  let filterBlock1Value: FilterBlockValue = {
+    type: 0,
+    cutoff: 440,
+    resonance: 0,
+    keytracking: 0,
+  };
+
+  let filterBlock2Value: FilterBlockValue = {
+    type: 0,
+    cutoff: 440,
+    resonance: 0,
+    keytracking: 0,
+  };
 
   const bbTop = splitBoundingBoxHorizontal(2, getBoundingBoxTop());
   const bb = splitBoundingBoxHorizontal(8, getBoundingBoxBottom());
@@ -49,7 +64,14 @@ export const BuildScreenFilter = (
     bbTop[0],
     canvasRedraw,
     (value) => {
-      console.log(value);
+      patchConnection?.sendEventOrValue("filter1_cutoff", value.cutoff);
+      patchConnection?.requestParameterValue("filter1_cutoff");
+      patchConnection?.sendEventOrValue("filter1_keytrack", value.keytracking);
+      patchConnection?.requestParameterValue("filter1_keytrack");
+      patchConnection?.sendEventOrValue("filter1_resonance", value.resonance);
+      patchConnection?.requestParameterValue("filter1_resonance");
+      patchConnection?.sendEventOrValue("filter1_mode", value.type);
+      patchConnection?.requestParameterValue("filter1_mode");
     }
   );
 
@@ -60,7 +82,14 @@ export const BuildScreenFilter = (
     bbTop[1],
     canvasRedraw,
     (value) => {
-      console.log(value);
+      patchConnection?.sendEventOrValue("filter2_cutoff", value.cutoff);
+      patchConnection?.requestParameterValue("filter2_cutoff");
+      patchConnection?.sendEventOrValue("filter2_keytrack", value.keytracking);
+      patchConnection?.requestParameterValue("filter2_keytrack");
+      patchConnection?.sendEventOrValue("filter2_resonance", value.resonance);
+      patchConnection?.requestParameterValue("filter2_resonance");
+      patchConnection?.sendEventOrValue("filter2_mode", value.type);
+      patchConnection?.requestParameterValue("filter2_mode");
     }
   );
 
@@ -78,9 +107,8 @@ export const BuildScreenFilter = (
     ctx,
     bb[0],
     (value) => {
-      //   patchConnection?.sendEventOrValue("adsr1_mode", value);
-      //   patchConnection?.requestParameterValue("adsr1_mode");
-      setFilterModMode(value);
+      patchConnection?.sendEventOrValue("filter_mod", value);
+      patchConnection?.requestParameterValue("filter_mod");
     },
     0,
     true,
@@ -94,8 +122,8 @@ export const BuildScreenFilter = (
     ctx,
     bb[1],
     (value) => {
-      //   patchConnection?.sendEventOrValue(fieldId, transformerOut(value));
-      //   patchConnection?.requestParameterValue(fieldId);
+      patchConnection?.sendEventOrValue("filter_mod_depth", value);
+      patchConnection?.requestParameterValue("filter_mod_depth");
     },
     0,
     0,
@@ -111,24 +139,24 @@ export const BuildScreenFilter = (
     ctx,
     bb[2],
     (value) => {
-      //   patchConnection?.sendEventOrValue(fieldId, transformerOut(value));
-      //   patchConnection?.requestParameterValue(fieldId);
+      patchConnection?.sendEventOrValue("filter_mod_rate", value);
+      patchConnection?.requestParameterValue("filter_mod_rate");
     },
     0,
-    0,
-    1,
+    0.1,
+    5,
     0.01,
     false
   );
 
   const filterRouting = BuildRadio(
-    ["Parallel", "Series 1 → 2", "Series 2 → 1"],
+    ["Parallel", "Series A → B", "Series B → A"],
     scene,
     ctx,
     bbRoutingAdjust(getBoundingBoxBottom()),
     (value) => {
-      //   patchConnection?.sendEventOrValue("adsr1_mode", value);
-      //   patchConnection?.requestParameterValue("adsr1_mode");
+      patchConnection?.sendEventOrValue("filter_routing", value);
+      patchConnection?.requestParameterValue("filter_routing");
     },
     0,
     true,
@@ -162,12 +190,66 @@ export const BuildScreenFilter = (
   }: {
     endpointID: string;
     value: number;
-  }) => {};
+  }) => {
+    switch (endpointID) {
+      case "filter_mod":
+        filterModMode.setValue(value);
+        debounce(setFilterModMode, 100)(value);
+        break;
+      case "filter_mod_depth":
+        depthSlider.setValue(value);
+        break;
+      case "filter_mod_rate":
+        rateSlider.setValue(value);
+        break;
+      case "filter_routing":
+        filterRouting.setValue(value);
+        break;
+      case "filter1_cutoff":
+      case "filter1_keytrack":
+      case "filter1_resonance":
+      case "filter1_mode":
+        const property = {
+          filter1_cutoff: "cutoff",
+          filter1_keytrack: "keytracking",
+          filter1_resonance: "resonance",
+          filter1_mode: "type",
+        }[endpointID];
+        filterBlock1Value = { ...filterBlock1Value, [property]: value };
+        filterBlockA.setValue(filterBlock1Value);
+        break;
+      case "filter2_cutoff":
+      case "filter2_keytrack":
+      case "filter2_resonance":
+      case "filter2_mode":
+        const property2 = {
+          filter2_cutoff: "cutoff",
+          filter2_keytrack: "keytracking",
+          filter2_resonance: "resonance",
+          filter2_mode: "type",
+        }[endpointID];
+        filterBlock2Value = { ...filterBlock2Value, [property2]: value };
+        filterBlockB.setValue(filterBlock2Value);
+        break;
+    }
+  };
 
   patchConnection?.addAllParameterListener(paramsUpdated);
 
-  //   patchConnection?.requestParameterValue("adsr1_mode");
-  //   patchConnection?.requestParameterValue("adsr2_mode");
+  patchConnection?.requestParameterValue("filter_mod");
+  patchConnection?.requestParameterValue("filter_mod_depth");
+  patchConnection?.requestParameterValue("filter_mod_rate");
+  patchConnection?.requestParameterValue("filter_routing");
+
+  patchConnection?.requestParameterValue("filter1_cutoff");
+  patchConnection?.requestParameterValue("filter1_keytrack");
+  patchConnection?.requestParameterValue("filter1_resonance");
+  patchConnection?.requestParameterValue("filter1_mode");
+
+  patchConnection?.requestParameterValue("filter2_cutoff");
+  patchConnection?.requestParameterValue("filter2_keytrack");
+  patchConnection?.requestParameterValue("filter2_resonance");
+  patchConnection?.requestParameterValue("filter2_mode");
 
   const renderLabels = () => {
     if (!isVisible) {

@@ -68,9 +68,9 @@ export const BuildFilterBlock = (
       onValueChanged({ ...currentValue, cutoff: value });
     },
     0,
-    0,
+    440,
+    12000,
     1,
-    0.01,
     false
   );
 
@@ -124,6 +124,10 @@ export const BuildFilterBlock = (
     },
     setValue: (newValue: FilterBlockValue) => {
       currentValue = newValue;
+      filterType.setValue(newValue.type);
+      keytrackingSlider.setValue(newValue.keytracking);
+      cutoffSlider.setValue(newValue.cutoff);
+      resonanceSlider.setValue(newValue.resonance);
       setFilterModType(currentValue.type);
     },
   };

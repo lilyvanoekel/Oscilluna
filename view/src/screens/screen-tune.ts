@@ -165,6 +165,8 @@ export const BuildScreenTune = (
     patchConnection?.requestParameterValue(fieldId);
   }
 
+  patchConnection?.requestParameterValue("brilliance");
+
   return {
     resize: () => {
       const bb = [

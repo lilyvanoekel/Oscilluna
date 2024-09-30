@@ -8,19 +8,19 @@ namespace Synth
         input stream float osc1Gain;
         input stream float osc2Gain;
 
-        input oscBank.wavetableIn1,
-            oscBank.wavetableIn2,
-            oscBank.vibrato1,
-            oscBank.vibrato2,
-            oscBank.vibratoDepth1,
-            oscBank.vibratoDepth2;
+        input oscillators.wavetableIn1,
+            oscillators.wavetableIn2,
+            oscillators.vibrato1,
+            oscillators.vibrato2,
+            oscillators.vibratoDepth1,
+            oscillators.vibratoDepth2;
 
         output stream float out;
 
         node
         {
             p = ParamSplitter;
-            oscBank = Controllers::Oscillators;
+            oscillators = Controllers::Oscillators;
             noteToFrequency = Util::NoteToFrequency;
             level1 = std::levels::SmoothedGain(float, 0.002f);
             level2 = std::levels::SmoothedGain(float, 0.002f);
@@ -31,7 +31,8 @@ namespace Synth
             waveFolder1 = Common::WaveFolder;
             waveFolder2 = Common::WaveFolder;
             filter = Controllers::Filter;
-            cutoffCalc = Common::FilterCutoffCalculator;
+            cutoffCalc1 = Common::FilterCutoffCalculator;
+            cutoffCalc2 = Common::FilterCutoffCalculator;
             brilliance = Common::Brilliance;
             brillianceMultiplier = Util::MultiplyStreams;
             gainCombiner = Util::MaxStreams;
@@ -40,14 +41,16 @@ namespace Synth
         connection
         {
             eventIn -> noteToFrequency;
+            eventIn -> filter.eventIn;
 
-            paramsIn -> oscBank.paramsIn;
-            osc1Gain -> oscBank.osc1Gain;
-            osc2Gain -> oscBank.osc2Gain;
+            paramsIn -> oscillators.paramsIn;
+            osc1Gain -> oscillators.osc1Gain;
+            osc2Gain -> oscillators.osc2Gain;
 
             noteToFrequency -> coarseTuner1.in;
             noteToFrequency -> coarseTuner2.in;
-            noteToFrequency -> cutoffCalc.noteFreq;
+            noteToFrequency -> cutoffCalc1.noteFreq;
+            noteToFrequency -> cutoffCalc2.noteFreq;
 
             // @todo: decide if brilliance should be the raw frequency or the "tuned" frequency
             noteToFrequency -> brilliance.frequencyIn;
@@ -55,10 +58,11 @@ namespace Synth
             coarseTuner1.out -> fineTuner1.in;
             coarseTuner2.out -> fineTuner2.in;
 
-            fineTuner1.out -> oscBank.osc1FreqIn;
-            fineTuner2.out -> oscBank.osc2FreqIn;
+            fineTuner1.out -> oscillators.osc1FreqIn;
+            fineTuner2.out -> oscillators.osc2FreqIn;
 
             paramsIn -> p.paramsIn;
+            paramsIn -> filter.paramsIn;
 
             p.osc1Level -> level1.volume;
             p.osc2Level -> level2.volume;
@@ -70,14 +74,19 @@ namespace Synth
             p.osc1Wavefolding -> waveFolder1.gain;
             p.osc2Wavefolding -> waveFolder2.gain;
 
-            p.filterBypass -> filter.bypass;
-            p.cutoff -> cutoffCalc.baseCutoff;
-            cutoffCalc.cutoff -> filter.cutoff;
-            p.resonance -> filter.resonance;
+            p.filter1Cutoff -> cutoffCalc1.baseCutoff;
+            p.filter1Keytrack -> cutoffCalc1.keytrackIn;
+            p.filter2Cutoff -> cutoffCalc2.baseCutoff;
+            p.filter2Keytrack -> cutoffCalc2.keytrackIn;
+            cutoffCalc1.cutoff -> filter.cutoff1;
+            cutoffCalc2.cutoff -> filter.cutoff2;
             p.brilliance -> brilliance.amountIn;
 
-            oscBank.out1 -> waveFolder1.in;
-            oscBank.out2 -> waveFolder2.in;
+            oscillators.out1 -> waveFolder1.in;
+            oscillators.out2 -> waveFolder2.in;
+
+            oscillators.out1 -> filter.osc1;
+            oscillators.out2 -> filter.osc2;
 
             waveFolder1.out -> level1.in;
             waveFolder2.out -> level2.in;

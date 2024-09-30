@@ -6,25 +6,59 @@ namespace Synth
             input stream float in;
             output stream float out;
 
-            input event float cutoff;
-            input event float resonance;
-            input event bool bypass;
+            input event Params paramsIn;
+            input event float cutoff1;
+            input event float cutoff2;
 
-            node filter = Common::Filters::ResonantLowpass;
+            input stream float osc1;
+            input stream float osc2;
+
+            input event (std::notes::NoteOn, std::notes::NoteOff) eventIn;
+
+            node
+            {
+                filter1 = Common::Filters::ResonantLowpass;
+                filter2 = Common::Filters::ResonantLowpass;
+                adsr = Common::ADSR;
+            }
+            
             bool bypass_ = false;
 
-            event cutoff(float f) { filter.cutoff <- f; }
-            event resonance(float f) { filter.resonance <- f; }
-            event bypass(bool b) { bypass_ = b; }
+            event cutoff1(float f) { filter1.cutoff <- f; }
+            event cutoff2(float f) { filter2.cutoff <- f; }
+            
+            event paramsIn(Params p) {
+                filter1.resonance <- p.filter1Resonance;
+                filter2.resonance <- p.filter1Resonance;
+                bypass_ = p.filter1Mode == 0;
+
+                adsr.attack <- 0.5f;
+                adsr.decay <- 0.5f;
+                adsr.sustain <- 0.2f;
+                adsr.release <- 0.7f;
+            }
+
+            event eventIn(std::notes::NoteOn n) {
+                adsr.eventIn <- n;
+            }
+
+            event eventIn(std::notes::NoteOff n) {
+                adsr.eventIn <- n;
+            }
 
             void main() {
                 loop {
                     if (bypass_) {
                         out <- in;
                     } else {
-                        filter.in <- in;
-                        out <- filter.out;
-                        filter.advance();
+                        let adsrSample = adsr.gainOut;
+                        filter1.in <- in;
+                        //filter1.freqModIn <- adsrSample - 1.0f;
+                        // filter1.freqModIn <- Util::fastTanh(osc1) * 2.0f;
+                        out <- filter1.out;
+
+                        adsr.advance();
+                        filter1.advance();
                     }
                     advance();
                 }
