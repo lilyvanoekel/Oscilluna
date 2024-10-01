@@ -39,34 +39,55 @@ namespace Common
 
         void main() {
             loop {
+                // @todo: fix this
+                // float modValue = modIn * delayTimeMs * modDepth;
+                // float modulatedDelayMs = delayTimeMs + modValue;
+                // float delaySamples = modulatedDelayMs * 0.001f * sampleRate;
+                // int delayInt = int(delaySamples);
+                // float fractionalDelay = delaySamples - float(delayInt);
+
+                // let readPointer1 = wrap<delayBufferSize>(writePointer - delaySamples);
+                // let readPointer2 = wrap<delayBufferSize>(writePointer - delaySamples + 1);
+                // let readPointer3 = wrap<delayBufferSize>(writePointer - delaySamples + 2);
+                // let readPointer4 = wrap<delayBufferSize>(writePointer - delaySamples + 3);
+
+                // float sample1 = delayBuffer[readPointer1];
+                // float sample2 = delayBuffer[readPointer2];
+                // float sample3 = delayBuffer[readPointer3];
+                // float sample4 = delayBuffer[readPointer4];
+
+                // let d1 = fractionalDelay - 1.0f;
+                // let d2 = fractionalDelay - 2.0f;
+                // let d3 = fractionalDelay - 3.0f;
+
+                // let c1 = -d1 * d2 * d3 / 6.0f;
+                // let c2 = d2 * d3 * 0.5f;
+                // let c3 = -d1 * d3 * 0.5f;
+                // let c4 = d1 * d2 / 6.0f;
+
+                // float delayedSample = sample1 * c1 + fractionalDelay * (sample2 * c2 + sample3 * c3 + sample4 * c4);     
+                // delayBuffer[writePointer] = in + delayedSample * feedback;
+                // out <- delayedSample;
+                // writePointer = wrap<delayBufferSize>(writePointer + 1);
+                // advance();
+
                 float modValue = modIn * delayTimeMs * modDepth;
                 float modulatedDelayMs = delayTimeMs + modValue;
                 float delaySamples = modulatedDelayMs * 0.001f * sampleRate;
                 int delayInt = int(delaySamples);
                 float fractionalDelay = delaySamples - float(delayInt);
 
-                let readPointer1 = wrap<delayBufferSize>(writePointer - delaySamples);
-                let readPointer2 = wrap<delayBufferSize>(writePointer - delaySamples + 1);
-                let readPointer3 = wrap<delayBufferSize>(writePointer - delaySamples + 2);
-                let readPointer4 = wrap<delayBufferSize>(writePointer - delaySamples + 3);
+                let readPointer1 = wrap<delayBufferSize>(writePointer - delayInt);
+                let readPointer2 = wrap<delayBufferSize>(writePointer - delayInt - 1);
 
                 float sample1 = delayBuffer[readPointer1];
                 float sample2 = delayBuffer[readPointer2];
-                float sample3 = delayBuffer[readPointer3];
-                float sample4 = delayBuffer[readPointer4];
 
-                let d1 = fractionalDelay - 1.0f;
-                let d2 = fractionalDelay - 2.0f;
-                let d3 = fractionalDelay - 3.0f;
+                float delayedSample = sample1 * (1.0f - fractionalDelay) + sample2 * fractionalDelay;
 
-                let c1 = -d1 * d2 * d3 / 6.0f;
-                let c2 = d2 * d3 * 0.5f;
-                let c3 = -d1 * d3 * 0.5f;
-                let c4 = d1 * d2 / 6.0f;
-
-                float delayedSample = sample1 * c1 + fractionalDelay * (sample2 * c2 + sample3 * c3 + sample4 * c4);     
                 delayBuffer[writePointer] = in + delayedSample * feedback;
                 out <- delayedSample;
+
                 writePointer = wrap<delayBufferSize>(writePointer + 1);
                 advance();
             }

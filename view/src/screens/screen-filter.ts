@@ -98,7 +98,7 @@ export const BuildScreenFilter = (
     scene,
     root,
     bbAdsrAdjust(bb[2]),
-    "adsr1"
+    "filter_mod"
   );
 
   const filterModMode = BuildRadio(

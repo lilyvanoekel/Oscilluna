@@ -20,9 +20,12 @@ namespace Synth
                 filter1 = Common::Filters::ResonantLowpass;
                 filter2 = Common::Filters::ResonantLowpass;
                 adsr = Common::ADSR;
+                lfo = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
             }
             
             bool bypass_ = false;
+            int modMode = 0;
+            float depth = 0.0f;
 
             event cutoff1(float f) { filter1.cutoff <- f; }
             event cutoff2(float f) { filter2.cutoff <- f; }
@@ -32,10 +35,16 @@ namespace Synth
                 filter2.resonance <- p.filter1Resonance;
                 bypass_ = p.filter1Mode == 0;
 
-                adsr.attack <- 0.5f;
-                adsr.decay <- 0.5f;
-                adsr.sustain <- 0.2f;
-                adsr.release <- 0.7f;
+                adsr.attack <- p.filterModAttack;
+                adsr.decay <- p.filterModDecay;
+                adsr.sustain <- p.filterModSustain;
+                adsr.release <- p.filterModRelease;
+                adsr.modeIn <- p.filterMod == 3 ? 1 : 0;
+
+                depth = p.filterModDepth;
+                modMode = p.filterMod;
+
+                lfo.rateHzIn <- p.filterModRate;
             }
 
             event eventIn(std::notes::NoteOn n) {
@@ -51,13 +60,26 @@ namespace Synth
                     if (bypass_) {
                         out <- in;
                     } else {
-                        let adsrSample = adsr.gainOut;
-                        filter1.in <- in;
-                        //filter1.freqModIn <- adsrSample - 1.0f;
-                        // filter1.freqModIn <- Util::fastTanh(osc1) * 2.0f;
-                        out <- filter1.out;
+                        float modSample = 0.0f;
 
-                        adsr.advance();
+                        if (modMode == 2 || modMode == 3) {
+                            modSample = 1.0f - depth + adsr.gainOut * depth - 1.0f;
+                            adsr.advance();
+                        } else if (modMode == 4) {
+                            // @todo: look into
+                            modSample = osc1 * 2.5f * depth;
+                        } else if (modMode == 5) {
+                            // @todo: look into
+                            modSample = osc2 * 2.5f * depth;
+                        } else if (modMode == 1) {
+                            modSample = lfo.out * depth;
+                            lfo.advance();
+                        }
+
+                        filter1.in <- in;
+                        filter1.freqModIn <- modSample;
+                        out <- filter1.out;
+                        
                         filter1.advance();
                     }
                     advance();

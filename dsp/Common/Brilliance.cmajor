@@ -72,7 +72,7 @@ namespace Common
                 );
                 float<4> sample = currentSamples * (1.0f - frac) + nextSamples * frac;
                 sample *= multipliers;
-                out <- sum(sample) * 0.2f * amount;
+                out <- sum(sample) * 0.1f * amount;
                 advance();
             }
         }
