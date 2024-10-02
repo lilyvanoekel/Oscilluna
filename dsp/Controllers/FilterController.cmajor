@@ -23,7 +23,9 @@ namespace Synth
                 lfo = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
             }
             
-            bool bypass_ = false;
+            int filter1Mode = 0;
+            int filter2Mode = 0;
+            int filterRouting = 0;
             int modMode = 0;
             float depth = 0.0f;
 
@@ -33,8 +35,11 @@ namespace Synth
             event paramsIn(Params p) {
                 filter1.resonance <- p.filter1Resonance;
                 filter2.resonance <- p.filter1Resonance;
-                bypass_ = p.filter1Mode == 0;
 
+                filter1Mode = p.filter1Mode;
+                filter2Mode = p.filter2Mode;
+                filterRouting = p.filterRouting;
+                
                 adsr.attack <- p.filterModAttack;
                 adsr.decay <- p.filterModDecay;
                 adsr.sustain <- p.filterModSustain;
@@ -55,32 +60,51 @@ namespace Synth
                 adsr.eventIn <- n;
             }
 
+            float runFilter1(float in) {
+                float modSample = 0.0f;
+
+                if (modMode == 2 || modMode == 3) {
+                    modSample = 1.0f - depth + adsr.gainOut * depth - 1.0f;
+                    adsr.advance();
+                } else if (modMode == 4) {
+                    // @todo: look into
+                    modSample = osc1 * 2.5f * depth;
+                } else if (modMode == 5) {
+                    // @todo: look into
+                    modSample = osc2 * 2.5f * depth;
+                } else if (modMode == 1) {
+                    modSample = lfo.out * depth;
+                    lfo.advance();
+                }
+
+                filter1.in <- in;
+                filter1.freqModIn <- modSample;
+                let result = filter1.out;
+                filter1.advance();
+                return result;
+            }
+
+            float runFilter2(float in) {
+                filter2.in <- in;
+                let result = filter2.out;
+                filter2.advance();
+                return result;
+            }
+
             void main() {
                 loop {
-                    if (bypass_) {
+                    if (filter1Mode == 0 && filter2Mode == 0) {
                         out <- in;
-                    } else {
-                        float modSample = 0.0f;
-
-                        if (modMode == 2 || modMode == 3) {
-                            modSample = 1.0f - depth + adsr.gainOut * depth - 1.0f;
-                            adsr.advance();
-                        } else if (modMode == 4) {
-                            // @todo: look into
-                            modSample = osc1 * 2.5f * depth;
-                        } else if (modMode == 5) {
-                            // @todo: look into
-                            modSample = osc2 * 2.5f * depth;
-                        } else if (modMode == 1) {
-                            modSample = lfo.out * depth;
-                            lfo.advance();
-                        }
-
-                        filter1.in <- in;
-                        filter1.freqModIn <- modSample;
-                        out <- filter1.out;
-                        
-                        filter1.advance();
+                    } else if (filter2Mode == 0) {
+                        out <- runFilter1(in);
+                    } else if (filter1Mode == 0) {
+                        out <- runFilter2(in);
+                    } else if (filterRouting == 0) {
+                        out <- runFilter1(in) + runFilter2(in);
+                    } else if (filterRouting == 1) {
+                        out <- runFilter2(runFilter1(in));
+                    } else if (filterRouting == 2) {
+                        out <- runFilter1(runFilter2(in));
                     }
                     advance();
                 }
