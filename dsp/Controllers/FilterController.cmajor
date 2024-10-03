@@ -17,8 +17,10 @@ namespace Synth
 
             node
             {
-                filter1 = Common::Filters::ResonantLowpass;
-                filter2 = Common::Filters::ResonantLowpass;
+                filter1lp1 = Common::Filters::ResonantLowpass;
+                filter1lp2 = Common::Filters::ResonantLowpass2;
+                filter2lp1 = Common::Filters::ResonantLowpass;
+                filter2lp2 = Common::Filters::ResonantLowpass2;
                 adsr = Common::ADSR;
                 lfo = std::oscillators::LFO (std::oscillators::Shape::sine, 1.0f, 1.0f);
             }
@@ -29,12 +31,21 @@ namespace Synth
             int modMode = 0;
             float depth = 0.0f;
 
-            event cutoff1(float f) { filter1.cutoff <- f; }
-            event cutoff2(float f) { filter2.cutoff <- f; }
+            event cutoff1(float f) { 
+                filter1lp1.cutoff <- f;
+                filter1lp2.cutoff <- f;
+            }
+
+            event cutoff2(float f) {
+                filter2lp1.cutoff <- f;
+                filter2lp2.cutoff <- f;
+            }
             
             event paramsIn(Params p) {
-                filter1.resonance <- p.filter1Resonance;
-                filter2.resonance <- p.filter1Resonance;
+                filter1lp1.resonance <- p.filter1Resonance;
+                filter1lp2.resonance <- p.filter1Resonance;
+                filter2lp1.resonance <- p.filter2Resonance;
+                filter2lp2.resonance <- p.filter2Resonance;
 
                 filter1Mode = p.filter1Mode;
                 filter2Mode = p.filter2Mode;
@@ -77,17 +88,36 @@ namespace Synth
                     lfo.advance();
                 }
 
-                filter1.in <- in;
-                filter1.freqModIn <- modSample;
-                let result = filter1.out;
-                filter1.advance();
+                float result = 0.0f;
+
+                if (filter1Mode == 1) {
+                    filter1lp1.in <- in;
+                    filter1lp1.freqModIn <- modSample;
+                    result = filter1lp1.out;
+                    filter1lp1.advance();
+                } else if (filter1Mode == 2) {
+                    filter1lp2.in <- in;
+                    filter1lp2.freqModIn <- modSample;
+                    result = filter1lp2.out;
+                    filter1lp2.advance();
+                }
+                
                 return result;
             }
 
             float runFilter2(float in) {
-                filter2.in <- in;
-                let result = filter2.out;
-                filter2.advance();
+                float result = 0.0f;
+
+                if (filter2Mode == 1) {
+                    filter2lp1.in <- in;
+                    result = filter2lp1.out;
+                    filter2lp1.advance();
+                } else if (filter2Mode == 2) {
+                    filter2lp2.in <- in;
+                    result = filter2lp2.out;
+                    filter2lp2.advance();
+                }
+
                 return result;
             }
 
@@ -103,7 +133,7 @@ namespace Synth
                         out <- runFilter1(in) + runFilter2(in);
                     } else if (filterRouting == 1) {
                         out <- runFilter2(runFilter1(in));
-                    } else if (filterRouting == 2) {
+                    } else {
                         out <- runFilter1(runFilter2(in));
                     }
                     advance();

@@ -30,7 +30,7 @@ export const BuildFilterBlock = (
   const bb = splitBoundingBoxHorizontal(4, boundingBox);
 
   const filterType = BuildRadio(
-    ["Off", "LP"],
+    ["Off", "LP 1", "LP 2"],
     scene,
     ctx,
     bb[0],

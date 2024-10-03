@@ -35,7 +35,6 @@ namespace Common
         }
 
         // Another moog style, source: DaisySP https://github.com/electro-smith/DaisySP
-        // @todo: figure out which to keep...
         processor ResonantLowpass {
             input stream float in;
             output stream float out;
@@ -99,62 +98,42 @@ namespace Common
             }
         }
 
-        // @todo: needs work, or to be removed eventually
-        // Source: https://www.musicdsp.org/en/latest/Filters/24-moog-vcf.html
-        processor MoogFilter {
+        processor ResonantLowpass2 {
             input stream float in;
             output stream float out;
+            input stream float freqModIn;
 
             input event float cutoff;
             input event float resonance;
 
+            float cut_lp, res_lp, fb_lp;
+            float n3 = 0.0f, n4 = 0.0f;
             float cutoff_;
             float resonance_;
-            float y1, y2, y3, y4;
-            float oldx, oldy1, oldy2, oldy3;
-            float x, p, k, r;
 
-            event cutoff(float f)       { cutoff_ = f;      calc(); }
-            event resonance(float f)    { resonance_ = f;   calc(); }
-
-            void init() {
-                y1 = 0.0f;
-                y2 = 0.0f;
-                y3 = 0.0f;
-                y4 = 0.0f;
-                oldx = 0.0f;
-                oldy1 = 0.0f;
-                oldy2 = 0.0f;
-                oldy3 = 0.0f;
-                calc();
+            event cutoff(float f) {
+                cutoff_ = f;
             }
 
-            void calc() {
-                let kPi = 3.1415926535897931f;
-                let f = 2.0f * cutoff_ / float(processor.frequency);
-                k = 2.0f * sin(f * kPi * 0.5f) - 1.0f;
-                p = (k + 1.0f) * 0.5f;
-                float scale = exp((1.0f - p) * 1.386249f);
-                r = resonance_ * scale;
+            event resonance(float f) {
+                resonance_ = clamp(f, 0.0f, 1.0f);
             }
 
             void main() {
                 loop {
-                    x = in - r * y4;
+                    cut_lp = clamp(cutoff_ * (1.0f + freqModIn) * 2.0f / float(processor.frequency), 0.0f, 0.99f);
+                    fb_lp = resonance_ + resonance_ / (1.0f - cut_lp);
 
-                    y1 =  x * p + oldx  * p - k * y1;
-                    y2 = y1 * p + oldy1 * p - k * y2;
-                    y3 = y2 * p + oldy2 * p - k * y3;
-                    y4 = y3 * p + oldy3 * p - k * y4;
+                    n3 = n3 + cut_lp * (in - n3 + Util::fastTanh(fb_lp * (n3 - n4)));
+                    n4 = n4 + cut_lp * (n3 - n4);
 
-                    y4 -= (y4 * y4 * y4) / 6.0f;
-
-                    oldx = x; oldy1 = y1; oldy2 = y2; oldy3 = y3;
-
-                    out <- y4;
+                    out <- n4;
                     advance();
                 }
             }
         }
+
+
+
     }
 }
