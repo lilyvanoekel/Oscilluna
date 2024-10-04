@@ -166,11 +166,19 @@ export const BuildScreenFilter = (
   const updateVisible = () => {
     filterBlockA.setVisible(isVisible);
     filterBlockB.setVisible(isVisible);
-    filterModMode.setVisible(isVisible);
-    depthSlider.setVisible(isVisible && depthSliderVisible);
-    rateSlider.setVisible(isVisible && rateSliderVisible);
-    adsr.setVisible(isVisible && adsrVisible);
-    filterRouting.setVisible(isVisible);
+    filterModMode.setVisible(isVisible && !!filterBlock1Value.type);
+    depthSlider.setVisible(
+      isVisible && depthSliderVisible && !!filterBlock1Value.type
+    );
+    rateSlider.setVisible(
+      isVisible && rateSliderVisible && !!filterBlock1Value.type
+    );
+    adsr.setVisible(isVisible && adsrVisible && !!filterBlock1Value.type);
+
+    filterRouting.setVisible(
+      !!(isVisible && filterBlock1Value.type && filterBlock2Value.type)
+    );
+
     canvasRedraw();
   };
 
@@ -217,6 +225,7 @@ export const BuildScreenFilter = (
         }[endpointID];
         filterBlock1Value = { ...filterBlock1Value, [property]: value };
         filterBlockA.setValue(filterBlock1Value);
+        updateVisible();
         break;
       case "filter2_cutoff":
       case "filter2_keytrack":
@@ -230,6 +239,7 @@ export const BuildScreenFilter = (
         }[endpointID];
         filterBlock2Value = { ...filterBlock2Value, [property2]: value };
         filterBlockB.setValue(filterBlock2Value);
+        updateVisible();
         break;
     }
   };

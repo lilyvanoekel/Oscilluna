@@ -251,12 +251,12 @@ namespace Synth
         input event float osc2_feedback_fm      [[ name: "osc2_feedback_fm", min: 0.0, max: 1.0, init: 0.0 ]];
 
         input event int filter1_mode            [[ name: "filter1_mode", min: 0, max: 2, init: 0, text: "Off|LP 1|LP 2" ]];
-        input event float filter1_cutoff        [[ name: "filter1_cutoff", min: 440, max: 12000, init: 2000, step: 1 ]];
+        input event float filter1_cutoff        [[ name: "filter1_cutoff", min: 440, max: 18000, init: 2000, step: 1 ]];
         input event float filter1_resonance     [[ name: "filter1_resonance", min: 0, max: 1, init: 0.5 ]];
         input event float filter1_keytrack      [[ name: "filter1_keytrack", min: 0, max: 1, init: 1.0 ]];
 
         input event int filter2_mode            [[ name: "filter2_mode", min: 0, max: 2, init: 0, text: "Off|LP 1|LP 2" ]];
-        input event float filter2_cutoff        [[ name: "filter2_cutoff", min: 440, max: 12000, init: 2000, step: 1 ]];
+        input event float filter2_cutoff        [[ name: "filter2_cutoff", min: 440, max: 18000, init: 2000, step: 1 ]];
         input event float filter2_resonance     [[ name: "filter2_resonance", min: 0, max: 1, init: 0.5 ]];
         input event float filter2_keytrack      [[ name: "filter2_keytrack", min: 0, max: 1, init: 1.0 ]];
 

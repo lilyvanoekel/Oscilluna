@@ -20,6 +20,7 @@ export const BuildFilterBlock = (
 ) => {
   let isVisible = false;
   let resonanceVisible = true;
+  let filterDetailsVisible = true;
   let currentValue: FilterBlockValue = {
     type: 0,
     cutoff: 0,
@@ -69,7 +70,7 @@ export const BuildFilterBlock = (
     },
     0,
     440,
-    12000,
+    18000,
     1,
     false
   );
@@ -92,14 +93,17 @@ export const BuildFilterBlock = (
 
   const updateVisible = () => {
     filterType.setVisible(isVisible);
-    keytrackingSlider.setVisible(isVisible);
-    cutoffSlider.setVisible(isVisible);
-    resonanceSlider.setVisible(isVisible && resonanceVisible);
+    keytrackingSlider.setVisible(isVisible && filterDetailsVisible);
+    cutoffSlider.setVisible(isVisible && filterDetailsVisible);
+    resonanceSlider.setVisible(
+      isVisible && filterDetailsVisible && resonanceVisible
+    );
     canvasRedraw();
   };
 
   const setFilterModType = (type: number) => {
-    resonanceVisible = type == 1;
+    resonanceVisible = type == 1 || type == 2;
+    filterDetailsVisible = type > 0;
     updateVisible();
   };
 
