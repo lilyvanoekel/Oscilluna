@@ -227,8 +227,8 @@ namespace Synth
         input event float adsr2_release [[ name: "adsr2_release", min: 0.0, max: 1.0, init: 0.1 ]];
         input event int adsr2_mode      [[ name: "adsr2_mode", min: 0, max: 1, init: 1, text: "Linear|Exponential" ]];
 
-        input event float osc1_level    [[ name: "osc1_level", unit: "dB", min: -85, max: 6, init: 0 ]];
-        input event float osc2_level    [[ name: "osc2_level", unit: "dB", min: -85, max: 6, init: 0 ]];
+        input event float osc1_level    [[ name: "osc1_level", min: 0, max: 1, init: 0.8 ]];
+        input event float osc2_level    [[ name: "osc2_level", min: 0, max: 1, init: 0.8 ]];
 
         input event float osc1_coarse   [[ name: "osc1_coarse", min: -2, max: 2, init: 0, step: 1 ]];
         input event float osc2_coarse   [[ name: "osc2_coarse", min: -2, max: 2, init: 0, step: 1 ]];

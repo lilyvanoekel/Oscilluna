@@ -22,8 +22,10 @@ namespace Synth
             p = ParamSplitter;
             oscillators = Controllers::Oscillators;
             noteToFrequency = Util::NoteToFrequency;
-            level1 = std::levels::SmoothedGain(float, 0.002f);
-            level2 = std::levels::SmoothedGain(float, 0.002f);
+            level1 = Util::MultiplyStreams;
+            level2 = Util::MultiplyStreams;
+            levelSmoother1 = std::smoothing::SmoothedValueStream (0.02f);
+            levelSmoother2 = std::smoothing::SmoothedValueStream (0.02f);
             coarseTuner1 = Util::TuneCoarse;
             coarseTuner2 = Util::TuneCoarse;
             fineTuner1 = Util::TuneFine;
@@ -64,8 +66,8 @@ namespace Synth
             paramsIn -> p.paramsIn;
             paramsIn -> filter.paramsIn;
 
-            p.osc1Level -> level1.volume;
-            p.osc2Level -> level2.volume;
+            p.osc1Level -> levelSmoother1 -> level1.stream2;
+            p.osc2Level -> levelSmoother2 -> level2.stream2;
             p.osc1Coarse -> coarseTuner1.octave;
             p.osc2Coarse -> coarseTuner2.octave;
             p.osc1Fine -> fineTuner1.cents;
@@ -88,8 +90,8 @@ namespace Synth
             oscillators.out1 -> filter.osc1;
             oscillators.out2 -> filter.osc2;
 
-            waveFolder1.out -> level1.in;
-            waveFolder2.out -> level2.in;
+            waveFolder1.out -> level1.stream1;
+            waveFolder2.out -> level2.stream1;
 
             level1 -> filter.in;
             level2 -> filter.in;

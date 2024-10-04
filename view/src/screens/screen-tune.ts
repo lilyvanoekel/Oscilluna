@@ -1,11 +1,11 @@
 import * as THREE from "three";
 
-import { dbToLinear, linearToDb } from "../domain/dsp";
 import { BoundingBox, splitBoundingBoxHorizontal } from "../domain/layout";
 import { BuildSlider } from "../elements/slider";
 import { BuildRadio } from "../elements/radio";
 
 const identity = <T>(x: T): T => x;
+// @todo: transformers are no longer used since removing DB based level sliders, figure out whether to keep or remove
 type Transformer = (x: number) => number;
 type ScreenElement =
   | [
@@ -30,14 +30,7 @@ export const BuildScreenTune = (
   getBoundingBoxBottom: () => BoundingBox
 ) => {
   const elements: ScreenElement[] = [
-    [
-      "slider",
-      "Output\nLevel",
-      0,
-      0,
-      "osc1_level",
-      [0, 1, 0.01, linearToDb, dbToLinear],
-    ],
+    ["slider", "Output\nLevel", 0, 0, "osc1_level", [0, 1, 0.01]],
     ["slider", "Course\nTune", 0, 1, "osc1_coarse", [-2, 2, 1]],
     ["slider", "Fine\nTune", 0, 2, "osc1_fine", [-20, 20, 1]],
     ["slider", "Vibrato\nDepth", 0, 3, "osc1_vibrato_depth", [0, 1, 0.01]],
@@ -46,14 +39,7 @@ export const BuildScreenTune = (
     ["slider", "FM\nDepth", 0, 6, "fm_depth", [0, 1, 0.01]],
     ["slider", "Self\nFM", 0, 7, "osc1_feedback_fm", [0, 1, 0.01]],
 
-    [
-      "slider",
-      "Output\nLevel",
-      1,
-      0,
-      "osc2_level",
-      [0, 1, 0.01, linearToDb, dbToLinear],
-    ],
+    ["slider", "Output\nLevel", 1, 0, "osc2_level", [0, 1, 0.01]],
     ["slider", "Course\nTune", 1, 1, "osc2_coarse", [-2, 2, 1]],
     ["slider", "Fine\nTune", 1, 2, "osc2_fine", [-20, 20, 1]],
     ["slider", "Vibrato\nDepth", 1, 3, "osc2_vibrato_depth", [0, 1, 0.01]],
