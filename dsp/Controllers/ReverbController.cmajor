@@ -12,7 +12,7 @@ namespace Synth
             bool bypass_ = true;
 
             event paramsIn(Params p) {
-                freeverb.roomSize <- p.reverbRoomSize;
+                freeverb.roomSize <- max(0.0f, (p.reverbMode - 1) * 20.0f);
                 freeverb.damping <- p.reverbDampingFactor;
                 freeverb.width <- p.reverbWidth;
                 freeverb.wetLevel <- p.reverbWetLevel;

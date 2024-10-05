@@ -70,7 +70,6 @@ namespace Synth
         float brilliance;
 
         int reverbMode;
-        float reverbRoomSize;
         float reverbDampingFactor;
         float reverbWidth;
         float reverbWetLevel;
@@ -149,7 +148,6 @@ namespace Synth
         p.brilliance = 0.0f;
 
         p.reverbMode = 0;
-        p.reverbRoomSize = 0.0f;
         p.reverbDampingFactor = 0.0f;
         p.reverbWidth = 0.0f;
         p.reverbWetLevel = 0.0f;
@@ -282,7 +280,7 @@ namespace Synth
         input event float filter_mod_sustain    [[ name: "filter_mod_sustain", min: 0.0, max: 1.0, init: 0.7 ]];
         input event float filter_mod_release    [[ name: "filter_mod_release", min: 0.0, max: 1.0, init: 0.1 ]];
 
-        input event int filter_routing          [[ name: "filter_routing", min: 0, max: 2, init: 0, text: "Parallel|A → B|B → A" ]];
+        input event int filter_routing          [[ name: "filter_routing", min: 0, max: 2, init: 1, text: "Parallel|A → B|B → A" ]];
 
         input event bool chorus_enabled             [[ name: "chorus_enabled", boolean, init: false ]];
         input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.6 ]];
@@ -302,9 +300,7 @@ namespace Synth
         
         input event float brilliance                [[ name: "brilliance", min: 0.0, max: 1.0, init: 0.0 ]];
 
-
-        input event int reverb_mode                 [[ name: "rever_mode",      min: 0, max: 1, init: 0, text: "Off|On" ]];
-        input event float reverb_room_size          [[ name: "Room Size",       min: 0, max: 100, init:  60, text: "Tiny|Small|Medium|Large|Hall" ]];
+        input event int reverb_mode                 [[ name: "rever_mode",      min: 0, max: 5, init: 0, text: "Off|Tiny|Small|Medium|Large|Hall" ]];
         input event float reverb_damping_factor     [[ name: "Damping Factor",  min: 0, max: 100, init:  50, unit: "%",  step: 1 ]];
         input event float reverb_width              [[ name: "Width",           min: 0, max: 100, init: 100, unit: "%",  step: 1 ]];
         input event float reverb_wet_level          [[ name: "Wet Level",       min: 0, max: 100, init:  33, unit: "%",  step: 1 ]];
@@ -375,7 +371,6 @@ namespace Synth
         event phaser_amount (float f)           { params.phaserAmount = f;          update(); }
         event brilliance(float f)               { params.brilliance = f;            update(); }
         event reverb_mode (int m)               { params.reverbMode = m;            update(); }
-        event reverb_room_size (float f)        { params.reverbRoomSize = f;        update(); }
         event reverb_damping_factor (float f)   { params.reverbDampingFactor = f;   update(); }
         event reverb_width (float f)            { params.reverbWidth = f;           update(); }
         event reverb_wet_level (float f)        { params.reverbWetLevel = f;        update(); }

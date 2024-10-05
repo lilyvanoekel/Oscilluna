@@ -43,6 +43,18 @@ export const BuildScreenFx = (
     ["slider", "\nSpread", 0, 5, "phaser_spread", [0.0, 1, 0.01]],
     ["slider", "\nCoef", 0, 6, "phaser_coef", [0.2, 0.8, 0.05]],
     ["slider", "\nAmount", 0, 7, "phaser_amount", [0.0, 1, 0.01]],
+
+    [
+      "radio",
+      ["Off", "Tiny", "Small", "Medium", "Large", "Hall"],
+      1,
+      0,
+      "reverb_mode",
+    ],
+    ["slider", "\nDamping", 1, 1, "reverb_damping_factor", [0, 100, 1]],
+    ["slider", "\nWidth", 1, 2, "reverb_width", [0, 100, 1]],
+    ["slider", "\nWet", 1, 3, "reverb_wet_level", [0, 100, 1]],
+    ["slider", "\nDry", 1, 4, "reverb_dry_level", [0, 100, 1]],
   ];
 
   const bb = [
@@ -131,9 +143,13 @@ export const BuildScreenFx = (
     if (!isVisible) {
       return;
     }
-    const bb = splitBoundingBoxHorizontal(8, getBoundingBoxTop());
-    renderTextInBoundingBox(ctx, bb[0], "Chorus");
-    renderTextInBoundingBox(ctx, bb[3], "Phaser");
+    const bb = [
+      splitBoundingBoxHorizontal(8, getBoundingBoxTop()),
+      splitBoundingBoxHorizontal(8, getBoundingBoxBottom()),
+    ];
+    renderTextInBoundingBox(ctx, bb[0][0], "Chorus");
+    renderTextInBoundingBox(ctx, bb[0][3], "Phaser");
+    renderTextInBoundingBox(ctx, bb[1][0], "Reverb");
   };
 
   return {
