@@ -17,7 +17,7 @@ namespace Synth
                 chorus.modDepthIn <- p.chorusDepth;
                 chorus.rateHzIn <- p.chorusRate;
                 chorus.wetDryMixIn <- p.chorusWetDryMix;
-                bypass_ = p.chorusBypass;
+                bypass_ = p.chorusMode == 0;
             }
 
             void main() {

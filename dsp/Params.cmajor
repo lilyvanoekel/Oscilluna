@@ -53,7 +53,7 @@ namespace Synth
         float filterModRelease;
         int filterRouting;
 
-        bool chorusBypass;
+        int chorusMode;
         float chorusRate;
         float chorusDepth;
         float chorusDelayTime;
@@ -72,8 +72,7 @@ namespace Synth
         int reverbMode;
         float reverbDampingFactor;
         float reverbWidth;
-        float reverbWetLevel;
-        float reverbDryLevel;
+        float reverbWetdrymix;
     }
 
     Params createParams()
@@ -131,7 +130,7 @@ namespace Synth
         p.filterModRelease = 0.1f;
         p.filterRouting = 0;
 
-        p.chorusBypass = true;
+        p.chorusMode = 0;
         p.chorusRate = 0.6f;
         p.chorusDepth = 0.35f;
         p.chorusDelayTime = 20.0f;
@@ -150,8 +149,7 @@ namespace Synth
         p.reverbMode = 0;
         p.reverbDampingFactor = 0.0f;
         p.reverbWidth = 0.0f;
-        p.reverbWetLevel = 0.0f;
-        p.reverbDryLevel = 0.0f;
+        p.reverbWetdrymix = 0.45f;
 
         return p;
     }
@@ -249,7 +247,7 @@ namespace Synth
         input event float osc2_fine     [[ name: "osc2_fine", min: -20, max: 20, init: 0, step: 1 ]];
 
         input event int fm_direction    [[ name: "fm_direction", min:0, max:2, init: 0, step: 1]];
-        input event float fm_depth      [[ name: "fm_depth", min: 0, max: 1, init: 0.5]];
+        input event float fm_depth      [[ name: "fm_depth", min: 0, max: 1, init: 0.25]];
 
         input event float osc1_wavefolding      [[ name: "osc1_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
         input event float osc2_wavefolding      [[ name: "osc2_wavefolding", min: 0.9, max: 2, init: 0, step: 0.1 ]];
@@ -282,29 +280,26 @@ namespace Synth
 
         input event int filter_routing          [[ name: "filter_routing", min: 0, max: 2, init: 1, text: "Parallel|A → B|B → A" ]];
 
-        input event bool chorus_enabled             [[ name: "chorus_enabled", boolean, init: false ]];
-        input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.6 ]];
-        input event float chorus_depth              [[ name: "chorus_depth", min: 0.0, max: 1.0, init: 0.35 ]];
+        input event int chorus_mode                 [[ name: "chorus_mode", min: 0, max: 1, init: 0, text: "Off|On" ]];
+        input event float chorus_rate               [[ name: "chorus_rate", min: 0.1, max: 5.0, init: 0.9 ]];
+        input event float chorus_depth              [[ name: "chorus_depth", min: 0.0, max: 1.0, init: 0.5 ]];
         input event float chorus_delay_time         [[ name: "chorus_delay_time", min: 5, max: 100, init: 20.0 ]];
-        
-        // @todo: feedback is still unstable, fix some time, or remove
-        // input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.0 ]];
-        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.5 ]];
+        input event float chorus_feedback           [[ name: "chorus_feedback", min: 0, max: 1, init: 0.25 ]];
+        input event float chorus_wetdrymix          [[ name: "chorus_wetdrymix", min: 0, max: 1, init: 0.6 ]];
 
         input event int phaser_mode                 [[ name: "phaser_mode", min: 0, max: 2, init: 0, text: "Off|4 Stage|8 Stage" ]];
         input event float phaser_rate               [[ name: "phaser_rate", min: 0.2, max: 2.0, init: 0.7 ]];
         input event float phaser_spread             [[ name: "phaser_spread", min: 0.0, max: 1.0, init: 0.0 ]];
         input event float phaser_coef               [[ name: "phaser_coef", min: 0.2, max: 0.8, init: 0.75 ]];
-        input event float phaser_depth              [[ name: "phaser_depth", min: 0.0, max: 1.0, init: 1.0 ]];
+        input event float phaser_depth              [[ name: "phaser_depth", min: 0.0, max: 1.0, init: 0.5 ]];
         input event float phaser_amount             [[ name: "phaser_amount", min: 0.0, max: 1.0, init: 1.0 ]];
         
         input event float brilliance                [[ name: "brilliance", min: 0.0, max: 1.0, init: 0.0 ]];
 
-        input event int reverb_mode                 [[ name: "rever_mode",      min: 0, max: 5, init: 0, text: "Off|Tiny|Small|Medium|Large|Hall" ]];
-        input event float reverb_damping_factor     [[ name: "Damping Factor",  min: 0, max: 100, init:  50, unit: "%",  step: 1 ]];
-        input event float reverb_width              [[ name: "Width",           min: 0, max: 100, init: 100, unit: "%",  step: 1 ]];
-        input event float reverb_wet_level          [[ name: "Wet Level",       min: 0, max: 100, init:  33, unit: "%",  step: 1 ]];
-        input event float reverb_dry_level          [[ name: "Dry Level",       min: 0, max: 100, init:  40, unit: "%",  step: 1 ]];
+        input event int reverb_mode                 [[ name: "rever_mode", min: 0, max: 5, init: 0, text: "Off|Tiny|Small|Medium|Large|Hall" ]];
+        input event float reverb_damping_factor     [[ name: "reverb_damping_factor", min: 0, max: 100, init:  50, unit: "%",  step: 1 ]];
+        input event float reverb_width              [[ name: "reverb_width", min: 0, max: 100, init: 100, unit: "%",  step: 1 ]];
+        input event float reverb_wetdrymix          [[ name: "reverb_wetdrymix", min: 0, max: 1, init: 0.45, step: 0.01 ]];
 
 
         output event Params paramsOut;
@@ -357,11 +352,11 @@ namespace Synth
         event filter_mod_sustain (float f)      { params.filterModSustain = f;      update(); }
         event filter_mod_release (float f)      { params.filterModRelease = f;      update(); }
         event filter_routing (int m)            { params.filterRouting = m;         update(); }
-        event chorus_enabled (bool b)           { params.chorusBypass = !b;         update(); }
+        event chorus_mode (int m)               { params.chorusMode = m;            update(); }
         event chorus_rate (float f)             { params.chorusRate = f;            update(); }
         event chorus_depth (float f)            { params.chorusDepth = f;           update(); }
         event chorus_delay_time (float f)       { params.chorusDelayTime = f;       update(); }
-        // event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
+        event chorus_feedback (float f)         { params.chorusFeedback = f;        update(); }
         event chorus_wetdrymix (float f)        { params.chorusWetDryMix = f;       update(); }
         event phaser_mode (int m)               { params.phaserMode = m;            update(); }
         event phaser_rate (float f)             { params.phaserRate = f;            update(); }
@@ -373,7 +368,6 @@ namespace Synth
         event reverb_mode (int m)               { params.reverbMode = m;            update(); }
         event reverb_damping_factor (float f)   { params.reverbDampingFactor = f;   update(); }
         event reverb_width (float f)            { params.reverbWidth = f;           update(); }
-        event reverb_wet_level (float f)        { params.reverbWetLevel = f;        update(); }
-        event reverb_dry_level (float f)        { params.reverbDryLevel = f;        update(); }
+        event reverb_wetdrymix (float f)        { params.reverbWetdrymix = f;       update(); }
     }
 }

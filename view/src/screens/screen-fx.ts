@@ -35,13 +35,13 @@ export const BuildScreenFx = (
 ) => {
   let isVisible = false;
   const elements: ScreenElement[] = [
-    ["radio", ["Off", "On"], 0, 0, "chorus_enabled"],
+    ["radio", ["Off", "On"], 0, 0, "chorus_mode"],
     ["slider", "\nRate", 0, 1, "chorus_rate", [0.1, 6, 0.01]],
     ["slider", "\nDepth", 0, 2, "chorus_depth", [0.0, 1, 0.01]],
-    ["radio", ["Off", "4 Stage", "8 Stage"], 0, 3, "phaser_mode"],
-    ["slider", "\nRate", 0, 4, "phaser_rate", [0.1, 2, 0.01]],
-    ["slider", "\nSpread", 0, 5, "phaser_spread", [0.0, 1, 0.01]],
-    ["slider", "\nCoef", 0, 6, "phaser_coef", [0.2, 0.8, 0.05]],
+    ["slider", "\nFeedback", 0, 3, "chorus_feedback", [0.0, 1, 0.01]],
+    ["radio", ["Off", "4 Stage", "8 Stage"], 0, 4, "phaser_mode"],
+    ["slider", "\nRate", 0, 5, "phaser_rate", [0.1, 2, 0.01]],
+    ["slider", "\nSpread", 0, 6, "phaser_spread", [0.0, 1, 0.01]],
     ["slider", "\nAmount", 0, 7, "phaser_amount", [0.0, 1, 0.01]],
 
     [
@@ -53,8 +53,7 @@ export const BuildScreenFx = (
     ],
     ["slider", "\nDamping", 1, 1, "reverb_damping_factor", [0, 100, 1]],
     ["slider", "\nWidth", 1, 2, "reverb_width", [0, 100, 1]],
-    ["slider", "\nWet", 1, 3, "reverb_wet_level", [0, 100, 1]],
-    ["slider", "\nDry", 1, 4, "reverb_dry_level", [0, 100, 1]],
+    ["slider", "\nDry/Wet", 1, 3, "reverb_wetdrymix", [0, 1, 0.01]],
   ];
 
   const bb = [
@@ -148,7 +147,7 @@ export const BuildScreenFx = (
       splitBoundingBoxHorizontal(8, getBoundingBoxBottom()),
     ];
     renderTextInBoundingBox(ctx, bb[0][0], "Chorus");
-    renderTextInBoundingBox(ctx, bb[0][3], "Phaser");
+    renderTextInBoundingBox(ctx, bb[0][4], "Phaser");
     renderTextInBoundingBox(ctx, bb[1][0], "Reverb");
   };
 

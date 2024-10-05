@@ -25,10 +25,10 @@ namespace Common
         }
         
         event modDepthIn(float f) {
-            delay1.modDepthIn <- f * 0.85f / 50.0f;
-            delay2.modDepthIn <- f * 1.15f / 50.0f;
-            delay3.modDepthIn <- f * 1.04f / 50.0f;
-            delay4.modDepthIn <- f * 0.92f / 50.0f;
+            delay1.modDepthIn <- f * 0.85f / 35.0f;
+            delay2.modDepthIn <- f * 1.15f / 35.0f;
+            delay3.modDepthIn <- f * 1.04f / 35.0f;
+            delay4.modDepthIn <- f * 0.92f / 35.0f;
         }
 
         event rateHzIn(float f) {
