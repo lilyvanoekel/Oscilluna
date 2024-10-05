@@ -45,7 +45,7 @@ The view is a simple Vite app. The `dist` folder is committed to source control 
 
 ### Cmajor / Oscilluna
 
-Building Oscilluna should be the same as any other [Cmajor](https://cmajor.dev/) project. You should be able to find instructions on their [website](https://cmajor.dev/) or [github](https://github.com/cmajor-lang/cmajor) on how to perform these steps for your environment. As view comes prebuilt, no other dependencies should be needed.
+Building Oscilluna should be the same as any other [Cmajor](https://cmajor.dev/) project. You should be able to find instructions on their [website](https://cmajor.dev/) or [github](https://github.com/cmajor-lang/cmajor) on how to perform these steps for your environment. As the view comes prebuilt, no other dependencies should be needed.
 
 A few options are, using Cmajor tools to:
 
