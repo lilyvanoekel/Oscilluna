@@ -68,6 +68,13 @@ namespace Synth
         float phaserAmount;
 
         float brilliance;
+
+        int reverbMode;
+        float reverbRoomSize;
+        float reverbDampingFactor;
+        float reverbWidth;
+        float reverbWetLevel;
+        float reverbDryLevel;
     }
 
     Params createParams()
@@ -140,6 +147,13 @@ namespace Synth
         p.phaserAmount = 1.0f;
 
         p.brilliance = 0.0f;
+
+        p.reverbMode = 0;
+        p.reverbRoomSize = 0.0f;
+        p.reverbDampingFactor = 0.0f;
+        p.reverbWidth = 0.0f;
+        p.reverbWetLevel = 0.0f;
+        p.reverbDryLevel = 0.0f;
 
         return p;
     }
@@ -289,6 +303,14 @@ namespace Synth
         input event float brilliance                [[ name: "brilliance", min: 0.0, max: 1.0, init: 0.0 ]];
 
 
+        input event int reverb_mode                 [[ name: "rever_mode",      min: 0, max: 1, init: 0, text: "Off|On" ]];
+        input event float reverb_room_size          [[ name: "Room Size",       min: 0, max: 100, init:  60, text: "Tiny|Small|Medium|Large|Hall" ]];
+        input event float reverb_damping_factor     [[ name: "Damping Factor",  min: 0, max: 100, init:  50, unit: "%",  step: 1 ]];
+        input event float reverb_width              [[ name: "Width",           min: 0, max: 100, init: 100, unit: "%",  step: 1 ]];
+        input event float reverb_wet_level          [[ name: "Wet Level",       min: 0, max: 100, init:  33, unit: "%",  step: 1 ]];
+        input event float reverb_dry_level          [[ name: "Dry Level",       min: 0, max: 100, init:  40, unit: "%",  step: 1 ]];
+
+
         output event Params paramsOut;
 
         Params params = createParams();
@@ -352,5 +374,11 @@ namespace Synth
         event phaser_depth (float f)            { params.phaserDepth = f;           update(); }
         event phaser_amount (float f)           { params.phaserAmount = f;          update(); }
         event brilliance(float f)               { params.brilliance = f;            update(); }
+        event reverb_mode (int m)               { params.reverbMode = m;            update(); }
+        event reverb_room_size (float f)        { params.reverbRoomSize = f;        update(); }
+        event reverb_damping_factor (float f)   { params.reverbDampingFactor = f;   update(); }
+        event reverb_width (float f)            { params.reverbWidth = f;           update(); }
+        event reverb_wet_level (float f)        { params.reverbWetLevel = f;        update(); }
+        event reverb_dry_level (float f)        { params.reverbDryLevel = f;        update(); }
     }
 }

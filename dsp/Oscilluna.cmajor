@@ -25,6 +25,7 @@ namespace Synth
             gainLimiter = std::levels::ConstantGain (float, 0.2f);
             chorus = Controllers::Chorus;
             phaser = Controllers::Phaser;
+            reverb = Controllers::Reverb;
         }
     
         connection
@@ -35,6 +36,7 @@ namespace Synth
             paramsProcessor.paramsOut -> paramSplitter.paramsIn;
             paramsProcessor.paramsOut -> chorus.paramsIn;
             paramsProcessor.paramsOut -> phaser.paramsIn;
+            paramsProcessor.paramsOut -> reverb.paramsIn;
 
             paramSplitter.osc1VibratoRate -> vibratoLfo1.rateHzIn;
             paramSplitter.osc2VibratoRate -> vibratoLfo2.rateHzIn;
@@ -51,7 +53,8 @@ namespace Synth
             voices -> phaser.in;
             phaser -> gainLimiter;
             gainLimiter -> chorus.in;
-            chorus -> Common::StereoLimiter -> out;
+            chorus -> Common::StereoLimiter -> reverb.in;
+            reverb -> out;
         }
     }
 }

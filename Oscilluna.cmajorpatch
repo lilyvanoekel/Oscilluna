@@ -27,12 +27,14 @@
     "dsp/Common/Filters.cmajor",
     "dsp/Common/Limiter.cmajor",
     "dsp/Common/Brilliance.cmajor",
+    "dsp/External/Freeverb.cmajor",
     "dsp/Voice.cmajor",
     "dsp/Controllers/OscillatorsController.cmajor",
     "dsp/Controllers/VoiceController.cmajor",
     "dsp/Controllers/ChorusController.cmajor",
     "dsp/Controllers/FilterController.cmajor",
     "dsp/Controllers/PhaserController.cmajor",
+    "dsp/Controllers/ReverbController.cmajor",
     "dsp/Oscilluna.cmajor"
   ],
   "view": {

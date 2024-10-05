@@ -55,6 +55,19 @@ namespace Util
         }
     }
 
+    processor VectorToDualStream {
+        input stream float<2> in;
+        output stream float left, right;
+
+        void main() {
+            loop {
+                left <- in[0];
+                right <- in[1];
+                advance();
+            }
+        }
+    }
+
     processor Mul(float32 m = 1.01f)
     {
         input event float32 in;

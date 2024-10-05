@@ -2,6 +2,8 @@ namespace Synth
 {
     namespace Controllers
     {
+        // @todo: this processor is a nightmare of branching, can't be good for performance
+        // Unclear how to fix at the moment, as the usual avenues are unavailable.
         processor Filter {
             input stream float in;
             output stream float out;
