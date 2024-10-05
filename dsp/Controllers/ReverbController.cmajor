@@ -13,8 +13,8 @@ namespace Synth
 
             event paramsIn(Params p) {
                 freeverb.roomSize <- max(0.0f, (p.reverbMode - 1) * 20.0f);
-                freeverb.damping <- p.reverbDampingFactor;
-                freeverb.width <- p.reverbWidth;
+                freeverb.damping <- p.reverbDampingFactor * 100.0f;
+                freeverb.width <- p.reverbWidth * 100.0f;
                 freeverb.wetLevel <- p.reverbWetdrymix * 100.0f;
                 freeverb.dryLevel <- 100.0f - p.reverbWetdrymix * 100.0f;
                 bypass_ = p.reverbMode == 0;

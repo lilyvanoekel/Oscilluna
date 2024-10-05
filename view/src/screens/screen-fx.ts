@@ -51,8 +51,8 @@ export const BuildScreenFx = (
       0,
       "reverb_mode",
     ],
-    ["slider", "\nDamping", 1, 1, "reverb_damping_factor", [0, 100, 1]],
-    ["slider", "\nWidth", 1, 2, "reverb_width", [0, 100, 1]],
+    ["slider", "\nDamping", 1, 1, "reverb_damping_factor", [0, 1, 0.01]],
+    ["slider", "\nWidth", 1, 2, "reverb_width", [0, 1, 0.01]],
     ["slider", "\nDry/Wet", 1, 3, "reverb_wetdrymix", [0, 1, 0.01]],
   ];
 

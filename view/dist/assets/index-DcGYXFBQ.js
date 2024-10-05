@@ -4335,8 +4335,8 @@ Feedback`,0,3,"chorus_feedback",[0,1,.01]],["radio",["Off","4 Stage","8 Stage"],
 Rate`,0,5,"phaser_rate",[.1,2,.01]],["slider",`
 Spread`,0,6,"phaser_spread",[0,1,.01]],["slider",`
 Amount`,0,7,"phaser_amount",[0,1,.01]],["radio",["Off","Tiny","Small","Medium","Large","Hall"],1,0,"reverb_mode"],["slider",`
-Damping`,1,1,"reverb_damping_factor",[0,100,1]],["slider",`
-Width`,1,2,"reverb_width",[0,100,1]],["slider",`
+Damping`,1,1,"reverb_damping_factor",[0,1,.01]],["slider",`
+Width`,1,2,"reverb_width",[0,1,.01]],["slider",`
 Dry/Wet`,1,3,"reverb_wetdrymix",[0,1,.01]]],l=[mt(8,r()),mt(8,s())],c=[],u=[],f={};for(const[_,g,h,d,T,x]of a)if(_==="slider"){const[E,B,R,A=ys,O=ys]=x,y=Cn(g,e,t,n,l[h][d],S=>{i==null||i.sendEventOrValue(T,A(S)),i==null||i.requestParameterValue(T)},0,E,B,R,!1);c.push([y,h,d]),f[T]=[y,O]}else if(_==="radio"){const E=Qn(g,e,n,l[h][d],B=>{i==null||i.sendEventOrValue(T,B),i==null||i.requestParameterValue(T)},0,!0,!1);u.push([E,h,d]),f[T]=[E,ys]}const p=({endpointID:_,value:g})=>{if(!f[_])return;const[h,d]=f[_];h.setValue(d(g))};i==null||i.addAllParameterListener(p);for(const[_,g,h,d,T,x]of a)i==null||i.requestParameterValue(T);const m=()=>{if(!o)return;const _=[mt(8,r()),mt(8,s())];Wt(n,_[0][0],"Chorus"),Wt(n,_[0][4],"Phaser"),Wt(n,_[1][0],"Reverb")};return{resize:()=>{const _=[mt(8,r()),mt(8,s())];for(const[g,h,d]of c)g.setBoundingBox(_[h][d]);for(const[g,h,d]of u)g.setBoundingBox(_[h][d])},setVisible:_=>{o=_;for(const[g]of c)g.setVisible(_);for(const[g]of u)g.setVisible(_);m()},canvasDraw:()=>{for(const[_]of c)_.draw();for(const[_]of u)_.draw();m()}}},Lo=(i,e,t,n,r,s)=>{let o=!1,a=!0,l=!0,c={type:0,cutoff:0,resonance:0,keytracking:0};const u=mt(4,n),f=Qn(["Off","LP 1","LP 2"],i,t,u[0],d=>{s({...c,type:d})},0,!0,!1),p=Cn(`
 KeyTrack`,i,e,t,u[1],d=>{s({...c,keytracking:d})},0,0,1,.01,!1),m=Cn(`
 Cutoff`,i,e,t,u[2],d=>{s({...c,cutoff:d})},0,440,18e3,1,!1),_=Cn(`

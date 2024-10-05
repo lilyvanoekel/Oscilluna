@@ -297,8 +297,8 @@ namespace Synth
         input event float brilliance                [[ name: "brilliance", min: 0.0, max: 1.0, init: 0.0 ]];
 
         input event int reverb_mode                 [[ name: "rever_mode", min: 0, max: 5, init: 0, text: "Off|Tiny|Small|Medium|Large|Hall" ]];
-        input event float reverb_damping_factor     [[ name: "reverb_damping_factor", min: 0, max: 100, init:  50, unit: "%",  step: 1 ]];
-        input event float reverb_width              [[ name: "reverb_width", min: 0, max: 100, init: 100, unit: "%",  step: 1 ]];
+        input event float reverb_damping_factor     [[ name: "reverb_damping_factor", min: 0, max: 1, init: 0.5, step: 0.01 ]];
+        input event float reverb_width              [[ name: "reverb_width", min: 0, max: 1, init: 1, step: 0.01 ]];
         input event float reverb_wetdrymix          [[ name: "reverb_wetdrymix", min: 0, max: 1, init: 0.45, step: 0.01 ]];
 
 
