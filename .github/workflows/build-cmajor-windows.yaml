@@ -1,0 +1,35 @@
+name: Build Cmajor Tools on Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+      - name: Checkout Cmajor
+        uses: actions/checkout@v4
+        with:
+          repository: cmajor-lang/cmajor
+          path: cmajor
+          fetch-depth: 1
+
+      - name: Convert submodule URLs from SSH to HTTPS and init
+        if: steps.cmajor-cache.outputs.cache-hit != 'true'
+        run: |
+          cd cmajor
+          git submodule deinit -f .
+          git config --global url."https://github.com/".insteadOf git@github.com:
+          git submodule update --init --recursive --depth 1
+
+      - name: Build Cmajor
+        run: |
+          cd cmajor
+          cmake -Bbuild -G "Visual Studio 16 2019" -A x64 .
+          cmake --build build --config Release
+
+      - name: Upload Cmajor Executable as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cmaj-executable
+          path: ./cmajor/build/tools/command/Release/cmaj.exe

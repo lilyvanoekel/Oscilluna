@@ -7,37 +7,15 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2019
 
     steps:
       - name: Checkout Cmajor
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: cmajor-lang/cmajor
           path: cmajor
           fetch-depth: 1
-
-      - name: Cache Cmajor Build
-        id: cmajor-cache
-        uses: actions/cache@v3
-        with:
-          path: cmajor/build
-          key: cmajor-build-${{ hashFiles('cmajor/**/CMakeLists.txt') }}-4
-
-      - name: Convert submodule URLs from SSH to HTTPS
-        if: steps.cmajor-cache.outputs.cache-hit != 'true'
-        run: |
-          cd cmajor
-          git submodule deinit -f .
-          git config --global url."https://github.com/".insteadOf git@github.com:
-          git submodule update --init --recursive --depth 1
-
-      - name: Build Cmajor if cache misses
-        if: steps.cmajor-cache.outputs.cache-hit != 'true'
-        run: |
-          cd cmajor
-          cmake -Bbuild -G "Visual Studio 17 2022" -A x64 .
-          cmake --build build --config Release
 
       - name: Initialize choc
         run: |
@@ -45,20 +23,65 @@ jobs:
           git config --global url."https://github.com/".insteadOf git@github.com:
           git submodule update --init --recursive --depth 1 -- include/choc
 
+      - name: Download Artifacts
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-cmajor-windows.yaml
+          name: cmaj-executable
+          path: ./cmajor/build/tools/command/Release
+
       - name: Checkout current repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: src
 
       - name: Checkout CLAP
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: free-audio/clap
           path: clap
           fetch-depth: 1
 
+      # Juce builds a VST3 and stand-alone exe "successfully" but:
+      # - The VST3 is broken and doesn't show the gui, locally compiled VST3 does work. This should be solvable with some time and effort.
+      # - The exe is built without asio support and as windows audio is broken the resulting latency makes it unusable. Due to licensing BS this is unsolvable.
+      # Leaving the JUCE steps commented out for now.
+
+      # - name: Checkout JUCE
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: juce-framework/JUCE
+      #     path: juce
+      #     fetch-depth: 1
+
+      - name: Set Corrected Current Directory Path
+        shell: powershell
+        run: |
+          $currentDir = (Get-Location).Path -replace '\\', '/'
+          echo "CURRENT_DIR=$currentDir" >> $env:GITHUB_ENV
+
+      # - name: Set JUCE environment variable
+      #   run: echo "JUCE_PATH=${{ env.CURRENT_DIR }}/juce" >> $GITHUB_ENV
+
       - name: Generate CLAP Plugin
         run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=clap --output=${{ github.workspace }}\\oscilluna-clap --clapIncludePath=${{ github.workspace }}\\clap\\include --cmajorIncludePath=${{ github.workspace }}\\cmajor\\include ${{ github.workspace }}\\src\\Oscilluna.cmajorpatch
+
+      - name: Generate Web Assembly
+        run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=webaudio-html --output=${{ github.workspace }}\\oscilluna-web --cmajorIncludePath=${{ github.workspace }}\\cmajor\\include ${{ github.workspace }}\\src\\Oscilluna.cmajorpatch
+
+      - name: Zip folder
+        run: |
+          Compress-Archive -Path ./oscilluna-web -DestinationPath ./oscilluna-web.zip
+
+      # - name: Generate Juce
+      #   run: ./cmajor/build/tools/command/Release/cmaj.exe generate --target=juce --output=./oscilluna-juce --cmajorIncludePath=${{ env.CURRENT_DIR }}/cmajor/include ./src/Oscilluna.cmajorpatch
+
+      # - name: Directory Tree for oscilluna-web
+      #   shell: pwsh
+      #   run: |
+      #     Get-ChildItem -Recurse oscilluna-web | Out-File -FilePath oscilluna-web-tree.txt
+      #     Get-Content oscilluna-web-tree.txt
 
       - name: Build CLAP plugin
         run: |
@@ -66,10 +89,18 @@ jobs:
           cmake -B build -DCLAP_INCLUDE_PATH="${{ github.workspace }}\\clap\\include" -DCMAKE_BUILD_TYPE=Release
           cmake --build build --config Release
 
+      # - name: Build JUCE
+      #   run: |
+      #     cd oscilluna-juce
+      #     cmake -B build -DJUCE_PATH="${{ env.CURRENT_DIR }}/juce" -DCMAKE_BUILD_TYPE=Release
+      #     cmake --build build --config Release
+
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
-          files: oscilluna-clap/build/Release/Oscilluna.clap
+          files: |
+            oscilluna-clap/build/Release/Oscilluna.clap
+            oscilluna-web.zip
           tag_name: ${{ github.ref_name }}
-          name: Oscilluna CLAP Plugin (Windows) - ${{ github.ref_name }}"
+          name: Oscilluna CLAP Plugin (Windows) - ${{ github.ref_name }}
           prerelease: false
