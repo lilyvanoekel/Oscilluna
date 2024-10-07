@@ -35,7 +35,6 @@ namespace Common
             sustainLevel = max(minimumLevel, sustain);
         }
 
-        // @todo: fix issue with long release times and plops
         event release (float release) {
             releaseSeconds = max(0.01f, release);
         }
@@ -79,7 +78,7 @@ namespace Common
 
                 // Attack
                 int32 attackSamples = int32(attackSeconds * float32(processor.frequency));
-                currentLevel = minimumLevel;
+                currentLevel = max(minimumLevel, currentLevel);
                 float target = keyDownVelocity;
                 float stepSize = 0.0f;
                 
@@ -137,7 +136,7 @@ namespace Common
                     advance();
                 }
 
-                gainOut <- 0;
+                gainOut <- currentLevel;
                 advance();
             }
         }
