@@ -16,8 +16,9 @@ It is coded using [Cmajor](https://cmajor.dev/) for audio/DSP, and TypeScript fo
 
 To use the synthesizer there are a few options.
 
+- The quickest way is to use the web version on the [demo page](https://lilyvanoekel.github.io/Oscilluna/demo.html).
 - If you want to use it as a plugin have a look at the installation steps below.
-- If you just want to noodle with it you can:
+- If you want to noodle with it in VSCode:
   - Check out the repo.
   - Install `cmajor tools` in VSCode.
   - Press `Ctrl-Shift-P` / `Cmd+Shift+P`.
