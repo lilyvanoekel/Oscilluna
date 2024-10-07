@@ -10,7 +10,7 @@ It is coded using [Cmajor](https://cmajor.dev/) for audio/DSP, and TypeScript fo
 
 ### Example
 
-<img src="assets/oscilluna.gif" alt="Usage example" width="400">
+<img src="meta/oscilluna.gif" alt="Usage example" width="400">
 
 ### Steps
 

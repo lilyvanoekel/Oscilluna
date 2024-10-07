@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Oscilluna</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href=".">Home</a></li>
+          <li><a href="demo.html">Try It!</a></li>
+          <li>
+            <a href="https://github.com/lilyvanoekel/Oscilluna/">Github</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <section style="position: relative">
+      <h1>Oscilluna - Web Demo</h1>
+      <button id="cmaj-reset-button">Stop Audio</button>
+    </section>
+
+    <div id="cmaj-main">
+      <div id="cmaj-view-container"></div>
+      <div id="cmaj-overlay">
+        <div id="cmaj-info">
+          <span id="cmaj-click-to-start">- Click to Start -</span>
+        </div>
+      </div>
+    </div>
+  </body>
+
+  <script type="module">
+    import * as patch from "./cmaj_Oscilluna.js";
+    import { createPatchViewHolder } from "./cmaj_api/cmaj-patch-view.js";
+    import PianoKeyboard from "./cmaj_api/cmaj-piano-keyboard.js";
+
+    customElements.define("cmaj-panel-piano-keyboard", PianoKeyboard);
+
+    let keyboard = null;
+
+    function removePianoKeyboard(connection) {
+      if (keyboard) {
+        const main = document.getElementById("cmaj-main");
+        main.removeChild(keyboard);
+
+        keyboard.detachPatchConnection(connection);
+        keyboard = null;
+      }
+    }
+
+    function getMIDIInputEndpointID(connection) {
+      for (const i of connection.inputEndpoints)
+        if (i.purpose === "midi in") return i.endpointID;
+    }
+
+    function createPianoKeyboard(connection) {
+      removePianoKeyboard(connection);
+
+      const midiInputEndpointID = getMIDIInputEndpointID(connection);
+
+      if (midiInputEndpointID) {
+        const main = document.getElementById("cmaj-main");
+        keyboard = new PianoKeyboard();
+        keyboard.classList.add("cmaj-piano-keyboard");
+        main.appendChild(keyboard);
+
+        keyboard.attachToPatchConnection(connection, midiInputEndpointID);
+      }
+    }
+
+    //==============================================================================
+    async function loadPatch() {
+      const audioContext = new AudioContext();
+      audioContext.suspend();
+      const connection = await patch.createAudioWorkletNodePatchConnection(
+        audioContext,
+        "cmaj-worklet-processor"
+      );
+
+      const viewContainer = document.getElementById("cmaj-view-container");
+      const startOverlay = document.getElementById("cmaj-overlay");
+      const resetButton = document.getElementById("cmaj-reset-button");
+
+      viewContainer.innerHTML = "";
+
+      const view = await createPatchViewHolder(connection);
+
+      if (view) viewContainer.appendChild(view);
+
+      resetButton.onclick = () => {
+        removePianoKeyboard(connection);
+        audioContext?.close();
+        connection?.close?.();
+
+        viewContainer.innerHTML = "";
+        viewContainer.style.transform = "none";
+        startOverlay.style.display = "flex";
+        resetButton.style.display = "none";
+
+        loadPatch();
+      };
+
+      startOverlay.onclick = () => {
+        startOverlay.style.display = "none";
+        resetButton.style.display = "block";
+        connection.connectDefaultAudioAndMIDI(audioContext);
+        audioContext.resume();
+
+        if (connection?.manifest?.isInstrument && !view.hasOnscreenKeyboard)
+          createPianoKeyboard(connection);
+      };
+
+      document.getElementById("cmaj-click-to-start").style.opacity = 1.0;
+    }
+
+    loadPatch();
+  </script>
+</html>
