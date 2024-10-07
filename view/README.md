@@ -13,3 +13,7 @@ This is the UI of the synthesizer. It's a vite app build in typescript, mainly a
 - Communication with the DSP code happens through the `patchConnection` object.
   - [Documentation](https://cmajor.dev/docs/PatchFormat#the-patchconnection-object)
   - An incomplete mock is available when running in development mode, outside of the context of Cmajor, in `view/src/mock-patch-connection.ts`.
+
+## Current State
+
+The view is in a bit of a state and could use a refactor and better test coverage. This should be judged as a creative endeavour first, and technical project second.
