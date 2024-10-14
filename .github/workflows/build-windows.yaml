@@ -102,5 +102,5 @@ jobs:
             oscilluna-clap/build/Release/Oscilluna.clap
             oscilluna-web.zip
           tag_name: ${{ github.ref_name }}
-          name: Oscilluna CLAP Plugin (Windows) - ${{ github.ref_name }}
+          name: Oscilluna (Windows) - ${{ github.ref_name }}
           prerelease: false

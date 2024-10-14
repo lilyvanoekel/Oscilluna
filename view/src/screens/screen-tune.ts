@@ -37,14 +37,12 @@ export const BuildScreenTune = (
     ["slider", "Vibrato\nSpeed", 0, 4, "osc1_vibrato_rate", [0.5, 10, 0.01]],
     ["radio", ["No FM", "1 → 2", "2 → 1"], 0, 5, "fm_direction"],
     ["slider", "FM\nDepth", 0, 6, "fm_depth", [0, 1, 0.01]],
-    ["slider", "Self\nFM", 0, 7, "osc1_feedback_fm", [0, 1, 0.01]],
 
     ["slider", "Output\nLevel", 1, 0, "osc2_level", [0, 1, 0.01]],
     ["slider", "Course\nTune", 1, 1, "osc2_coarse", [-2, 2, 1]],
     ["slider", "Fine\nTune", 1, 2, "osc2_fine", [-20, 20, 1]],
     ["slider", "Vibrato\nDepth", 1, 3, "osc2_vibrato_depth", [0, 1, 0.01]],
     ["slider", "Vibrato\nSpeed", 1, 4, "osc2_vibrato_rate", [0.5, 10, 0.01]],
-    ["slider", "Self\nFM", 1, 5, "osc2_feedback_fm", [0, 1, 0.01]],
   ];
 
   const bb = [

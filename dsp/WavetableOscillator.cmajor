@@ -6,7 +6,7 @@ namespace Synth
         input event float[] wavetableIn;
         input stream float gainIn;
         input stream float fmIn;
-        input event float feedbackFmDepthIn;
+        input stream float fmExpIn;
         output stream float out;
 
         float64 phase = 0.0f;
@@ -18,35 +18,33 @@ namespace Synth
         float prevSample = 0.0f;
         float prevPrevSample = 0.0f;
         float feedbackFmDepth = 0.0f;
+        float invSampleRate = 1.0f / float(processor.frequency);
         int indexOffset;
 
         event frequencyIn (float f)
         {
             freq = f;
             wavetableIndex = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
-            phaseIncrement = freq * (float(TABLE_SIZE) / float(processor.frequency));
             indexOffset = wavetableIndex * TABLE_SIZE;
         }
 
         event wavetableIn (float[] newTable)    { wavetable = newTable; }
-        event feedbackFmDepthIn (float f)       { feedbackFmDepth = f;  }
 
         void main()
         {
             float tableSizeFloat = float(TABLE_SIZE);
             float maxFmIndex = tableSizeFloat * 0.05f;
-            float maxFmFeedbackIndex = tableSizeFloat * 0.0005f;
-
+            float maxExpFmIndex = 0.01f;
+ 
             let referenceSampleRate = 44100.0f;
             let fmAdjust = (referenceSampleRate / float(processor.frequency));
             
             loop
             {
-                float64 localPhase = phase;
-
+                let freqMod = freq * fmExpIn * maxExpFmIndex;
+                phaseIncrement = (freq + freqMod) * (float(TABLE_SIZE) * invSampleRate);
                 phase += phaseIncrement;
                 phase += (fmIn + prevfmIn) * maxFmIndex * fmAdjust;
-                phase -= (prevSample + prevPrevSample) * maxFmFeedbackIndex * feedbackFmDepth * fmAdjust;
                 prevfmIn = fmIn;
                 
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
