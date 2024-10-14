@@ -34,29 +34,29 @@ namespace Synth
         void main()
         {
             float tableSizeFloat = float(TABLE_SIZE);
-            float maxFmIndex = tableSizeFloat * 2.0f;
-            float maxFmFeedbackIndex = tableSizeFloat * 0.2f;
+            float maxFmIndex = tableSizeFloat * 0.05f;
+            float maxFmFeedbackIndex = tableSizeFloat * 0.0005f;
+
+            let referenceSampleRate = 44100.0f;
+            let fmAdjust = (referenceSampleRate / float(processor.frequency));
             
             loop
             {
                 float64 localPhase = phase;
-                
-                localPhase += (0.5 * (fmIn + prevfmIn) * maxFmIndex);
-                localPhase += (0.5f * (prevSample + prevPrevSample)) * feedbackFmDepth * maxFmFeedbackIndex;
+
+                phase += phaseIncrement;
+                phase += (fmIn + prevfmIn) * maxFmIndex * fmAdjust;
+                phase -= (prevSample + prevPrevSample) * maxFmFeedbackIndex * feedbackFmDepth * fmAdjust;
                 prevfmIn = fmIn;
                 
-                phase += phaseIncrement;
-
-                // Wrap phase to stay within the bounds of the wavetable
-                localPhase -= floor(localPhase / tableSizeFloat) * tableSizeFloat;
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
                 
-                let index = wrap<TABLE_SIZE>(int32(localPhase));
+                let index = wrap<TABLE_SIZE>(int32(phase));
                 let nextIndex = wrap<TABLE_SIZE>(index + 1);
                 let prevIndex = wrap<TABLE_SIZE>(index - 1);
                 let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
                 
-                float frac = float(localPhase) - float(index);
+                float frac = float(phase) - float(index);
                 
                 // Fetch the four points needed for the interpolation
                 float value0 = wavetable[indexOffset + prevIndex];
