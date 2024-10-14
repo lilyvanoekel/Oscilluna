@@ -32,6 +32,7 @@ namespace Synth
             int filterRouting = 0;
             int modMode = 0;
             float depth = 0.0f;
+            float previousModSample = 0.0f;
 
             event cutoff1(float f) { 
                 filter1lp1.cutoff <- f;
@@ -81,10 +82,12 @@ namespace Synth
                     adsr.advance();
                 } else if (modMode == 4) {
                     // @todo: look into
-                    modSample = osc1 * 2.5f * depth;
+                    modSample = (previousModSample + (osc1 * 2.5f * depth)) * 0.5f;
+                    previousModSample = modSample;
                 } else if (modMode == 5) {
                     // @todo: look into
-                    modSample = osc2 * 2.5f * depth;
+                    modSample = (previousModSample + (osc2 * 2.5f * depth)) * 0.5f;
+                    previousModSample = modSample;
                 } else if (modMode == 1) {
                     modSample = lfo.out * depth;
                     lfo.advance();

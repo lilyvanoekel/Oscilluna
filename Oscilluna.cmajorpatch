@@ -1,7 +1,7 @@
 {
   "CmajorVersion": 1,
   "ID": "com.lily.oscilluna",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "Oscilluna",
   "description": "Oscilluna is a creative synthesizer that lets you draw custom waveshapes.",
   "category": "generator",

@@ -6,7 +6,7 @@ namespace Synth
         input event float[] wavetableIn;
         input stream float gainIn;
         input stream float fmIn;
-        input event float feedbackFmDepthIn;
+        input stream float fmExpIn;
         output stream float out;
 
         float64 phase = 0.0f;
@@ -18,45 +18,43 @@ namespace Synth
         float prevSample = 0.0f;
         float prevPrevSample = 0.0f;
         float feedbackFmDepth = 0.0f;
+        float invSampleRate = 1.0f / float(processor.frequency);
         int indexOffset;
 
         event frequencyIn (float f)
         {
             freq = f;
             wavetableIndex = Util::frequency_to_wavetable_index(freq, WAVETABLE_BUCKETS_MIN_FREQUENCY, WAVETABLE_BUCKETS_MAX_FREQUENCY, WAVETABLE_NUM_BUCKETS);
-            phaseIncrement = freq * (float(TABLE_SIZE) / float(processor.frequency));
             indexOffset = wavetableIndex * TABLE_SIZE;
         }
 
         event wavetableIn (float[] newTable)    { wavetable = newTable; }
-        event feedbackFmDepthIn (float f)       { feedbackFmDepth = f;  }
 
         void main()
         {
             float tableSizeFloat = float(TABLE_SIZE);
-            float maxFmIndex = tableSizeFloat * 2.0f;
-            float maxFmFeedbackIndex = tableSizeFloat * 0.2f;
+            float maxFmIndex = tableSizeFloat * 0.05f;
+            float maxExpFmIndex = 0.01f;
+ 
+            let referenceSampleRate = 44100.0f;
+            let fmAdjust = (referenceSampleRate / float(processor.frequency));
             
             loop
             {
-                float64 localPhase = phase;
-                
-                localPhase += (0.5 * (fmIn + prevfmIn) * maxFmIndex);
-                localPhase += (0.5f * (prevSample + prevPrevSample)) * feedbackFmDepth * maxFmFeedbackIndex;
+                let freqMod = freq * fmExpIn * maxExpFmIndex;
+                phaseIncrement = (freq + freqMod) * (float(TABLE_SIZE) * invSampleRate);
+                phase += phaseIncrement;
+                phase += (fmIn + prevfmIn) * maxFmIndex * fmAdjust;
                 prevfmIn = fmIn;
                 
-                phase += phaseIncrement;
-
-                // Wrap phase to stay within the bounds of the wavetable
-                localPhase -= floor(localPhase / tableSizeFloat) * tableSizeFloat;
                 phase -= floor(phase / tableSizeFloat) * tableSizeFloat;
                 
-                let index = wrap<TABLE_SIZE>(int32(localPhase));
+                let index = wrap<TABLE_SIZE>(int32(phase));
                 let nextIndex = wrap<TABLE_SIZE>(index + 1);
                 let prevIndex = wrap<TABLE_SIZE>(index - 1);
                 let nextNextIndex = wrap<TABLE_SIZE>(index + 2);
                 
-                float frac = float(localPhase) - float(index);
+                float frac = float(phase) - float(index);
                 
                 // Fetch the four points needed for the interpolation
                 float value0 = wavetable[indexOffset + prevIndex];

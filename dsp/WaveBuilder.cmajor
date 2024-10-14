@@ -58,7 +58,7 @@ namespace Synth
                 }
             }
 
-            let nyquistFrequency = processor.frequency / 2.0f;
+            let nyquistFrequency = (processor.frequency / 2.0f) * 0.9f;
             int halfTableSize = TABLE_SIZE / 2.0f;
             for (wrap<WAVETABLE_NUM_BUCKETS> i)
             {
